@@ -1,0 +1,48 @@
+version: "3.9"
+services:
+  server:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: server-runner
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-nimazasinich}/dcs-server:latest
+    environment:
+      NODE_ENV: production
+      PORT: 8000
+      # Optional envs (override in your host/CI secrets)
+      HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY:-}
+      REDIS_URL: ${REDIS_URL:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/status/health"]
+      interval: 20s
+      timeout: 3s
+      retries: 10
+  client:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: client-static
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-nimazasinich}/dcs-client:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 10
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    restart: unless-stopped

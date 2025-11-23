@@ -1,0 +1,799 @@
+{
+  "auditDate": "2025-11-07",
+  "mode": "code_analysis_only",
+  "startup": {
+    "backendEntry": "src/server-real-data.ts",
+    "frontendEntry": "src/main.tsx",
+    "ports": {
+      "api": 3001,
+      "ui": 5173
+    },
+    "middleware": [
+      "cors()",
+      "express.json()",
+      "request_logging"
+    ],
+    "servicesInitialized": [
+      "RealMarketDataService",
+      "SMCAnalyzer",
+      "HarmonicPatternDetector",
+      "SignalGeneratorService",
+      "BacktestEngine",
+      "BullBearAgent",
+      "BlockchainDataService",
+      "FearGreedService",
+      "WhaleTrackerService",
+      "CORSProxyService"
+    ],
+    "wsPath": "/ws"
+  },
+  "pages": [
+    {
+      "id": "dashboard",
+      "component": "DashboardView",
+      "fetches": ["/api/portfolio", "/api/health", "/api/market/prices"],
+      "ws": ["price_update", "sentiment_update"],
+      "purpose": "Main overview, portfolio summary"
+    },
+    {
+      "id": "charting",
+      "component": "ChartingView",
+      "fetches": ["/api/market/historical", "/api/hf/ohlcv"],
+      "ws": ["price_update"],
+      "purpose": "Price charts, technical analysis"
+    },
+    {
+      "id": "market",
+      "component": "MarketView",
+      "fetches": ["/api/market/prices", "/api/market-data/:symbol"],
+      "ws": ["price_update"],
+      "purpose": "Market data, price feeds"
+    },
+    {
+      "id": "scanner",
+      "component": "ScannerView",
+      "fetches": ["/api/signals/analyze", "/api/signals/history"],
+      "ws": ["signal_update"],
+      "purpose": "Signal scanner, symbol search"
+    },
+    {
+      "id": "training",
+      "component": "TrainingView",
+      "fetches": ["/api/ai/train", "/api/training-metrics"],
+      "ws": [],
+      "purpose": "AI model training UI"
+    },
+    {
+      "id": "risk",
+      "component": "RiskView",
+      "fetches": ["/api/portfolio/performance"],
+      "ws": [],
+      "purpose": "Risk management dashboard"
+    },
+    {
+      "id": "backtest",
+      "component": "BacktestView",
+      "fetches": ["/api/ai/backtest", "/api/backtest"],
+      "ws": [],
+      "purpose": "Backtesting interface"
+    },
+    {
+      "id": "health",
+      "component": "HealthView",
+      "fetches": ["/api/health"],
+      "ws": [],
+      "purpose": "System health monitoring"
+    },
+    {
+      "id": "settings",
+      "component": "SettingsView",
+      "fetches": ["/api/settings"],
+      "ws": [],
+      "purpose": "User settings, API keys"
+    },
+    {
+      "id": "futures",
+      "component": "FuturesTradingView",
+      "fetches": ["/api/scoring/snapshot", "/api/positions"],
+      "ws": ["scoring_snapshot", "signal_update"],
+      "purpose": "Futures trading interface"
+    },
+    {
+      "id": "trading",
+      "component": "TradingView",
+      "fetches": ["/api/market/prices"],
+      "ws": ["price_update"],
+      "purpose": "Spot trading interface"
+    },
+    {
+      "id": "enhanced-trading",
+      "component": "EnhancedTradingView",
+      "fetches": ["/api/scoring/snapshot"],
+      "ws": ["scoring_snapshot"],
+      "purpose": "Advanced trading UI"
+    },
+    {
+      "id": "positions",
+      "component": "PositionsView",
+      "fetches": ["/api/positions"],
+      "ws": [],
+      "purpose": "Open positions display"
+    },
+    {
+      "id": "strategylab",
+      "component": "StrategyLabView",
+      "fetches": [],
+      "ws": [],
+      "purpose": "Strategy configuration"
+    },
+    {
+      "id": "exchange-settings",
+      "component": "ExchangeSettingsView",
+      "fetches": ["/api/settings/exchanges"],
+      "ws": [],
+      "purpose": "Exchange API setup"
+    }
+  ],
+  "dataOnLoad": {
+    "initialFetches": {
+      "dashboard": ["/api/health", "/api/portfolio", "/api/market/prices?symbols=BTC,ETH,SOL"]
+    },
+    "wsSubscriptions": {
+      "automatic": [
+        {
+          "event": "price_update",
+          "cadence": "10s",
+          "symbols": ["BTC", "ETH", "SOL"]
+        },
+        {
+          "event": "sentiment_update",
+          "cadence": "60s",
+          "source": "Fear & Greed Index"
+        },
+        {
+          "event": "scoring_snapshot",
+          "cadence": "30s",
+          "symbol": "BTCUSDT",
+          "timeframes": ["15m", "1h", "4h"]
+        }
+      ],
+      "onDemand": [
+        {
+          "event": "signal_update",
+          "cadence": "3s",
+          "handshake": "{ type: 'subscribe', symbol: 'BTCUSDT' }"
+        }
+      ]
+    },
+    "timers": {
+      "backend": [
+        "priceInterval: 10s per WS client",
+        "sentimentInterval: 60s per WS client",
+        "scoringInterval: 30s per WS client",
+        "signalInterval: 3s per subscribed symbol"
+      ],
+      "frontend": [
+        "wsConnectionCheck: 5s"
+      ]
+    }
+  },
+  "apis": {
+    "marketData": [
+      {
+        "path": "/api/market/prices",
+        "method": "GET",
+        "usedByFrontend": true,
+        "sample": {
+          "success": true,
+          "data": [
+            {
+              "symbol": "BTC",
+              "price": 45000,
+              "change24h": 2.5,
+              "volume": 1000000
+            }
+          ],
+          "source": "real_api",
+          "timestamp": 1699368000000
+        }
+      },
+      {
+        "path": "/api/market-data/:symbol",
+        "method": "GET",
+        "usedByFrontend": true,
+        "sample": {
+          "success": true,
+          "data": {
+            "currentPrice": 45000,
+            "marketCap": 900000000000,
+            "volume24h": 30000000000
+          },
+          "source": "real_api"
+        }
+      },
+      {
+        "path": "/api/market/historical",
+        "method": "GET",
+        "usedByFrontend": true,
+        "sample": {
+          "success": true,
+          "data": [
+            {
+              "time": 1699368000000,
+              "open": 44900,
+              "high": 45100,
+              "low": 44800,
+              "close": 45000,
+              "volume": 1000000
+            }
+          ],
+          "source": "real_historical_api",
+          "symbol": "BTCUSDT",
+          "timeframe": "1h",
+          "count": 500
+        }
+      }
+    ],
+    "blockchain": [
+      {
+        "path": "/api/blockchain/balances/:address",
+        "method": "GET",
+        "usedByFrontend": true,
+        "sample": {
+          "success": true,
+          "data": {
+            "address": "0x...",
+            "chain": "ethereum",
+            "balance": "1500000000000000000",
+            "balanceFormatted": 1.5,
+            "timestamp": 1699368000000
+          },
+          "source": "real_blockchain_api"
+        }
+      }
+    ],
+    "sentiment": [
+      {
+        "path": "/api/sentiment/fear-greed",
+        "method": "GET",
+        "usedByFrontend": true,
+        "sample": {
+          "success": true,
+          "data": {
+            "value": 45,
+            "classification": "Fear",
+            "timestamp": 1699368000000
+          },
+          "source": "real_fear_greed_api"
+        }
+      }
+    ],
+    "signals": [
+      {
+        "path": "/api/signals/analyze",
+        "method": "POST",
+        "usedByFrontend": true,
+        "sample": {
+          "success": true,
+          "symbol": "BTCUSDT",
+          "features": {
+            "rsi": 55,
+            "macd": {
+              "value": 50,
+              "signal": 45,
+              "histogram": 5
+            }
+          },
+          "prediction": {
+            "direction": "bullish",
+            "confidence": 0.72
+          }
+        }
+      },
+      {
+        "path": "/api/signals/history",
+        "method": "GET",
+        "usedByFrontend": true,
+        "sample": {
+          "success": true,
+          "data": [
+            {
+              "id": "signal-1",
+              "symbol": "BTCUSDT",
+              "timestamp": 1699368000000,
+              "action": "BUY",
+              "confidence": 0.85,
+              "reasoning": ["Strong bullish momentum", "RSI oversold recovery"],
+              "timeframe": "1h",
+              "source": "AI_SIGNAL"
+            }
+          ],
+          "source": "real_signal_history"
+        }
+      }
+    ],
+    "ai": [
+      {
+        "path": "/api/ai/predict",
+        "method": "GET",
+        "usedByFrontend": true,
+        "sample": {
+          "success": true,
+          "data": {
+            "symbol": "BTC",
+            "prediction": "BUY",
+            "confidence": 0.75,
+            "direction": "bullish",
+            "probabilities": {
+              "bull": 0.75,
+              "bear": 0.15,
+              "neutral": 0.10
+            },
+            "reasoning": ["Technical indicators bullish", "Positive sentiment"],
+            "timestamp": 1699368000000
+          },
+          "source": "real_ai_model"
+        }
+      }
+    ],
+    "scoring": [
+      {
+        "path": "/api/scoring/snapshot",
+        "method": "GET",
+        "usedByFrontend": true,
+        "sample": {
+          "success": true,
+          "snapshot": {
+            "symbol": "BTCUSDT",
+            "timestamp": 1699368000000,
+            "perTF": {
+              "15m": {
+                "score": 0.75,
+                "direction": "LONG",
+                "components": [
+                  {
+                    "name": "rsi",
+                    "score": 0.8,
+                    "weight": 0.09,
+                    "meta": {
+                      "rsi": 55
+                    }
+                  }
+                ]
+              },
+              "1h": {
+                "score": 0.65,
+                "direction": "LONG",
+                "components": []
+              },
+              "4h": {
+                "score": 0.55,
+                "direction": "NEUTRAL",
+                "components": []
+              }
+            },
+            "mtfDecision": {
+              "action": "LONG",
+              "confidence": 0.72,
+              "consensus": "STRONG_MAJORITY",
+              "breakdown": {
+                "LONG": 2,
+                "SHORT": 0,
+                "NEUTRAL": 1
+              }
+            },
+            "confluence": {
+              "enabled": true,
+              "score": 0.68,
+              "action": "LONG",
+              "pillars": {
+                "ai": 0.75,
+                "tech": 0.65,
+                "context": 0.55
+              }
+            },
+            "entryPlan": {
+              "symbol": "BTCUSDT",
+              "action": "LONG",
+              "currentPrice": 45000,
+              "stopLoss": 44460,
+              "takeProfit": [46080, 46620, 47160],
+              "positionSize": [0.4, 0.35, 0.25],
+              "leverage": 5.5,
+              "trailing": {
+                "enabled": true,
+                "startAtTP1": true,
+                "distance": 360
+              },
+              "riskLevel": "MEDIUM",
+              "atrZ": 1.2
+            },
+            "context": {
+              "sentiment": {
+                "value": 0.3,
+                "classification": "Greed"
+              },
+              "newsScore": 0.15,
+              "whaleScore": -0.2
+            }
+          },
+          "timestamp": 1699368000000
+        }
+      }
+    ],
+    "settings": [
+      {
+        "path": "/api/settings",
+        "method": "GET",
+        "usedByFrontend": true,
+        "sample": {
+          "success": true,
+          "data": {
+            "apiKey": "",
+            "apiSecret": "",
+            "emailNotifications": true,
+            "riskAlerts": true,
+            "theme": "dark",
+            "tradingPreferences": {
+              "defaultLeverage": 1,
+              "maxPositionSize": 1000,
+              "stopLossPercent": 2,
+              "takeProfitPercent": 5
+            }
+          },
+          "timestamp": 1699368000000
+        }
+      },
+      {
+        "path": "/api/settings/exchanges",
+        "method": "GET",
+        "usedByFrontend": true,
+        "sample": {
+          "success": true,
+          "exchanges": [
+            {
+              "exchange": "kucoin",
+              "apiKey": "",
+              "secret": "",
+              "passphrase": "",
+              "isDefault": true
+            }
+          ],
+          "timestamp": 1699368000000
+        }
+      }
+    ],
+    "portfolio": [
+      {
+        "path": "/api/portfolio",
+        "method": "GET",
+        "usedByFrontend": true,
+        "sample": {
+          "success": true,
+          "portfolio": {
+            "totalValue": 10000,
+            "totalChangePercent": 5.2,
+            "dayPnL": 250,
+            "dayPnLPercent": 2.5,
+            "activePositions": 3,
+            "totalPositions": 5
+          }
+        }
+      },
+      {
+        "path": "/api/positions",
+        "method": "GET",
+        "usedByFrontend": true,
+        "sample": {
+          "success": true,
+          "positions": [],
+          "count": 0,
+          "timestamp": 1699368000000
+        }
+      }
+    ],
+    "health": [
+      {
+        "path": "/api/health",
+        "method": "GET",
+        "usedByFrontend": true,
+        "sample": {
+          "ok": true,
+          "time": 1699368000000,
+          "timestamp": "2025-11-07T12:00:00Z",
+          "providers": {
+            "marketData": true,
+            "smc": true,
+            "elliott": true,
+            "harmonic": true,
+            "telegram": false,
+            "redis": false
+          },
+          "version": "1.0.0"
+        }
+      }
+    ]
+  },
+  "ws": {
+    "path": "/ws",
+    "events": {
+      "serverToClient": [
+        {
+          "name": "connected",
+          "cadence": "once",
+          "payload": {
+            "type": "connected",
+            "message": "BOLT AI - 100% Real Data Stream Active"
+          }
+        },
+        {
+          "name": "price_update",
+          "cadence": "10s",
+          "payload": {
+            "type": "price_update",
+            "data": [
+              {
+                "symbol": "BTC",
+                "price": 45000
+              }
+            ],
+            "timestamp": 1699368000000
+          }
+        },
+        {
+          "name": "sentiment_update",
+          "cadence": "60s",
+          "payload": {
+            "type": "sentiment_update",
+            "data": {
+              "value": 45,
+              "classification": "Fear"
+            },
+            "timestamp": 1699368000000
+          }
+        },
+        {
+          "name": "scoring_snapshot",
+          "cadence": "30s",
+          "payload": {
+            "type": "scoring_snapshot",
+            "data": {
+              "symbol": "BTCUSDT",
+              "perTF": {},
+              "mtfDecision": {},
+              "confluence": {},
+              "entryPlan": {}
+            },
+            "timestamp": 1699368000000
+          }
+        },
+        {
+          "name": "signal_update",
+          "cadence": "3s",
+          "requiresSubscription": true,
+          "payload": {
+            "type": "signal_update",
+            "data": {
+              "symbol": "BTCUSDT",
+              "price": 45000,
+              "stages": {},
+              "decision": {}
+            },
+            "timestamp": 1699368000000
+          }
+        }
+      ],
+      "clientToServer": [
+        {
+          "name": "subscribe",
+          "payload": {
+            "type": "subscribe",
+            "symbol": "BTCUSDT"
+          }
+        }
+      ]
+    },
+    "frontendListeners": {
+      "LiveDataContext": ["market_data", "signal_update", "health"]
+    }
+  },
+  "configs": {
+    "scoring": {
+      "exists": true,
+      "path": "config/scoring.config.json",
+      "shape": {
+        "version": "2.0",
+        "weights": {
+          "ml_ai": 0.18,
+          "rsi": 0.09,
+          "macd": 0.09,
+          "ma_cross": 0.09,
+          "bollinger": 0.09,
+          "volume": 0.07,
+          "support_resistance": 0.09,
+          "adx": 0.09,
+          "roc": 0.05,
+          "market_structure": 0.05,
+          "reversal": 0.08,
+          "sentiment": 0.08,
+          "news": 0.07,
+          "whales": 0.02
+        },
+        "thresholds": {
+          "buyScore": 0.7,
+          "sellScore": 0.3,
+          "minConfidence": 0.7
+        },
+        "hotReload": true,
+        "reloadIntervalMs": 30000
+      },
+      "hotReload": {
+        "implemented": true,
+        "mechanism": "time-based cache (30s TTL)",
+        "file": "src/strategy/engine.ts:28-44"
+      }
+    },
+    "strategy": {
+      "exists": true,
+      "path": "config/strategy.config.json",
+      "shape": {
+        "version": "2.0",
+        "tfs": ["15m", "1h", "4h"],
+        "neutralEpsilon": 0.05,
+        "confluence": {
+          "enabled": true,
+          "aiWeight": 0.5,
+          "techWeight": 0.35,
+          "contextWeight": 0.15
+        },
+        "futures": {
+          "entry": {
+            "mode": "ATR",
+            "fixedSLPct": 0.02,
+            "atrK": 1.2,
+            "rr": 2.0
+          },
+          "leverage": {
+            "min": 2,
+            "max": 10
+          }
+        },
+        "hotReload": true,
+        "reloadIntervalMs": 30000
+      },
+      "hotReload": {
+        "implemented": true,
+        "mechanism": "time-based cache (30s TTL)",
+        "file": "src/strategy/engine.ts:46-68"
+      }
+    },
+    "exchanges": {
+      "exists": true,
+      "path": "config/exchanges.json",
+      "default": "kucoin",
+      "hotReload": {
+        "implemented": false,
+        "readOn": "API request"
+      }
+    }
+  },
+  "strategy": {
+    "detectors": [
+      "ml_ai",
+      "rsi",
+      "macd",
+      "ma_cross",
+      "bollinger",
+      "volume",
+      "support_resistance",
+      "adx",
+      "roc",
+      "market_structure",
+      "reversal",
+      "sentiment",
+      "news",
+      "whales"
+    ],
+    "perTFCombine": {
+      "present": true,
+      "file": "src/strategy/engine.ts:72-150",
+      "method": "weighted sum of detector scores"
+    },
+    "mtfDecision": {
+      "present": true,
+      "file": "src/strategy/engine.ts:152-220",
+      "logic": "ANY threshold + MAJORITY consensus"
+    },
+    "confluence": {
+      "present": true,
+      "file": "src/strategy/engine.ts:222-270",
+      "pillars": ["ai", "tech", "context"],
+      "weights": {
+        "ai": 0.5,
+        "tech": 0.35,
+        "context": 0.15
+      }
+    },
+    "reversal": {
+      "present": true,
+      "file": "src/strategy/detectors.ts:262-335",
+      "signals": [
+        "bollinger_reentry",
+        "rsi_ob_os",
+        "reversal_candles",
+        "smc_sweep_choch",
+        "fib_prz"
+      ]
+    },
+    "futuresEntry": {
+      "present": true,
+      "file": "src/strategy/engine.ts:272-360",
+      "sltp": {
+        "modes": ["ATR", "fixed_percentage"],
+        "trailing": {
+          "enabled": true,
+          "startAtTP1": true
+        }
+      },
+      "leverage": {
+        "calculation": "confidence-based",
+        "range": [2, 10]
+      }
+    },
+    "context": {
+      "sentiment": {
+        "present": true,
+        "sources": ["fearGreed", "social"],
+        "decay": "180 min half-life"
+      },
+      "news": {
+        "present": true,
+        "processing": "polarity × trust × eventBoost",
+        "decay": "240 min half-life"
+      },
+      "whales": {
+        "present": true,
+        "logic": "net flow (exchange inflow = bearish)"
+      }
+    }
+  },
+  "trading": {
+    "pages": ["TradingView", "EnhancedTradingView", "FuturesTradingView"],
+    "exchangeSettings": {
+      "present": true,
+      "routes": ["/api/settings/exchanges GET/PUT"],
+      "ui": "ExchangeSettingsView"
+    },
+    "positions": {
+      "page": "PositionsView",
+      "endpoint": "/api/positions",
+      "currentStatus": "returns empty array (placeholder)"
+    }
+  },
+  "runtime": {
+    "memTrend": "stable (with proper WS cleanup)",
+    "wsClientsTrend": "linear with connections",
+    "potentialLeaks": [
+      "WS intervals if close event fails",
+      "SignalGenerator history unbounded growth"
+    ],
+    "warnings": [
+      "Config load failures (fallback to defaults)",
+      "AI model init failures (fallback mode)",
+      "Empty WS messages"
+    ],
+    "secretsInLogs": false
+  },
+  "summary": {
+    "implemented": "Comprehensive crypto trading system with 14 detectors, multi-timeframe analysis, confluence scoring, futures entry planning, and real-time WebSocket streaming. Frontend has 15 views covering dashboard, charting, trading, and settings.",
+    "coveragePct": 75,
+    "notableGaps": [
+      "No actual trade execution (positions API returns empty)",
+      "AI model uses placeholder logic",
+      "Backtesting incomplete (returns mock data)",
+      "No persistent storage (in-memory settings)",
+      "No authentication/authorization",
+      "Signal history may show mock data if generator empty"
+    ]
+  }
+}

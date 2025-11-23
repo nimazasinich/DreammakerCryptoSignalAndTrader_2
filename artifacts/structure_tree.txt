@@ -1,0 +1,139 @@
+./ (dirs: 4, files: 25)
+  config/ (dirs: 0, files: 1)
+    api.json
+  data/ (dirs: 0, files: 0)
+  logs/ (dirs: 0, files: 0)
+  src/ (dirs: 7, files: 5)
+    src/ai/ (dirs: 1, files: 14)
+      src/ai/__tests__/ (dirs: 0, files: 2)
+        StableActivations.test.ts
+        XavierInitializer.test.ts
+      AdamWOptimizer.ts
+      BacktestEngine.ts
+      BullBearAgent.ts
+      ExperienceBuffer.ts
+      ExplorationStrategies.ts
+      FeatureEngineering.ts
+      GradientClipper.ts
+      index.ts
+      InstabilityWatchdog.ts
+      LearningRateScheduler.ts
+      NetworkArchitectures.ts
+      StableActivations.ts
+      TrainingEngine.ts
+      XavierInitializer.ts
+    src/components/ (dirs: 12, files: 2)
+      src/components/Accessibility/ (dirs: 0, files: 1)
+        AccessibilityProvider.tsx
+      src/components/ai/ (dirs: 0, files: 3)
+        AIPredictor.tsx
+        index.ts
+        TrainingDashboard.tsx
+      src/components/backtesting/ (dirs: 0, files: 2)
+        BacktestPanel.tsx
+        index.ts
+      src/components/market/ (dirs: 0, files: 3)
+        index.ts
+        MarketTicker.tsx
+        PriceChart.tsx
+      src/components/misc/ (dirs: 0, files: 0)
+      src/components/Navigation/ (dirs: 0, files: 2)
+        NavigationProvider.tsx
+        Sidebar.tsx
+      src/components/news/ (dirs: 0, files: 2)
+        index.ts
+        NewsFeed.tsx
+      src/components/portfolio/ (dirs: 0, files: 2)
+        index.ts
+        Portfolio.tsx
+      src/components/scanner/ (dirs: 0, files: 6)
+        AISignalsScanner.tsx
+        index.ts
+        NewsSentimentScanner.tsx
+        SmartMoneyScanner.tsx
+        TechnicalPatternsScanner.tsx
+        WhaleActivityScanner.tsx
+      src/components/system/ (dirs: 0, files: 0)
+      src/components/Theme/ (dirs: 0, files: 1)
+        ThemeProvider.tsx
+      src/components/trading/ (dirs: 0, files: 2)
+        index.ts
+        TradingDashboard.tsx
+      index.ts
+      LiveDataContext.tsx
+    src/core/ (dirs: 0, files: 2)
+      ConfigManager.ts
+      Logger.ts
+    src/data/ (dirs: 1, files: 3)
+      src/data/repositories/ (dirs: 0, files: 3)
+        BaseRepository.ts
+        MarketDataRepository.ts
+        TrainingMetricsRepository.ts
+      Database.ts
+      DatabaseMigrations.ts
+      EncryptedDatabase.ts
+    src/services/ (dirs: 1, files: 21)
+      src/services/__tests__/ (dirs: 0, files: 1)
+        SMCAnalyzer.test.ts
+      aiPredictionService.ts
+      aiService.ts
+      AlertService.ts
+      backtestService.ts
+      BinanceService.ts
+      ContinuousLearningService.ts
+      dataManager.ts
+      DataValidationService.ts
+      ElliottWaveAnalyzer.ts
+      EmergencyDataFallbackService.ts
+      HarmonicPatternDetector.ts
+      index.ts
+      MarketDataIngestionService.ts
+      marketDataService.ts
+      NotificationService.ts
+      OrderManagementService.ts
+      RedisService.ts
+      SentimentAnalysisService.ts
+      SignalGeneratorService.ts
+      SMCAnalyzer.ts
+      WhaleTrackerService.ts
+    src/types/ (dirs: 0, files: 1)
+      index.ts
+    src/views/ (dirs: 0, files: 8)
+      BacktestView.tsx
+      ChartingView.tsx
+      DashboardView.tsx
+      HealthView.tsx
+      RiskView.tsx
+      ScannerView.tsx
+      SettingsView.tsx
+      TrainingView.tsx
+    App.tsx
+    index.css
+    main.tsx
+    server.ts
+    vite-env.d.ts
+  100_PERCENT_COMPLETE.md
+  DEPLOYMENT_READY.md
+  eslint.config.js
+  FINAL_COMPLETION_REPORT.md
+  FINAL_STATUS.md
+  IMPLEMENTATION_SUMMARY.md
+  index.html
+  jest.config.js
+  package-lock.json
+  package.json
+  PHASE_1_COMPLETE.md
+  PHASE_2_ADVANCED_COMPLETE.md
+  PHASE_6_IMPLEMENTATION_COMPLETE.md
+  postcss.config.js
+  PROJECT_COMPLETION_SUMMARY.md
+  PROJECT_SUMMARY.md
+  README.md
+  README_IMPLEMENTATION.md
+  SUCCESS.md
+  tailwind.config.js
+  TODO.md
+  tsconfig.app.json
+  tsconfig.json
+  tsconfig.node.json
+  vite.config.ts

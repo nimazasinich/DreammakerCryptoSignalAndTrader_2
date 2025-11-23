@@ -1,0 +1,362 @@
+[
+  {
+    "method": "GET",
+    "path": "/",
+    "full_path": "/alerts/",
+    "file": "backend/api/alerts.py"
+  },
+  {
+    "method": "POST",
+    "path": "/",
+    "full_path": "/alerts/",
+    "file": "backend/api/alerts.py"
+  },
+  {
+    "method": "GET",
+    "path": "/summary",
+    "full_path": "/alerts/summary",
+    "file": "backend/api/alerts.py"
+  },
+  {
+    "method": "GET",
+    "path": "/types",
+    "full_path": "/alerts/types",
+    "file": "backend/api/alerts.py"
+  },
+  {
+    "method": "DELETE",
+    "path": "/{alert_id}",
+    "full_path": "/alerts/{alert_id}",
+    "file": "backend/api/alerts.py"
+  },
+  {
+    "method": "GET",
+    "path": "/{alert_id}",
+    "full_path": "/alerts/{alert_id}",
+    "file": "backend/api/alerts.py"
+  },
+  {
+    "method": "PUT",
+    "path": "/{alert_id}",
+    "full_path": "/alerts/{alert_id}",
+    "file": "backend/api/alerts.py"
+  },
+  {
+    "method": "GET",
+    "path": "/{alert_id}/history",
+    "full_path": "/alerts/{alert_id}/history",
+    "file": "backend/api/alerts.py"
+  },
+  {
+    "method": "POST",
+    "path": "/failover/enable",
+    "full_path": "/exchanges/failover/enable",
+    "file": "backend/api/exchanges.py"
+  },
+  {
+    "method": "GET",
+    "path": "/health",
+    "full_path": "/exchanges/health",
+    "file": "backend/api/exchanges.py"
+  },
+  {
+    "method": "GET",
+    "path": "/klines/{symbol}",
+    "full_path": "/exchanges/klines/{symbol}",
+    "file": "backend/api/exchanges.py"
+  },
+  {
+    "method": "GET",
+    "path": "/market-data/{symbol}",
+    "full_path": "/exchanges/market-data/{symbol}",
+    "file": "backend/api/exchanges.py"
+  },
+  {
+    "method": "POST",
+    "path": "/reconnect/{exchange_name}",
+    "full_path": "/exchanges/reconnect/{exchange_name}",
+    "file": "backend/api/exchanges.py"
+  },
+  {
+    "method": "POST",
+    "path": "/retry-config",
+    "full_path": "/exchanges/retry-config",
+    "file": "backend/api/exchanges.py"
+  },
+  {
+    "method": "GET",
+    "path": "/status",
+    "full_path": "/exchanges/status",
+    "file": "backend/api/exchanges.py"
+  },
+  {
+    "method": "GET",
+    "path": "/ticker/{symbol}",
+    "full_path": "/exchanges/ticker/{symbol}",
+    "file": "backend/api/exchanges.py"
+  },
+  {
+    "method": "GET",
+    "path": "/tickers",
+    "full_path": "/exchanges/tickers",
+    "file": "backend/api/exchanges.py"
+  },
+  {
+    "method": "GET",
+    "path": "/candlestick/{symbol}",
+    "full_path": "/market/candlestick/{symbol}",
+    "file": "backend/api/market.py"
+  },
+  {
+    "method": "GET",
+    "path": "/indicators/{symbol}",
+    "full_path": "/market/indicators/{symbol}",
+    "file": "backend/api/market.py"
+  },
+  {
+    "method": "GET",
+    "path": "/prices",
+    "full_path": "/market/prices",
+    "file": "backend/api/market.py"
+  },
+  {
+    "method": "GET",
+    "path": "/{symbol}/history",
+    "full_path": "/market/{symbol}/history",
+    "file": "backend/api/market.py"
+  },
+  {
+    "method": "GET",
+    "path": "/alerts/history",
+    "full_path": "/monitoring/alerts/history",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "POST",
+    "path": "/alerts/send",
+    "full_path": "/monitoring/alerts/send",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "GET",
+    "path": "/alerts/stats",
+    "full_path": "/monitoring/alerts/stats",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "GET",
+    "path": "/crash-dumps",
+    "full_path": "/monitoring/crash-dumps",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "POST",
+    "path": "/crash-dumps/generate",
+    "full_path": "/monitoring/crash-dumps/generate",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "POST",
+    "path": "/crash-dumps/memory",
+    "full_path": "/monitoring/crash-dumps/memory",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "POST",
+    "path": "/crash-dumps/performance",
+    "full_path": "/monitoring/crash-dumps/performance",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "GET",
+    "path": "/health",
+    "full_path": "/monitoring/health",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "GET",
+    "path": "/logs",
+    "full_path": "/monitoring/logs",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "GET",
+    "path": "/metrics",
+    "full_path": "/monitoring/metrics",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "GET",
+    "path": "/slo/compliance",
+    "full_path": "/monitoring/slo/compliance",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "GET",
+    "path": "/slo/config/{slo_name}",
+    "full_path": "/monitoring/slo/config/{slo_name}",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "POST",
+    "path": "/slo/config/{slo_name}",
+    "full_path": "/monitoring/slo/config/{slo_name}",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "POST",
+    "path": "/slo/export",
+    "full_path": "/monitoring/slo/export",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "GET",
+    "path": "/slo/list",
+    "full_path": "/monitoring/slo/list",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "GET",
+    "path": "/slo/metrics",
+    "full_path": "/monitoring/slo/metrics",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "POST",
+    "path": "/slo/record",
+    "full_path": "/monitoring/slo/record",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "GET",
+    "path": "/slo/release-gate",
+    "full_path": "/monitoring/slo/release-gate",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "GET",
+    "path": "/slo/status",
+    "full_path": "/monitoring/slo/status",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "GET",
+    "path": "/system/info",
+    "full_path": "/monitoring/system/info",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "POST",
+    "path": "/telemetry/export",
+    "full_path": "/monitoring/telemetry/export",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "GET",
+    "path": "/telemetry/summary",
+    "full_path": "/monitoring/telemetry/summary",
+    "file": "backend/api/monitoring.py"
+  },
+  {
+    "method": "POST",
+    "path": "/train",
+    "full_path": "/predictions/train",
+    "file": "backend/api/predictions.py"
+  },
+  {
+    "method": "GET",
+    "path": "/train/status",
+    "full_path": "/predictions/train/status",
+    "file": "backend/api/predictions.py"
+  },
+  {
+    "method": "POST",
+    "path": "/train/stop",
+    "full_path": "/predictions/train/stop",
+    "file": "backend/api/predictions.py"
+  },
+  {
+    "method": "GET",
+    "path": "/{symbol}",
+    "full_path": "/predictions/{symbol}",
+    "file": "backend/api/predictions.py"
+  },
+  {
+    "method": "GET",
+    "path": "/coingecko/markets",
+    "full_path": "/proxy/coingecko/markets",
+    "file": "backend/api/proxy.py"
+  },
+  {
+    "method": "GET",
+    "path": "/coingecko/price",
+    "full_path": "/proxy/coingecko/price",
+    "file": "backend/api/proxy.py"
+  },
+  {
+    "method": "GET",
+    "path": "/coinmarketcap/listings",
+    "full_path": "/proxy/coinmarketcap/listings",
+    "file": "backend/api/proxy.py"
+  },
+  {
+    "method": "GET",
+    "path": "/coinmarketcap/quotes",
+    "full_path": "/proxy/coinmarketcap/quotes",
+    "file": "backend/api/proxy.py"
+  },
+  {
+    "method": "GET",
+    "path": "/fear-greed",
+    "full_path": "/proxy/fear-greed",
+    "file": "backend/api/proxy.py"
+  },
+  {
+    "method": "GET",
+    "path": "/health",
+    "full_path": "/proxy/health",
+    "file": "backend/api/proxy.py"
+  },
+  {
+    "method": "GET",
+    "path": "/news",
+    "full_path": "/proxy/news",
+    "file": "backend/api/proxy.py"
+  },
+  {
+    "method": "GET",
+    "path": "/whale-alert",
+    "full_path": "/proxy/whale-alert",
+    "file": "backend/api/proxy.py"
+  },
+  {
+    "method": "POST",
+    "path": "/backtest",
+    "full_path": "/signals/backtest",
+    "file": "backend/api/signals.py"
+  },
+  {
+    "method": "GET",
+    "path": "/strategies",
+    "full_path": "/signals/strategies",
+    "file": "backend/api/signals.py"
+  },
+  {
+    "method": "GET",
+    "path": "/summary/{symbol}",
+    "full_path": "/signals/summary/{symbol}",
+    "file": "backend/api/signals.py"
+  },
+  {
+    "method": "GET",
+    "path": "/{symbol}",
+    "full_path": "/signals/{symbol}",
+    "file": "backend/api/signals.py"
+  },
+  {
+    "method": "GET",
+    "path": "/ws/info",
+    "full_path": "/ws/info",
+    "file": "backend/api/websocket.py"
+  }
+]
