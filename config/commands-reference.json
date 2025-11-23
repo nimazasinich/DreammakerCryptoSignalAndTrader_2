@@ -1,0 +1,36 @@
+{
+  "development": {
+    "start": "npm run dev",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "docker": {
+    "build": "docker build -t bolt-ai:latest .",
+    "run": "docker run -p 8001:8001 bolt-ai:latest",
+    "compose-up": "docker-compose up -d",
+    "compose-down": "docker-compose down",
+    "compose-logs": "docker-compose logs -f",
+    "compose-restart": "docker-compose restart"
+  },
+  "scripts": {
+    "healthCheck": "bash scripts/health-check.sh http://localhost:8001",
+    "deploy": "bash scripts/deploy.sh --environment production",
+    "backup": "bash scripts/backup.sh",
+    "restore": "bash scripts/restore.sh backup-2024-01-27.tar.gz",
+    "rollback": "bash scripts/deploy.sh --rollback"
+  },
+  "testing": {
+    "unit": "npm run test:unit",
+    "integration": "npm run test:integration",
+    "e2e": "npm run test:e2e",
+    "coverage": "npm run test:coverage"
+  },
+  "cicd": {
+    "triggerCI": "git push origin feature-branch",
+    "triggerDeploy": "git push origin main",
+    "manualApproval": "GitHub Actions → Deployments → Approve"
+  }
+}
+

@@ -1,0 +1,18 @@
+{
+  "features": {
+    "liveScoring": true,
+    "backtest": true,
+    "autoTuning": false,
+    "autoTrade": false,
+    "manualTrade": true
+  },
+  "modes": {
+    "environment": "DEV",
+    "trading": "DRY_RUN"
+  },
+  "trading": {
+    "environment": "DEV",
+    "mode": "DRY_RUN",
+    "market": "FUTURES"
+  }
+}

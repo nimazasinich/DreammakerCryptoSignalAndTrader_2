@@ -1,0 +1,9 @@
+{
+  "FEATURE_AI_ENHANCED": true,
+  "FEATURE_FUTURES": true,
+  "FEATURE_METRICS": true,
+  "FEATURE_OPENTELEMETRY": false,
+  "version": "1.1",
+  "updated_at": "2025-11-09",
+  "description": "AI Enhanced and Futures trading enabled - all real data detectors active"
+}

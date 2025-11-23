@@ -1,0 +1,521 @@
+{
+  "version": "2.0",
+  "updatedAt": "2025-11-07T00:00:00Z",
+  "description": "Comprehensive multi-provider configuration with 38+ fallback sources",
+
+  "categories": {
+    "market": {
+      "description": "Real-time price and market data",
+      "timeout": 3000,
+      "retryAttempts": 1,
+      "cooldownSeconds": 60,
+      "providers": [
+        {
+          "name": "coingecko",
+          "priority": 1,
+          "baseUrl": "https://api.coingecko.com/api/v3",
+          "key": "",
+          "category": "market",
+          "rateLimitPerMinute": 50,
+          "enabled": true
+        },
+        {
+          "name": "coinmarketcap",
+          "priority": 2,
+          "baseUrl": "https://pro-api.coinmarketcap.com/v1",
+          "key": "b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c",
+          "category": "market",
+          "rateLimitPerMinute": 300,
+          "enabled": true
+        },
+        {
+          "name": "coinmarketcap_alt",
+          "priority": 3,
+          "baseUrl": "https://pro-api.coinmarketcap.com/v1",
+          "key": "04cf4b5b-9868-465c-8ba0-9f2e78c92eb1",
+          "category": "market",
+          "rateLimitPerMinute": 300,
+          "enabled": true
+        },
+        {
+          "name": "cryptocompare",
+          "priority": 4,
+          "baseUrl": "https://min-api.cryptocompare.com/data",
+          "key": "e79c8e6d4c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f",
+          "category": "market",
+          "rateLimitPerMinute": 100,
+          "enabled": true
+        },
+        {
+          "name": "nomics",
+          "priority": 5,
+          "baseUrl": "https://api.nomics.com/v1",
+          "key": "",
+          "category": "market",
+          "rateLimitPerMinute": 60,
+          "enabled": true
+        },
+        {
+          "name": "messari",
+          "priority": 6,
+          "baseUrl": "https://data.messari.io/api/v1",
+          "key": "",
+          "category": "market",
+          "rateLimitPerMinute": 60,
+          "enabled": true
+        },
+        {
+          "name": "bravenewcoin",
+          "priority": 7,
+          "baseUrl": "https://bravenewcoin.p.rapidapi.com",
+          "key": "",
+          "category": "market",
+          "rateLimitPerMinute": 30,
+          "enabled": false
+        },
+        {
+          "name": "kaiko",
+          "priority": 8,
+          "baseUrl": "https://us.market-api.kaiko.io/v2",
+          "key": "",
+          "category": "market",
+          "rateLimitPerMinute": 50,
+          "enabled": false
+        },
+        {
+          "name": "coinapi",
+          "priority": 9,
+          "baseUrl": "https://rest.coinapi.io/v1",
+          "key": "",
+          "category": "market",
+          "rateLimitPerMinute": 100,
+          "enabled": false
+        }
+      ]
+    },
+
+    "news": {
+      "description": "Crypto news aggregation",
+      "timeout": 5000,
+      "retryAttempts": 1,
+      "cooldownSeconds": 60,
+      "providers": [
+        {
+          "name": "newsapi",
+          "priority": 1,
+          "baseUrl": "https://newsapi.org/v2",
+          "key": "pub_346789abc123def456789ghi012345jkl",
+          "category": "news",
+          "rateLimitPerMinute": 100,
+          "enabled": true
+        },
+        {
+          "name": "cryptopanic",
+          "priority": 2,
+          "baseUrl": "https://cryptopanic.com/api/v1",
+          "key": "",
+          "category": "news",
+          "rateLimitPerMinute": 60,
+          "enabled": true
+        },
+        {
+          "name": "cryptocontrol",
+          "priority": 3,
+          "baseUrl": "https://cryptocontrol.io/api/v1/public",
+          "key": "",
+          "category": "news",
+          "rateLimitPerMinute": 50,
+          "enabled": true
+        },
+        {
+          "name": "coindesk",
+          "priority": 4,
+          "baseUrl": "https://api.coindesk.com/v2",
+          "key": "",
+          "category": "news",
+          "rateLimitPerMinute": 60,
+          "enabled": true
+        },
+        {
+          "name": "cointelegraph",
+          "priority": 5,
+          "baseUrl": "https://api.cointelegraph.com/api/v1",
+          "key": "",
+          "category": "news",
+          "rateLimitPerMinute": 60,
+          "enabled": true
+        },
+        {
+          "name": "cryptoslate",
+          "priority": 6,
+          "baseUrl": "https://api.cryptoslate.com",
+          "key": "",
+          "category": "news",
+          "rateLimitPerMinute": 60,
+          "enabled": true
+        },
+        {
+          "name": "theblock",
+          "priority": 7,
+          "baseUrl": "https://api.theblock.co/v1",
+          "key": "",
+          "category": "news",
+          "rateLimitPerMinute": 60,
+          "enabled": true
+        }
+      ]
+    },
+
+    "sentiment": {
+      "description": "Market sentiment and social analytics",
+      "timeout": 4000,
+      "retryAttempts": 1,
+      "cooldownSeconds": 60,
+      "providers": [
+        {
+          "name": "alternative_feargreed",
+          "priority": 1,
+          "baseUrl": "https://api.alternative.me/fng",
+          "key": "",
+          "category": "sentiment",
+          "rateLimitPerMinute": 100,
+          "enabled": true
+        },
+        {
+          "name": "santiment",
+          "priority": 2,
+          "baseUrl": "https://api.santiment.net/graphql",
+          "key": "",
+          "category": "sentiment",
+          "rateLimitPerMinute": 60,
+          "enabled": false,
+          "requiresGraphQL": true
+        },
+        {
+          "name": "lunarcrush",
+          "priority": 3,
+          "baseUrl": "https://api.lunarcrush.com/v2",
+          "key": "",
+          "category": "sentiment",
+          "rateLimitPerMinute": 60,
+          "enabled": false
+        },
+        {
+          "name": "thetie",
+          "priority": 4,
+          "baseUrl": "https://api.thetie.io",
+          "key": "",
+          "category": "sentiment",
+          "rateLimitPerMinute": 60,
+          "enabled": false
+        },
+        {
+          "name": "cryptoquant",
+          "priority": 5,
+          "baseUrl": "https://api.cryptoquant.com/v1",
+          "key": "",
+          "category": "sentiment",
+          "rateLimitPerMinute": 30,
+          "enabled": false
+        },
+        {
+          "name": "glassnode_social",
+          "priority": 6,
+          "baseUrl": "https://api.glassnode.com/v1",
+          "key": "",
+          "category": "sentiment",
+          "rateLimitPerMinute": 30,
+          "enabled": false
+        },
+        {
+          "name": "coingecko_community",
+          "priority": 7,
+          "baseUrl": "https://api.coingecko.com/api/v3",
+          "key": "",
+          "category": "sentiment",
+          "rateLimitPerMinute": 50,
+          "enabled": true
+        },
+        {
+          "name": "messari_social",
+          "priority": 8,
+          "baseUrl": "https://data.messari.io/api/v1",
+          "key": "",
+          "category": "sentiment",
+          "rateLimitPerMinute": 60,
+          "enabled": true
+        },
+        {
+          "name": "reddit",
+          "priority": 9,
+          "baseUrl": "https://www.reddit.com",
+          "key": "",
+          "category": "sentiment",
+          "rateLimitPerMinute": 60,
+          "enabled": true
+        }
+      ]
+    },
+
+    "whales": {
+      "description": "Large transaction monitoring and whale tracking",
+      "timeout": 5000,
+      "retryAttempts": 1,
+      "cooldownSeconds": 60,
+      "providers": [
+        {
+          "name": "whalealert",
+          "priority": 1,
+          "baseUrl": "https://api.whale-alert.io/v1",
+          "key": "",
+          "category": "whales",
+          "rateLimitPerMinute": 30,
+          "enabled": false,
+          "minTransactionValue": 1000000
+        },
+        {
+          "name": "arkham",
+          "priority": 2,
+          "baseUrl": "https://api.arkham.com",
+          "key": "",
+          "category": "whales",
+          "rateLimitPerMinute": 30,
+          "enabled": false
+        }
+      ]
+    },
+
+    "onchain": {
+      "description": "On-chain analytics and metrics",
+      "timeout": 5000,
+      "retryAttempts": 1,
+      "cooldownSeconds": 60,
+      "providers": [
+        {
+          "name": "glassnode",
+          "priority": 1,
+          "baseUrl": "https://api.glassnode.com/v1",
+          "key": "",
+          "category": "onchain",
+          "rateLimitPerMinute": 30,
+          "enabled": false
+        },
+        {
+          "name": "intotheblock",
+          "priority": 2,
+          "baseUrl": "https://api.intotheblock.com/v1",
+          "key": "",
+          "category": "onchain",
+          "rateLimitPerMinute": 60,
+          "enabled": false
+        },
+        {
+          "name": "nansen",
+          "priority": 3,
+          "baseUrl": "https://api.nansen.ai/v1",
+          "key": "",
+          "category": "onchain",
+          "rateLimitPerMinute": 30,
+          "enabled": false
+        },
+        {
+          "name": "thegraph",
+          "priority": 4,
+          "baseUrl": "https://api.thegraph.com/subgraphs/name",
+          "key": "",
+          "category": "onchain",
+          "rateLimitPerMinute": 100,
+          "enabled": false,
+          "requiresGraphQL": true
+        }
+      ]
+    },
+
+    "explorer": {
+      "description": "Blockchain explorers for on-chain data",
+      "timeout": 4000,
+      "retryAttempts": 1,
+      "cooldownSeconds": 60,
+      "providers": [
+        {
+          "name": "etherscan",
+          "priority": 1,
+          "baseUrl": "https://api.etherscan.io/api",
+          "key": "SZHYFZK2RR8H9TIMJBVW54V4H81K2Z2KR2",
+          "category": "explorer",
+          "chain": "ethereum",
+          "rateLimitPerMinute": 300,
+          "enabled": true
+        },
+        {
+          "name": "etherscan_backup",
+          "priority": 2,
+          "baseUrl": "https://api.etherscan.io/api",
+          "key": "T6IR8VJHX2NE6ZJW2S3FDVN1TYG4PYYI45",
+          "category": "explorer",
+          "chain": "ethereum",
+          "rateLimitPerMinute": 300,
+          "enabled": true
+        },
+        {
+          "name": "infura",
+          "priority": 3,
+          "baseUrl": "https://mainnet.infura.io/v3",
+          "key": "",
+          "category": "explorer",
+          "chain": "ethereum",
+          "rateLimitPerMinute": 100,
+          "enabled": false,
+          "isRPC": true
+        },
+        {
+          "name": "alchemy",
+          "priority": 4,
+          "baseUrl": "https://eth-mainnet.alchemyapi.io/v2",
+          "key": "",
+          "category": "explorer",
+          "chain": "ethereum",
+          "rateLimitPerMinute": 660,
+          "enabled": false,
+          "isRPC": true
+        },
+        {
+          "name": "covalent",
+          "priority": 5,
+          "baseUrl": "https://api.covalenthq.com/v1/1",
+          "key": "",
+          "category": "explorer",
+          "chain": "ethereum",
+          "rateLimitPerMinute": 100,
+          "enabled": false
+        },
+        {
+          "name": "bscscan",
+          "priority": 1,
+          "baseUrl": "https://api.bscscan.com/api",
+          "key": "K62RKHGXTDCG53RU4MCG6XABIMJKTN19IT",
+          "category": "explorer",
+          "chain": "bsc",
+          "rateLimitPerMinute": 300,
+          "enabled": true
+        },
+        {
+          "name": "ankrscan",
+          "priority": 2,
+          "baseUrl": "https://api.ankr.com/scan/v1/bsc",
+          "key": "",
+          "category": "explorer",
+          "chain": "bsc",
+          "rateLimitPerMinute": 100,
+          "enabled": false
+        },
+        {
+          "name": "bintools",
+          "priority": 3,
+          "baseUrl": "https://api.bintools.io/v1/bsc",
+          "key": "",
+          "category": "explorer",
+          "chain": "bsc",
+          "rateLimitPerMinute": 60,
+          "enabled": false
+        },
+        {
+          "name": "tronscan",
+          "priority": 1,
+          "baseUrl": "https://api.tronscan.org/api",
+          "key": "7ae72726-bffe-4e74-9c33-97b761eeea21",
+          "category": "explorer",
+          "chain": "tron",
+          "rateLimitPerMinute": 100,
+          "enabled": true
+        },
+        {
+          "name": "trongrid",
+          "priority": 2,
+          "baseUrl": "https://api.trongrid.io",
+          "key": "",
+          "category": "explorer",
+          "chain": "tron",
+          "rateLimitPerMinute": 100,
+          "enabled": true
+        },
+        {
+          "name": "blockchair_tron",
+          "priority": 3,
+          "baseUrl": "https://api.blockchair.com/tron",
+          "key": "",
+          "category": "explorer",
+          "chain": "tron",
+          "rateLimitPerMinute": 30,
+          "enabled": true
+        }
+      ]
+    },
+
+    "community": {
+      "description": "Community and social media data",
+      "timeout": 4000,
+      "retryAttempts": 1,
+      "cooldownSeconds": 60,
+      "providers": [
+        {
+          "name": "reddit_cryptocurrency",
+          "priority": 1,
+          "baseUrl": "https://www.reddit.com/r/CryptoCurrency",
+          "key": "",
+          "category": "community",
+          "rateLimitPerMinute": 60,
+          "enabled": true
+        },
+        {
+          "name": "reddit_bitcoin",
+          "priority": 2,
+          "baseUrl": "https://www.reddit.com/r/Bitcoin",
+          "key": "",
+          "category": "community",
+          "rateLimitPerMinute": 60,
+          "enabled": true
+        },
+        {
+          "name": "reddit_ethereum",
+          "priority": 3,
+          "baseUrl": "https://www.reddit.com/r/ethereum",
+          "key": "",
+          "category": "community",
+          "rateLimitPerMinute": 60,
+          "enabled": true
+        }
+      ]
+    }
+  },
+
+  "fallbackCascade": {
+    "description": "Defines the fallback order across categories",
+    "strategy": "priority-based",
+    "order": [
+      "local_cache",
+      "github_file",
+      "market",
+      "explorer",
+      "sentiment",
+      "news",
+      "whales",
+      "onchain",
+      "community"
+    ]
+  },
+
+  "healthCheck": {
+    "enabled": true,
+    "intervalSeconds": 60,
+    "endpoint": "/api/providers/status",
+    "timeout": 2000
+  },
+
+  "circuitBreaker": {
+    "enabled": true,
+    "maxFailures": 3,
+    "cooldownSeconds": 60,
+    "halfOpenAfterSeconds": 30
+  }
+}

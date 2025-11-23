@@ -1,0 +1,125 @@
+{
+  "version": "3.0",
+  "updatedAt": "2025-11-13T00:00:00Z",
+  "description": "HTS Smart Scoring System with category-level scoring (Core/SMC/Patterns/Sentiment/ML) and adaptive weighting. Fully backwards compatible.",
+  "weights": {
+    "ml_ai": 0.15,
+    "rsi": 0.09,
+    "macd": 0.09,
+    "ma_cross": 0.09,
+    "bollinger": 0.09,
+    "volume": 0.07,
+    "support_resistance": 0.09,
+    "adx": 0.09,
+    "roc": 0.05,
+    "market_structure": 0.05,
+    "reversal": 0.08,
+    "sentiment": 0.08,
+    "news": 0.06,
+    "whales": 0.02
+  },
+  "thresholds": {
+    "buyScore": 0.70,
+    "sellScore": 0.30,
+    "minConfidence": 0.70
+  },
+  "categories": {
+    "core": {
+      "weight": 0.40,
+      "detectors": ["rsi", "macd", "ma_cross", "bollinger", "volume", "adx", "roc"],
+      "description": "Core technical indicators - fundamental price action analysis"
+    },
+    "smc": {
+      "weight": 0.25,
+      "detectors": ["market_structure", "order_blocks", "fvg", "bos", "liquidity", "support_resistance"],
+      "description": "Smart Money Concepts - institutional trading patterns"
+    },
+    "patterns": {
+      "weight": 0.20,
+      "detectors": ["harmonics", "elliott", "classical_patterns", "reversal"],
+      "description": "Pattern recognition - harmonics, Elliott waves, classical patterns"
+    },
+    "sentiment": {
+      "weight": 0.10,
+      "detectors": ["sentiment", "news", "whales"],
+      "description": "Market sentiment - fear/greed, news, whale activity"
+    },
+    "ml": {
+      "weight": 0.05,
+      "detectors": ["ml_ai"],
+      "description": "Machine learning predictions - neural network analysis"
+    }
+  },
+  "adaptive": {
+    "enabled": false,
+    "description": "Smart adaptive weighting based on detector performance",
+    "minSampleSize": 50,
+    "learningRate": 0.05,
+    "decay": 0.99,
+    "categoryBounds": {
+      "core": { "min": 0.30, "max": 0.50 },
+      "smc": { "min": 0.15, "max": 0.35 },
+      "patterns": { "min": 0.10, "max": 0.30 },
+      "sentiment": { "min": 0.05, "max": 0.20 },
+      "ml": { "min": 0.02, "max": 0.15 }
+    },
+    "detectorBounds": {
+      "rsi": { "min": 0.05, "max": 0.15 },
+      "macd": { "min": 0.05, "max": 0.15 },
+      "ma_cross": { "min": 0.03, "max": 0.12 },
+      "bollinger": { "min": 0.03, "max": 0.12 },
+      "volume": { "min": 0.02, "max": 0.10 },
+      "adx": { "min": 0.03, "max": 0.12 },
+      "roc": { "min": 0.02, "max": 0.10 },
+      "market_structure": { "min": 0.05, "max": 0.15 },
+      "sentiment": { "min": 0.03, "max": 0.12 },
+      "news": { "min": 0.02, "max": 0.10 },
+      "whales": { "min": 0.01, "max": 0.05 },
+      "ml_ai": { "min": 0.02, "max": 0.15 }
+    },
+    "telemetryPath": "storage/mlOutputs/scoring_telemetry.json",
+    "updateIntervalMs": 300000
+  },
+  "regimeDetection": {
+    "enabled": true,
+    "types": ["bull", "bear", "sideways"],
+    "indicators": {
+      "sma_50": { "weight": 0.3 },
+      "sma_200": { "weight": 0.3 },
+      "atr": { "weight": 0.2 },
+      "volume": { "weight": 0.2 }
+    }
+  },
+  "hotReload": true,
+  "reloadIntervalMs": 30000,
+  "multiTimeframe": {
+    "enabled": true,
+    "intervals": ["15m", "1h", "4h"],
+    "aggregationMethod": "weighted"
+  },
+  "tuning": {
+    "enabled": false,
+    "mode": "grid",
+    "maxCandidates": 30,
+    "maxGenerations": 10,
+    "populationSize": 12,
+    "metric": "sharpe",
+    "backtestDefaults": {
+      "symbolUniverse": ["BTCUSDT", "ETHUSDT"],
+      "timeframe": "1h",
+      "lookbackDays": 60,
+      "initialBalance": 1000
+    },
+    "promotion": {
+      "autoPromote": false,
+      "tunedConfigPath": "config/scoring.tuned.json"
+    }
+  },
+  "autoTrade": {
+    "enabled": false,
+    "minScore": 0.80,
+    "allowedActions": ["BUY", "SELL"],
+    "quantityUSDT": 100,
+    "description": "Automatic trade execution for Strategy 3 results. Enable with caution - testnet only."
+  }
+}

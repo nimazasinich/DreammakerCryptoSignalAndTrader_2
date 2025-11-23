@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1000" width="1200" height="1000">
+  <defs>
+    <style>
+      .title { font: bold 24px sans-serif; fill: #333; }
+      .subtitle { font: 16px sans-serif; fill: #666; }
+      .node { fill: #4CAF50; stroke: #2E7D32; stroke-width: 2; }
+      .node-text { font: 14px sans-serif; fill: #fff; text-anchor: middle; }
+      .prod-dep { fill: #2196F3; stroke: #0D47A1; stroke-width: 2; }
+      .dev-dep { fill: #FF9800; stroke: #E65100; stroke-width: 2; }
+      .optional-dep { fill: #9C27B0; stroke: #4A148C; stroke-width: 2; }
+      .dep-text { font: 12px sans-serif; fill: #fff; text-anchor: middle; }
+      .arrow { stroke: #666; stroke-width: 1.5; fill: none; marker-end: url(#arrowhead); }
+      .optional-arrow { stroke: #9C27B0; stroke-width: 1.5; stroke-dasharray: 5,5; fill: none; marker-end: url(#arrowhead-optional); }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <polygon points="0 0, 8 4, 0 8" fill="#666" />
+    </marker>
+    <marker id="arrowhead-optional" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <polygon points="0 0, 8 4, 0 8" fill="#9C27B0" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="600" y="40" class="title" text-anchor="middle">BOLT AI Dependency Graph</text>
+  <text x="600" y="65" class="subtitle" text-anchor="middle">Production, Development &amp; Optional Dependencies</text>
+
+  <!-- Main Application Node -->
+  <rect x="500" y="100" width="200" height="60" class="node" rx="5" />
+  <text x="600" y="125" class="node-text" font-weight="bold">bolt-ai-crypto-agent</text>
+  <text x="600" y="145" class="node-text">v1.0.2-enhanced</text>
+
+  <!-- Production Dependencies (Top Tier) -->
+  <text x="200" y="220" class="subtitle" font-weight="bold">Production Dependencies (36)</text>
+
+  <!-- Core Runtime -->
+  <rect x="50" y="250" width="140" height="40" class="prod-dep" rx="3" />
+  <text x="120" y="275" class="dep-text">express ^4.18.2</text>
+
+  <rect x="210" y="250" width="140" height="40" class="prod-dep" rx="3" />
+  <text x="280" y="275" class="dep-text">react ^18.3.1</text>
+
+  <rect x="370" y="250" width="140" height="40" class="prod-dep" rx="3" />
+  <text x="440" y="275" class="dep-text">ws ^8.18.3</text>
+
+  <rect x="530" y="250" width="140" height="40" class="prod-dep" rx="3" />
+  <text x="600" y="275" class="dep-text">axios ^1.12.2</text>
+
+  <!-- Database -->
+  <rect x="50" y="320" width="160" height="40" class="prod-dep" rx="3" />
+  <text x="130" y="345" class="dep-text">better-sqlite3 ^12.2.0</text>
+
+  <rect x="230" y="320" width="140" height="40" class="prod-dep" rx="3" />
+  <text x="300" y="345" class="dep-text">redis ^5.8.2</text>
+
+  <rect x="390" y="320" width="140" height="40" class="prod-dep" rx="3" />
+  <text x="460" y="345" class="dep-text">ioredis ^5.7.0</text>
+
+  <!-- Security & Utils -->
+  <rect x="50" y="390" width="140" height="40" class="prod-dep" rx="3" />
+  <text x="120" y="415" class="dep-text">helmet ^7.1.0</text>
+
+  <rect x="210" y="390" width="140" height="40" class="prod-dep" rx="3" />
+  <text x="280" y="415" class="dep-text">cors ^2.8.5</text>
+
+  <rect x="370" y="390" width="140" height="40" class="prod-dep" rx="3" />
+  <text x="440" y="415" class="dep-text">crypto-js ^4.2.0</text>
+
+  <rect x="530" y="390" width="140" height="40" class="prod-dep" rx="3" />
+  <text x="600" y="415" class="dep-text">dotenv ^16.3.1</text>
+
+  <!-- UI & Data Processing -->
+  <rect x="690" y="250" width="150" height="40" class="prod-dep" rx="3" />
+  <text x="765" y="275" class="dep-text">lucide-react ^0.344.0</text>
+
+  <rect x="690" y="320" width="150" height="40" class="prod-dep" rx="3" />
+  <text x="765" y="345" class="dep-text">mathjs ^14.7.0</text>
+
+  <rect x="690" y="390" width="150" height="40" class="prod-dep" rx="3" />
+  <text x="765" y="415" class="dep-text">ml-matrix ^6.12.1</text>
+
+  <!-- Additional -->
+  <rect x="860" y="250" width="150" height="40" class="prod-dep" rx="3" />
+  <text x="935" y="275" class="dep-text">cheerio ^1.1.2</text>
+
+  <rect x="860" y="320" width="150" height="40" class="prod-dep" rx="3" />
+  <text x="935" y="345" class="dep-text">jsdom ^27.0.0</text>
+
+  <rect x="860" y="390" width="150" height="40" class="prod-dep" rx="3" />
+  <text x="935" y="415" class="dep-text">node-cron ^4.2.1</text>
+
+  <rect x="1030" y="250" width="150" height="40" class="prod-dep" rx="3" />
+  <text x="1105" y="275" class="dep-text">node-fetch ^2.7.0</text>
+
+  <!-- Optional Dependencies -->
+  <text x="200" y="500" class="subtitle" font-weight="bold">Optional Dependencies (1)</text>
+
+  <rect x="50" y="530" width="250" height="50" class="optional-dep" rx="3" />
+  <text x="175" y="550" class="dep-text" font-weight="bold">@tensorflow/tfjs-node</text>
+  <text x="175" y="568" class="dep-text">^4.15.0 (100MB, platform-specific)</text>
+
+  <!-- Dev Dependencies (Bottom Tier) -->
+  <text x="700" y="500" class="subtitle" font-weight="bold">Development Dependencies (26)</text>
+
+  <!-- Build Tools -->
+  <rect x="350" y="530" width="140" height="40" class="dev-dep" rx="3" />
+  <text x="420" y="555" class="dep-text">vite ^5.4.2</text>
+
+  <rect x="510" y="530" width="140" height="40" class="dev-dep" rx="3" />
+  <text x="580" y="555" class="dep-text">typescript ^5.5.3</text>
+
+  <rect x="670" y="530" width="140" height="40" class="dev-dep" rx="3" />
+  <text x="740" y="555" class="dep-text">tsx ^4.20.6</text>
+
+  <rect x="830" y="530" width="140" height="40" class="dev-dep" rx="3" />
+  <text x="900" y="555" class="dep-text">tailwindcss ^3.4.1</text>
+
+  <!-- Testing -->
+  <rect x="350" y="600" width="140" height="40" class="dev-dep" rx="3" />
+  <text x="420" y="625" class="dep-text">jest ^29.7.0</text>
+
+  <rect x="510" y="600" width="160" height="40" class="dev-dep" rx="3" />
+  <text x="590" y="625" class="dep-text">@playwright/test ^1.48.2</text>
+
+  <rect x="690" y="600" width="140" height="40" class="dev-dep" rx="3" />
+  <text x="760" y="625" class="dep-text">ts-jest ^29.1.2</text>
+
+  <!-- Linting -->
+  <rect x="350" y="670" width="140" height="40" class="dev-dep" rx="3" />
+  <text x="420" y="695" class="dep-text">eslint ^9.9.1</text>
+
+  <rect x="510" y="670" width="180" height="40" class="dev-dep" rx="3" />
+  <text x="600" y="695" class="dep-text">typescript-eslint ^8.3.0</text>
+
+  <!-- React -->
+  <rect x="710" y="670" width="160" height="40" class="dev-dep" rx="3" />
+  <text x="790" y="695" class="dep-text">@vitejs/plugin-react</text>
+
+  <!-- TypeScript Types -->
+  <rect x="900" y="600" width="140" height="40" class="dev-dep" rx="3" />
+  <text x="970" y="625" class="dep-text">@types/node</text>
+
+  <rect x="900" y="670" width="140" height="40" class="dev-dep" rx="3" />
+  <text x="970" y="695" class="dep-text">@types/express</text>
+
+  <rect x="1060" y="600" width="120" height="40" class="dev-dep" rx="3" />
+  <text x="1120" y="625" class="dep-text">@types/react</text>
+
+  <rect x="1060" y="670" width="120" height="40" class="dev-dep" rx="3" />
+  <text x="1120" y="695" class="dep-text">@types/ws</text>
+
+  <!-- Utilities -->
+  <rect x="350" y="740" width="140" height="40" class="dev-dep" rx="3" />
+  <text x="420" y="765" class="dep-text">concurrently ^9.2.1</text>
+
+  <rect x="510" y="740" width="140" height="40" class="dev-dep" rx="3" />
+  <text x="580" y="765" class="dep-text">nodemon ^3.0.1</text>
+
+  <!-- Arrows from main to deps -->
+  <path d="M 600 160 L 120 250" class="arrow" />
+  <path d="M 600 160 L 280 250" class="arrow" />
+  <path d="M 600 160 L 440 250" class="arrow" />
+  <path d="M 600 160 L 600 250" class="arrow" />
+  <path d="M 600 160 L 765 250" class="arrow" />
+
+  <path d="M 600 160 L 130 320" class="arrow" />
+  <path d="M 600 160 L 300 320" class="arrow" />
+  <path d="M 600 160 L 460 320" class="arrow" />
+
+  <path d="M 600 160 L 120 390" class="arrow" />
+  <path d="M 600 160 L 280 390" class="arrow" />
+
+  <!-- Optional dependency (dashed) -->
+  <path d="M 600 160 L 175 530" class="optional-arrow" />
+
+  <!-- Dev dependencies -->
+  <path d="M 600 160 L 420 530" class="arrow" stroke-dasharray="3,3" />
+  <path d="M 600 160 L 580 530" class="arrow" stroke-dasharray="3,3" />
+  <path d="M 600 160 L 740 530" class="arrow" stroke-dasharray="3,3" />
+
+  <!-- Legend -->
+  <rect x="50" y="840" width="1100" height="120" fill="#f5f5f5" stroke="#ddd" stroke-width="1" rx="5" />
+  <text x="600" y="865" class="subtitle" text-anchor="middle" font-weight="bold">Legend</text>
+
+  <rect x="100" y="885" width="120" height="30" class="prod-dep" rx="3" />
+  <text x="230" y="905" class="subtitle">Production (36)</text>
+
+  <rect x="350" y="885" width="120" height="30" class="dev-dep" rx="3" />
+  <text x="480" y="905" class="subtitle">Development (26)</text>
+
+  <rect x="600" y="885" width="120" height="30" class="optional-dep" rx="3" />
+  <text x="730" y="905" class="subtitle">Optional (1)</text>
+
+  <line x1="850" y1="900" x2="920" y2="900" class="optional-arrow" />
+  <text x="930" y="905" class="subtitle">Optional/Dashed</text>
+
+  <!-- Stats -->
+  <text x="600" y="940" class="subtitle" text-anchor="middle">Total Dependencies: 63 | Package Manager: npm | Lock File: package-lock.json</text>
+
+  <!-- Footer -->
+  <text x="600" y="980" class="subtitle" text-anchor="middle">Generated by: Cursor AI Agent | Date: 2025-11-06 | Source: package.json</text>
+
+</svg>

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1400" width="1200" height="1400">
+  <defs>
+    <style>
+      .title { font: bold 24px sans-serif; fill: #333; }
+      .subtitle { font: 16px sans-serif; fill: #666; }
+      .layer-title { font: bold 18px sans-serif; fill: #fff; }
+      .service-box { fill: #4CAF50; stroke: #2E7D32; stroke-width: 2; }
+      .service-text { font: 14px sans-serif; fill: #fff; }
+      .infrastructure-box { fill: #2196F3; stroke: #0D47A1; stroke-width: 2; }
+      .data-box { fill: #FF9800; stroke: #E65100; stroke-width: 2; }
+      .external-box { fill: #9C27B0; stroke: #4A148C; stroke-width: 2; }
+      .client-box { fill: #F44336; stroke: #B71C1C; stroke-width: 2; }
+      .arrow { stroke: #666; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .bidirectional { stroke: #666; stroke-width: 2; fill: none; marker-end: url(#arrowhead); marker-start: url(#arrowhead-start); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#666" />
+    </marker>
+    <marker id="arrowhead-start" markerWidth="10" markerHeight="10" refX="1" refY="3" orient="auto">
+      <polygon points="10 0, 0 3, 10 6" fill="#666" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="600" y="40" class="title" text-anchor="middle">BOLT AI Service Architecture Map</text>
+  <text x="600" y="65" class="subtitle" text-anchor="middle">Comprehensive Service Dependencies &amp; Data Flow</text>
+
+  <!-- Client Layer -->
+  <rect x="50" y="100" width="1100" height="120" class="client-box" rx="5" />
+  <text x="600" y="130" class="layer-title" text-anchor="middle">CLIENT LAYER (React SPA)</text>
+  <text x="150" y="160" class="service-text">Dashboard View</text>
+  <text x="300" y="160" class="service-text">Charting View</text>
+  <text x="450" y="160" class="service-text">Trading View</text>
+  <text x="600" y="160" class="service-text">Scanner View</text>
+  <text x="750" y="160" class="service-text">Training View</text>
+  <text x="900" y="160" class="service-text">Risk View</text>
+  <text x="1050" y="160" class="service-text">Settings View</text>
+  <text x="600" y="190" class="service-text" text-anchor="middle">WebSocket Client | REST API Client | Context Providers</text>
+
+  <!-- Application Layer -->
+  <rect x="50" y="260" width="1100" height="180" class="infrastructure-box" rx="5" />
+  <text x="600" y="290" class="layer-title" text-anchor="middle">APPLICATION LAYER (Express Server)</text>
+  
+  <rect x="80" y="310" width="230" height="110" fill="#1976D2" stroke="#0D47A1" stroke-width="1" rx="3" />
+  <text x="195" y="335" class="service-text" text-anchor="middle" font-weight="bold">REST API</text>
+  <text x="195" y="360" class="service-text" text-anchor="middle">60+ Endpoints</text>
+  <text x="195" y="380" class="service-text" text-anchor="middle">Market | AI | Trading</text>
+  <text x="195" y="400" class="service-text" text-anchor="middle">Analysis | System</text>
+
+  <rect x="340" y="310" width="230" height="110" fill="#1976D2" stroke="#0D47A1" stroke-width="1" rx="3" />
+  <text x="455" y="335" class="service-text" text-anchor="middle" font-weight="bold">WebSocket Server</text>
+  <text x="455" y="360" class="service-text" text-anchor="middle">Real-time Streaming</text>
+  <text x="455" y="380" class="service-text" text-anchor="middle">Price | Signals</text>
+  <text x="455" y="400" class="service-text" text-anchor="middle">Sentiment | Health</text>
+
+  <rect x="600" y="310" width="230" height="110" fill="#1976D2" stroke="#0D47A1" stroke-width="1" rx="3" />
+  <text x="715" y="335" class="service-text" text-anchor="middle" font-weight="bold">Middleware</text>
+  <text x="715" y="360" class="service-text" text-anchor="middle">CORS | Helmet</text>
+  <text x="715" y="380" class="service-text" text-anchor="middle">Error Handler</text>
+  <text x="715" y="400" class="service-text" text-anchor="middle">Logger</text>
+
+  <rect x="860" y="310" width="230" height="110" fill="#1976D2" stroke="#0D47A1" stroke-width="1" rx="3" />
+  <text x="975" y="335" class="service-text" text-anchor="middle" font-weight="bold">Controllers</text>
+  <text x="975" y="360" class="service-text" text-anchor="middle">Market</text>
+  <text x="975" y="380" class="service-text" text-anchor="middle">Trading | AI</text>
+  <text x="975" y="400" class="service-text" text-anchor="middle">Analysis | System</text>
+
+  <!-- Service Layer -->
+  <rect x="50" y="480" width="1100" height="320" class="service-box" rx="5" />
+  <text x="600" y="510" class="layer-title" text-anchor="middle">SERVICE LAYER (64 Singleton Services)</text>
+
+  <!-- Market Data Services -->
+  <rect x="80" y="530" width="200" height="240" fill="#388E3C" stroke="#1B5E20" stroke-width="1" rx="3" />
+  <text x="180" y="555" class="service-text" text-anchor="middle" font-weight="bold">Market Data</text>
+  <text x="180" y="580" class="service-text" text-anchor="middle">RealMarketData</text>
+  <text x="180" y="600" class="service-text" text-anchor="middle">BinanceService</text>
+  <text x="180" y="620" class="service-text" text-anchor="middle">KuCoinService</text>
+  <text x="180" y="640" class="service-text" text-anchor="middle">MultiProvider</text>
+  <text x="180" y="660" class="service-text" text-anchor="middle">HistoricalData</text>
+  <text x="180" y="680" class="service-text" text-anchor="middle">CORSProxy</text>
+  <text x="180" y="700" class="service-text" text-anchor="middle">DataValidation</text>
+  <text x="180" y="720" class="service-text" text-anchor="middle">EmergencyFallback</text>
+  <text x="180" y="740" class="service-text" text-anchor="middle">RedisService</text>
+
+  <!-- AI/ML Services -->
+  <rect x="310" y="530" width="200" height="240" fill="#388E3C" stroke="#1B5E20" stroke-width="1" rx="3" />
+  <text x="410" y="555" class="service-text" text-anchor="middle" font-weight="bold">AI/ML Engine</text>
+  <text x="410" y="580" class="service-text" text-anchor="middle">BullBearAgent</text>
+  <text x="410" y="600" class="service-text" text-anchor="middle">TrainingEngine</text>
+  <text x="410" y="620" class="service-text" text-anchor="middle">BacktestEngine</text>
+  <text x="410" y="640" class="service-text" text-anchor="middle">FeatureEngineering</text>
+  <text x="410" y="660" class="service-text" text-anchor="middle">ExperienceBuffer</text>
+  <text x="410" y="680" class="service-text" text-anchor="middle">AdamWOptimizer</text>
+  <text x="410" y="700" class="service-text" text-anchor="middle">XavierInitializer</text>
+  <text x="410" y="720" class="service-text" text-anchor="middle">LRScheduler</text>
+  <text x="410" y="740" class="service-text" text-anchor="middle">ContinuousLearning</text>
+
+  <!-- Analysis Services -->
+  <rect x="540" y="530" width="200" height="240" fill="#388E3C" stroke="#1B5E20" stroke-width="1" rx="3" />
+  <text x="640" y="555" class="service-text" text-anchor="middle" font-weight="bold">Analysis</text>
+  <text x="640" y="580" class="service-text" text-anchor="middle">SMCAnalyzer</text>
+  <text x="640" y="600" class="service-text" text-anchor="middle">ElliottWave</text>
+  <text x="640" y="620" class="service-text" text-anchor="middle">HarmonicPattern</text>
+  <text x="640" y="640" class="service-text" text-anchor="middle">TechnicalAnalysis</text>
+  <text x="640" y="660" class="service-text" text-anchor="middle">SignalGenerator</text>
+  <text x="640" y="680" class="service-text" text-anchor="middle">AdaptiveScoring</text>
+  <text x="640" y="700" class="service-text" text-anchor="middle">DynamicWeighting</text>
+  <text x="640" y="720" class="service-text" text-anchor="middle">GatekeeperService</text>
+  <text x="640" y="740" class="service-text" text-anchor="middle">StrategyPipeline</text>
+
+  <!-- Trading & Blockchain -->
+  <rect x="770" y="530" width="150" height="120" fill="#388E3C" stroke="#1B5E20" stroke-width="1" rx="3" />
+  <text x="845" y="555" class="service-text" text-anchor="middle" font-weight="bold">Trading</text>
+  <text x="845" y="580" class="service-text" text-anchor="middle">OrderMgmt</text>
+  <text x="845" y="600" class="service-text" text-anchor="middle">VirtualTrading</text>
+  <text x="845" y="620" class="service-text" text-anchor="middle">UnifiedExchange</text>
+  <text x="845" y="640" class="service-text" text-anchor="middle">AlertService</text>
+
+  <rect x="770" y="670" width="150" height="100" fill="#388E3C" stroke="#1B5E20" stroke-width="1" rx="3" />
+  <text x="845" y="695" class="service-text" text-anchor="middle" font-weight="bold">Blockchain</text>
+  <text x="845" y="720" class="service-text" text-anchor="middle">BlockchainData</text>
+  <text x="845" y="740" class="service-text" text-anchor="middle">WhaleTracker</text>
+  <text x="845" y="760" class="service-text" text-anchor="middle">FearGreed</text>
+
+  <!-- Monitoring & System -->
+  <rect x="950" y="530" width="150" height="240" fill="#388E3C" stroke="#1B5E20" stroke-width="1" rx="3" />
+  <text x="1025" y="555" class="service-text" text-anchor="middle" font-weight="bold">Infrastructure</text>
+  <text x="1025" y="580" class="service-text" text-anchor="middle">Logger</text>
+  <text x="1025" y="600" class="service-text" text-anchor="middle">ConfigManager</text>
+  <text x="1025" y="620" class="service-text" text-anchor="middle">HealthCheck</text>
+  <text x="1025" y="640" class="service-text" text-anchor="middle">MetricsCollector</text>
+  <text x="1025" y="660" class="service-text" text-anchor="middle">PerformanceMonitor</text>
+  <text x="1025" y="680" class="service-text" text-anchor="middle">AlertManager</text>
+  <text x="1025" y="700" class="service-text" text-anchor="middle">Notification</text>
+  <text x="1025" y="720" class="service-text" text-anchor="middle">TelegramService</text>
+  <text x="1025" y="740" class="service-text" text-anchor="middle">ServiceOrchestrator</text>
+
+  <!-- Data Layer -->
+  <rect x="50" y="840" width="540" height="140" class="data-box" rx="5" />
+  <text x="320" y="870" class="layer-title" text-anchor="middle">DATA LAYER</text>
+
+  <rect x="80" y="890" width="150" height="70" fill="#EF6C00" stroke="#BF360C" stroke-width="1" rx="3" />
+  <text x="155" y="915" class="service-text" text-anchor="middle" font-weight="bold">SQLite Database</text>
+  <text x="155" y="935" class="service-text" text-anchor="middle">EncryptedDatabase</text>
+  <text x="155" y="950" class="service-text" text-anchor="middle">Migrations</text>
+
+  <rect x="260" y="890" width="150" height="70" fill="#EF6C00" stroke="#BF360C" stroke-width="1" rx="3" />
+  <text x="335" y="915" class="service-text" text-anchor="middle" font-weight="bold">Repositories</text>
+  <text x="335" y="935" class="service-text" text-anchor="middle">MarketData</text>
+  <text x="335" y="950" class="service-text" text-anchor="middle">TrainingMetrics</text>
+
+  <rect x="440" y="890" width="130" height="70" fill="#EF6C00" stroke="#BF360C" stroke-width="1" rx="3" />
+  <text x="505" y="915" class="service-text" text-anchor="middle" font-weight="bold">Redis Cache</text>
+  <text x="505" y="935" class="service-text" text-anchor="middle">(Optional)</text>
+  <text x="505" y="950" class="service-text" text-anchor="middle">Pub/Sub</text>
+
+  <!-- External APIs Layer -->
+  <rect x="620" y="840" width="530" height="140" class="external-box" rx="5" />
+  <text x="885" y="870" class="layer-title" text-anchor="middle">EXTERNAL APIs</text>
+
+  <rect x="650" y="890" width="120" height="70" fill="#7B1FA2" stroke="#4A148C" stroke-width="1" rx="3" />
+  <text x="710" y="915" class="service-text" text-anchor="middle" font-weight="bold">Market Data</text>
+  <text x="710" y="935" class="service-text" text-anchor="middle">CoinGecko</text>
+  <text x="710" y="950" class="service-text" text-anchor="middle">CryptoCompare</text>
+
+  <rect x="800" y="890" width="120" height="70" fill="#7B1FA2" stroke="#4A148C" stroke-width="1" rx="3" />
+  <text x="860" y="915" class="service-text" text-anchor="middle" font-weight="bold">Exchanges</text>
+  <text x="860" y="935" class="service-text" text-anchor="middle">Binance</text>
+  <text x="860" y="950" class="service-text" text-anchor="middle">KuCoin</text>
+
+  <rect x="950" y="890" width="180" height="70" fill="#7B1FA2" stroke="#4A148C" stroke-width="1" rx="3" />
+  <text x="1040" y="915" class="service-text" text-anchor="middle" font-weight="bold">Blockchain</text>
+  <text x="1040" y="935" class="service-text" text-anchor="middle">Etherscan | BscScan</text>
+  <text x="1040" y="950" class="service-text" text-anchor="middle">TronScan</text>
+
+  <!-- Arrows showing data flow -->
+  <!-- Client to Application -->
+  <path d="M 600 220 L 600 260" class="bidirectional" />
+  <text x="620" y="245" class="subtitle">REST + WS</text>
+
+  <!-- Application to Service -->
+  <path d="M 195 440 L 180 480" class="arrow" />
+  <path d="M 455 440 L 410 480" class="arrow" />
+  <path d="M 715 440 L 640 480" class="arrow" />
+  <path d="M 975 440 L 845 480" class="arrow" />
+
+  <!-- Service to Data -->
+  <path d="M 180 800 L 155 840" class="arrow" />
+  <path d="M 410 800 L 335 840" class="arrow" />
+  <path d="M 640 800 L 505 840" class="arrow" />
+
+  <!-- Service to External -->
+  <path d="M 845 800 L 860 840" class="arrow" />
+  <path d="M 1025 800 L 1040 840" class="arrow" />
+
+  <!-- Legend -->
+  <rect x="50" y="1020" width="1100" height="140" fill="#f5f5f5" stroke="#ddd" stroke-width="1" rx="5" />
+  <text x="600" y="1045" class="subtitle" text-anchor="middle" font-weight="bold">Legend</text>
+
+  <rect x="100" y="1060" width="80" height="30" class="client-box" rx="3" />
+  <text x="200" y="1080" class="subtitle">Client Layer</text>
+
+  <rect x="350" y="1060" width="80" height="30" class="infrastructure-box" rx="3" />
+  <text x="450" y="1080" class="subtitle">Application Layer</text>
+
+  <rect x="600" y="1060" width="80" height="30" class="service-box" rx="3" />
+  <text x="700" y="1080" class="subtitle">Service Layer</text>
+
+  <rect x="100" y="1110" width="80" height="30" class="data-box" rx="3" />
+  <text x="200" y="1130" class="subtitle">Data Layer</text>
+
+  <rect x="350" y="1110" width="80" height="30" class="external-box" rx="3" />
+  <text x="450" y="1130" class="subtitle">External APIs</text>
+
+  <!-- Footer -->
+  <text x="600" y="1200" class="subtitle" text-anchor="middle">Generated by: Cursor AI Agent | Date: 2025-11-06</text>
+  <text x="600" y="1225" class="subtitle" text-anchor="middle">Total Services: 64 | Total Endpoints: 60+ | Architecture: Monolithic with Service Orchestration</text>
+
+</svg>

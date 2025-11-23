@@ -1,0 +1,48 @@
+{
+  "automatic": {
+    "enabled": true,
+    "triggers": [
+      {
+        "name": "health_check_failure",
+        "condition": "health check fails after deployment",
+        "waitTime": "2m",
+        "action": "rollback-to-previous"
+      },
+      {
+        "name": "high_error_rate",
+        "condition": "error_rate > 5%",
+        "duration": "5m",
+        "action": "rollback-to-previous"
+      },
+      {
+        "name": "performance_degradation",
+        "condition": "response_time > 2x baseline",
+        "duration": "10m",
+        "action": "rollback-to-previous"
+      }
+    ]
+  },
+  "manual": {
+    "command": "./scripts/deploy.sh --rollback",
+    "steps": [
+      "Stop current deployment",
+      "Restore previous Docker image",
+      "Restart services",
+      "Verify health checks",
+      "Notify team"
+    ],
+    "verification": [
+      "Health checks pass",
+      "Error rate < 1%",
+      "Response time normal",
+      "WebSocket connections stable"
+    ]
+  },
+  "backup": {
+    "beforeDeployment": true,
+    "location": "./backups",
+    "retention": 30,
+    "includes": ["database", "config", "logs"]
+  }
+}
+

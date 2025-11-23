@@ -1,0 +1,129 @@
+{
+  "project": {
+    "name": "BOLT AI - Advanced Cryptocurrency Neural Agent System",
+    "version": "1.0.0",
+    "techStack": ["TypeScript", "Node.js", "Express", "WebSocket", "SQLite", "Redis"],
+    "ports": {
+      "main": 8001,
+      "redis": 6379,
+      "nginx": 80
+    }
+  },
+  "githubActions": {
+    "workflows": [
+      {
+        "name": "ci.yml",
+        "path": ".github/workflows/ci.yml",
+        "triggers": ["push", "pull_request"],
+        "branches": ["main", "develop"],
+        "jobs": ["lint", "typecheck", "build", "test"],
+        "nodeVersions": ["18.x", "20.x"],
+        "caching": true
+      },
+      {
+        "name": "deploy.yml",
+        "path": ".github/workflows/deploy.yml",
+        "triggers": ["push"],
+        "branches": ["main"],
+        "jobs": ["build-image", "security-scan", "deploy-staging", "deploy-production"],
+        "requiresApproval": true,
+        "rollbackEnabled": true
+      },
+      {
+        "name": "test.yml",
+        "path": ".github/workflows/test.yml",
+        "triggers": ["pull_request"],
+        "jobs": ["unit-tests", "integration-tests", "coverage"],
+        "testMatrix": {
+          "nodeVersions": ["18.x", "20.x"],
+          "os": ["ubuntu-latest", "windows-latest"]
+        }
+      },
+      {
+        "name": "security.yml",
+        "path": ".github/workflows/security.yml",
+        "triggers": ["schedule", "push"],
+        "schedule": "0 0 * * *",
+        "jobs": ["dependency-scan", "image-scan", "code-scan", "secret-scan"]
+      },
+      {
+        "name": "performance.yml",
+        "path": ".github/workflows/performance.yml",
+        "triggers": ["schedule", "workflow_dispatch"],
+        "schedule": "0 2 * * 0",
+        "jobs": ["load-test", "stress-test", "memory-test"]
+      }
+    ]
+  },
+  "docker": {
+    "images": [
+      {
+        "name": "bolt-ai",
+        "baseImage": "node:20-alpine",
+        "multiStage": true,
+        "stages": ["builder", "production"],
+        "platforms": ["linux/amd64", "linux/arm64"],
+        "healthCheck": {
+          "endpoint": "/api/health",
+          "interval": "30s",
+          "timeout": "10s",
+          "retries": 3
+        }
+      }
+    ],
+    "compose": {
+      "services": ["app", "redis", "nginx"],
+      "networks": ["bolt-network"],
+      "volumes": ["data", "logs", "config"]
+    }
+  },
+  "scripts": {
+    "healthCheck": {
+      "path": "scripts/health-check.sh",
+      "endpoints": ["/api/health", "/api/hf/health", "/metrics"],
+      "timeout": 10,
+      "exitCodes": {
+        "0": "healthy",
+        "1": "unhealthy"
+      }
+    },
+    "deploy": {
+      "path": "scripts/deploy.sh",
+      "environments": ["staging", "production"],
+      "steps": ["backup", "build", "test", "deploy", "health-check", "rollback-on-failure"]
+    },
+    "backup": {
+      "path": "scripts/backup.sh",
+      "targets": ["database", "config", "logs"],
+      "retention": 30,
+      "compression": "gzip"
+    },
+    "restore": {
+      "path": "scripts/restore.sh",
+      "validation": true,
+      "integrityCheck": true
+    }
+  },
+  "kubernetes": {
+    "enabled": false,
+    "manifests": ["deployment.yaml", "service.yaml", "ingress.yaml"],
+    "autoscaling": {
+      "minReplicas": 2,
+      "maxReplicas": 10,
+      "targetCPU": 70
+    }
+  },
+  "monitoring": {
+    "healthChecks": true,
+    "metrics": {
+      "endpoint": "/metrics",
+      "format": "prometheus"
+    },
+    "logging": {
+      "level": "info",
+      "format": "json",
+      "rotation": true
+    }
+  }
+}
+

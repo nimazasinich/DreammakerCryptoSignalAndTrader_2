@@ -1,0 +1,9 @@
+[
+  {
+    "exchange": "kucoin",
+    "apiKey": "",
+    "secret": "",
+    "passphrase": "",
+    "isDefault": true
+  }
+]

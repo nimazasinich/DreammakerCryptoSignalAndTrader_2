@@ -1,0 +1,366 @@
+{
+  "title": "BOLT AI Trading System - Monitoring Setup",
+  "version": "1.0.0",
+  "last_updated": "2025-11-23",
+  "overview": {
+    "description": "Comprehensive monitoring and observability setup for BOLT AI Trading System",
+    "pillars": ["Metrics", "Logs", "Traces", "Alerts"],
+    "tools": ["Prometheus", "Grafana", "Docker Logs", "Health Checks"]
+  },
+  "health_checks": {
+    "endpoints": {
+      "/api/health": {
+        "description": "Main application health status",
+        "method": "GET",
+        "expected_status": 200,
+        "response_format": {
+          "status": "healthy|unhealthy",
+          "timestamp": "ISO 8601 timestamp",
+          "uptime": "seconds",
+          "version": "application version"
+        },
+        "frequency": "Every 30 seconds"
+      },
+      "/api/hf/health": {
+        "description": "HuggingFace API connection status",
+        "method": "GET",
+        "expected_status": 200,
+        "checks": [
+          "API reachability",
+          "Authentication status",
+          "Rate limit status"
+        ]
+      },
+      "/metrics": {
+        "description": "Prometheus metrics endpoint",
+        "method": "GET",
+        "expected_status": 200,
+        "format": "Prometheus text format"
+      }
+    },
+    "script": {
+      "path": "./scripts/health-check.sh",
+      "usage": "./scripts/health-check.sh <base-url>",
+      "checks": [
+        "HTTP health endpoints",
+        "WebSocket connectivity",
+        "Database connectivity",
+        "Redis connection",
+        "Disk space",
+        "Memory usage"
+      ],
+      "output": {
+        "console": "Colored status output",
+        "json": "Machine-readable results"
+      }
+    },
+    "docker": {
+      "healthcheck": {
+        "interval": "30s",
+        "timeout": "10s",
+        "retries": 3,
+        "start_period": "40s",
+        "command": "node -e \"require('http').get('http://localhost:8001/api/health', ...)\""
+      }
+    }
+  },
+  "metrics": {
+    "prometheus": {
+      "endpoint": "/metrics",
+      "format": "Prometheus text-based exposition format",
+      "scrape_interval": "15s",
+      "metrics_to_expose": {
+        "http_requests_total": {
+          "type": "Counter",
+          "description": "Total HTTP requests",
+          "labels": ["method", "path", "status"]
+        },
+        "http_request_duration_seconds": {
+          "type": "Histogram",
+          "description": "HTTP request duration",
+          "labels": ["method", "path"],
+          "buckets": [0.001, 0.01, 0.1, 0.5, 1, 2, 5]
+        },
+        "websocket_connections": {
+          "type": "Gauge",
+          "description": "Current WebSocket connections"
+        },
+        "database_queries_total": {
+          "type": "Counter",
+          "description": "Total database queries",
+          "labels": ["operation"]
+        },
+        "database_query_duration_seconds": {
+          "type": "Histogram",
+          "description": "Database query duration"
+        },
+        "cache_hits_total": {
+          "type": "Counter",
+          "description": "Cache hits",
+          "labels": ["cache_type"]
+        },
+        "cache_misses_total": {
+          "type": "Counter",
+          "description": "Cache misses",
+          "labels": ["cache_type"]
+        },
+        "errors_total": {
+          "type": "Counter",
+          "description": "Total errors",
+          "labels": ["type", "severity"]
+        }
+      }
+    },
+    "system_metrics": {
+      "cpu_usage": "Process CPU usage percentage",
+      "memory_usage": "Process memory usage in bytes",
+      "event_loop_lag": "Node.js event loop lag in milliseconds",
+      "active_handles": "Number of active handles",
+      "active_requests": "Number of active requests"
+    }
+  },
+  "logging": {
+    "application_logs": {
+      "location": "./data/logs/",
+      "format": "JSON structured logs",
+      "levels": ["error", "warn", "info", "debug"],
+      "retention": "7 days for debug, 30 days for errors",
+      "fields": {
+        "timestamp": "ISO 8601",
+        "level": "Log level",
+        "message": "Log message",
+        "context": "Additional context",
+        "requestId": "Request correlation ID",
+        "userId": "User identifier (if applicable)"
+      }
+    },
+    "docker_logs": {
+      "view_all": "docker-compose logs",
+      "follow": "docker-compose logs -f",
+      "specific_service": "docker-compose logs -f app",
+      "tail": "docker-compose logs --tail=100 app",
+      "since": "docker-compose logs --since=10m app"
+    },
+    "kubernetes_logs": {
+      "view_pod": "kubectl logs -f deployment/bolt-ai-app -n bolt-ai",
+      "previous": "kubectl logs deployment/bolt-ai-app -n bolt-ai --previous",
+      "all_containers": "kubectl logs -f deployment/bolt-ai-app -n bolt-ai --all-containers",
+      "tail": "kubectl logs --tail=100 deployment/bolt-ai-app -n bolt-ai"
+    },
+    "log_aggregation": {
+      "options": ["ELK Stack", "Loki", "CloudWatch", "Datadog"],
+      "recommended": "Grafana Loki for lightweight solution"
+    }
+  },
+  "alerts": {
+    "critical": {
+      "service_down": {
+        "condition": "Health check fails for > 2 minutes",
+        "action": "Page on-call engineer",
+        "channels": ["PagerDuty", "Phone", "Slack"]
+      },
+      "high_error_rate": {
+        "condition": "Error rate > 10% for > 5 minutes",
+        "action": "Alert team immediately",
+        "channels": ["Slack", "Email"]
+      },
+      "database_unreachable": {
+        "condition": "Cannot connect to database",
+        "action": "Page on-call engineer",
+        "channels": ["PagerDuty", "Slack"]
+      }
+    },
+    "warning": {
+      "elevated_error_rate": {
+        "condition": "Error rate > 5% for > 10 minutes",
+        "action": "Notify team",
+        "channels": ["Slack"]
+      },
+      "slow_response_times": {
+        "condition": "P95 response time > 1s for > 10 minutes",
+        "action": "Notify team",
+        "channels": ["Slack"]
+      },
+      "high_memory_usage": {
+        "condition": "Memory usage > 80% for > 15 minutes",
+        "action": "Notify team",
+        "channels": ["Slack"]
+      },
+      "disk_space_low": {
+        "condition": "Disk usage > 85%",
+        "action": "Notify team",
+        "channels": ["Slack", "Email"]
+      }
+    },
+    "info": {
+      "deployment_completed": {
+        "condition": "Deployment finishes successfully",
+        "action": "Notify team",
+        "channels": ["Slack"]
+      },
+      "scaling_event": {
+        "condition": "Kubernetes HPA scales pods",
+        "action": "Log event",
+        "channels": ["Slack"]
+      }
+    }
+  },
+  "dashboards": {
+    "grafana": {
+      "overview_dashboard": {
+        "panels": [
+          "Request rate",
+          "Error rate",
+          "Response time (P50, P95, P99)",
+          "Active connections",
+          "CPU usage",
+          "Memory usage"
+        ]
+      },
+      "api_dashboard": {
+        "panels": [
+          "Requests per endpoint",
+          "Response times by endpoint",
+          "Status code distribution",
+          "Request payload sizes"
+        ]
+      },
+      "database_dashboard": {
+        "panels": [
+          "Query rate",
+          "Query duration",
+          "Connection pool usage",
+          "Slow queries"
+        ]
+      },
+      "cache_dashboard": {
+        "panels": [
+          "Hit rate",
+          "Miss rate",
+          "Cache size",
+          "Eviction rate"
+        ]
+      }
+    }
+  },
+  "monitoring_setup": {
+    "prometheus": {
+      "installation": [
+        "Add Prometheus to docker-compose.yml",
+        "Configure scrape targets",
+        "Set retention period",
+        "Expose port 9090"
+      ],
+      "configuration": {
+        "scrape_configs": [
+          {
+            "job_name": "bolt-ai",
+            "scrape_interval": "15s",
+            "static_configs": [
+              {
+                "targets": ["app:8001"]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "grafana": {
+      "installation": [
+        "Add Grafana to docker-compose.yml",
+        "Configure Prometheus data source",
+        "Import dashboards",
+        "Set up alerting"
+      ],
+      "default_credentials": {
+        "username": "admin",
+        "password": "Change on first login"
+      }
+    }
+  },
+  "performance_monitoring": {
+    "key_metrics": {
+      "response_time": {
+        "target": "P95 < 500ms, P99 < 1000ms",
+        "measure": "Time from request to response"
+      },
+      "throughput": {
+        "target": "> 1000 requests/second",
+        "measure": "Requests handled per second"
+      },
+      "error_rate": {
+        "target": "< 0.1%",
+        "measure": "Percentage of failed requests"
+      },
+      "availability": {
+        "target": "99.9% (SLA)",
+        "measure": "Uptime percentage"
+      }
+    },
+    "bottleneck_identification": [
+      "Slow database queries",
+      "High cache miss rate",
+      "Memory leaks",
+      "CPU throttling",
+      "Network latency"
+    ]
+  },
+  "troubleshooting": {
+    "high_response_times": {
+      "checks": [
+        "Database query performance",
+        "Cache hit rate",
+        "External API latency (HuggingFace)",
+        "CPU/memory usage",
+        "Network issues"
+      ],
+      "actions": [
+        "Analyze slow query log",
+        "Increase cache TTL",
+        "Scale horizontally",
+        "Optimize queries"
+      ]
+    },
+    "high_error_rates": {
+      "checks": [
+        "Application logs for errors",
+        "External service status",
+        "Database connectivity",
+        "Memory exhaustion"
+      ],
+      "actions": [
+        "Check error logs",
+        "Verify external dependencies",
+        "Restart service if needed",
+        "Review recent deployments"
+      ]
+    },
+    "memory_issues": {
+      "checks": [
+        "Memory usage trends",
+        "Heap snapshots",
+        "Connection leaks",
+        "Cache size"
+      ],
+      "actions": [
+        "Analyze heap dump",
+        "Check for memory leaks",
+        "Increase container memory",
+        "Optimize cache usage"
+      ]
+    }
+  },
+  "best_practices": [
+    "Monitor both application and infrastructure metrics",
+    "Set up alerting before issues occur",
+    "Use structured logging for easy parsing",
+    "Implement distributed tracing for complex flows",
+    "Regular review of dashboards and alerts",
+    "Document runbooks for common issues",
+    "Test alerts to ensure they fire correctly",
+    "Keep monitoring data for trend analysis",
+    "Use correlation IDs for request tracking",
+    "Monitor external dependencies"
+  ]
+}
+

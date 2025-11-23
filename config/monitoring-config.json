@@ -1,0 +1,95 @@
+{
+  "healthChecks": {
+    "endpoints": [
+      {
+        "path": "/api/health",
+        "method": "GET",
+        "expectedStatus": 200,
+        "timeout": 5000,
+        "critical": true
+      },
+      {
+        "path": "/api/hf/health",
+        "method": "GET",
+        "expectedStatus": 200,
+        "timeout": 10000,
+        "critical": false
+      },
+      {
+        "path": "/metrics",
+        "method": "GET",
+        "expectedStatus": 200,
+        "timeout": 5000,
+        "critical": false
+      }
+    ],
+    "websocket": {
+      "endpoint": "ws://localhost:8001/ws",
+      "timeout": 5000,
+      "pingInterval": 30000
+    },
+    "services": [
+      {
+        "name": "database",
+        "type": "sqlite",
+        "check": "file-exists",
+        "path": "./data/trading.db"
+      },
+      {
+        "name": "redis",
+        "type": "redis",
+        "host": "localhost",
+        "port": 6379,
+        "timeout": 3000
+      }
+    ]
+  },
+  "metrics": {
+    "endpoint": "/metrics",
+    "format": "prometheus",
+    "collectors": [
+      "http_requests_total",
+      "http_request_duration_seconds",
+      "websocket_connections_active",
+      "cache_hit_ratio",
+      "database_query_duration_seconds"
+    ]
+  },
+  "alerts": {
+    "channels": ["slack", "email", "github-issues"],
+    "rules": [
+      {
+        "name": "high_error_rate",
+        "condition": "error_rate > 5%",
+        "duration": "5m",
+        "severity": "critical",
+        "action": "rollback"
+      },
+      {
+        "name": "slow_response",
+        "condition": "response_time > 2000ms",
+        "duration": "10m",
+        "severity": "warning",
+        "action": "notify"
+      },
+      {
+        "name": "service_down",
+        "condition": "health_check_failed",
+        "duration": "1m",
+        "severity": "critical",
+        "action": "rollback"
+      }
+    ]
+  },
+  "logging": {
+    "level": "info",
+    "format": "json",
+    "outputs": ["console", "file"],
+    "rotation": {
+      "enabled": true,
+      "maxSize": "100MB",
+      "maxFiles": 30
+    }
+  }
+}
+

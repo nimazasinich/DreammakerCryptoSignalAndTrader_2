@@ -1,0 +1,22 @@
+{
+  "description": "Risk Guard configuration for testnet trading engine - SPOT + FUTURES",
+  "spot": {
+    "maxPositionSizeUSDT": 500,
+    "maxDailyLossUSDT": 150,
+    "maxOpenPositions": 5,
+    "minAccountBalanceUSDT": 100,
+    "maxRiskPerTradePercent": 2.5,
+    "requireMarketData": true
+  },
+  "futures": {
+    "maxPositionSizeUSDT": 300,
+    "maxDailyLossUSDT": 100,
+    "maxOpenPositions": 3,
+    "stopLossMultiplier": 1.5,
+    "takeProfitMultiplier": 2.0,
+    "leverage": 3,
+    "minAccountBalanceUSDT": 50,
+    "maxRiskPerTradePercent": 2.0,
+    "requireMarketData": true
+  }
+}

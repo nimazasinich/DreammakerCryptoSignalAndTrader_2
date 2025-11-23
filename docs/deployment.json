@@ -1,0 +1,242 @@
+{
+  "title": "BOLT AI Trading System - Deployment Guide",
+  "version": "1.0.0",
+  "last_updated": "2025-11-23",
+  "overview": {
+    "description": "Complete deployment guide for BOLT AI Trading System",
+    "tech_stack": ["TypeScript", "Node.js", "Express", "WebSocket", "SQLite", "Redis"],
+    "deployment_targets": ["HuggingFace Space", "Docker", "Kubernetes", "VPS"]
+  },
+  "prerequisites": {
+    "required": [
+      "Docker 20.10+",
+      "Docker Compose 2.0+",
+      "Node.js 18.x or 20.x",
+      "Git"
+    ],
+    "optional": [
+      "Kubernetes cluster (for k8s deployment)",
+      "kubectl CLI",
+      "AWS CLI (for S3 backups)",
+      "Redis CLI"
+    ]
+  },
+  "environment_variables": {
+    "required": {
+      "HF_TOKEN": "HuggingFace API token",
+      "HF_ENGINE_BASE_URL": "HuggingFace Inference API base URL"
+    },
+    "optional": {
+      "DATABASE_PATH": "Path to SQLite database (default: ./data/bolt.db)",
+      "REDIS_HOST": "Redis host (default: localhost)",
+      "REDIS_PORT": "Redis port (default: 6379)",
+      "PORT": "Application port (default: 8001)",
+      "NODE_ENV": "Environment (development/production/test)",
+      "SLACK_WEBHOOK": "Slack webhook for notifications",
+      "AWS_ACCESS_KEY": "AWS access key for S3 backups",
+      "AWS_SECRET_KEY": "AWS secret key for S3 backups",
+      "S3_BACKUP_BUCKET": "S3 bucket name for backups"
+    }
+  },
+  "deployment_methods": {
+    "local_docker": {
+      "steps": [
+        "Clone repository",
+        "Create .env file with required variables",
+        "Run: docker-compose up -d",
+        "Verify: curl http://localhost:8001/api/health",
+        "Access application at http://localhost:8001"
+      ],
+      "commands": [
+        "git clone <repository-url>",
+        "cd bolt-ai",
+        "cp .env.example .env",
+        "docker-compose up -d",
+        "./scripts/health-check.sh http://localhost:8001"
+      ]
+    },
+    "production_docker": {
+      "steps": [
+        "Build Docker image",
+        "Run security scan",
+        "Push to registry",
+        "Deploy using docker-compose",
+        "Run health checks",
+        "Setup monitoring"
+      ],
+      "commands": [
+        "docker build -t bolt-ai:latest .",
+        "docker scan bolt-ai:latest",
+        "docker tag bolt-ai:latest ghcr.io/your-repo/bolt-ai:latest",
+        "docker push ghcr.io/your-repo/bolt-ai:latest",
+        "./scripts/deploy.sh --environment production"
+      ]
+    },
+    "kubernetes": {
+      "steps": [
+        "Configure kubectl context",
+        "Update secrets in k8s/deployment.yaml",
+        "Apply namespace",
+        "Apply configmap and secrets",
+        "Apply PVCs",
+        "Apply deployments",
+        "Apply services and ingress",
+        "Verify pod status"
+      ],
+      "commands": [
+        "kubectl config use-context <your-cluster>",
+        "kubectl apply -f k8s/deployment.yaml",
+        "kubectl get pods -n bolt-ai",
+        "kubectl logs -f deployment/bolt-ai-app -n bolt-ai"
+      ]
+    },
+    "huggingface_space": {
+      "steps": [
+        "Create HuggingFace Space",
+        "Configure Space as Docker",
+        "Set secrets in Space settings",
+        "Push code to Space repository",
+        "Monitor build logs",
+        "Verify deployment"
+      ],
+      "notes": [
+        "HuggingFace Spaces automatically build and deploy from git push",
+        "Dockerfile in root will be used for building",
+        "Set HF_TOKEN and other secrets in Space settings",
+        "Free tier has resource limitations"
+      ]
+    }
+  },
+  "configuration": {
+    "github_secrets": {
+      "required": [
+        "DOCKER_USERNAME",
+        "DOCKER_PASSWORD",
+        "HF_TOKEN",
+        "HF_SPACE_NAME"
+      ],
+      "optional": [
+        "CODECOV_TOKEN",
+        "SNYK_TOKEN",
+        "SLACK_WEBHOOK",
+        "AWS_ACCESS_KEY",
+        "AWS_SECRET_KEY",
+        "STAGING_URL",
+        "PRODUCTION_URL"
+      ],
+      "setup": "Go to GitHub repository → Settings → Secrets and variables → Actions → New repository secret"
+    },
+    "docker_compose": {
+      "services": {
+        "app": "Main Node.js application",
+        "redis": "Cache layer",
+        "nginx": "Optional reverse proxy (use --profile with-nginx)"
+      },
+      "volumes": {
+        "bolt-data": "Persistent storage for database",
+        "redis-data": "Persistent storage for Redis"
+      },
+      "networks": {
+        "bolt-network": "Internal network for service communication"
+      }
+    }
+  },
+  "health_checks": {
+    "endpoints": {
+      "/api/health": "Main application health status",
+      "/api/hf/health": "HuggingFace API connection status",
+      "/metrics": "Prometheus metrics (if enabled)"
+    },
+    "script_usage": {
+      "command": "./scripts/health-check.sh <base-url>",
+      "example": "./scripts/health-check.sh http://localhost:8001",
+      "exit_codes": {
+        "0": "All checks passed",
+        "1": "One or more checks failed"
+      }
+    }
+  },
+  "backup_and_restore": {
+    "backup": {
+      "command": "./scripts/backup.sh",
+      "what_is_backed_up": [
+        "SQLite database files",
+        "Configuration files",
+        "Recent logs (last 7 days)",
+        "Sanitized environment config"
+      ],
+      "location": "./backups/",
+      "retention": "30 days",
+      "naming": "backup-YYYY-MM-DD-HH-MM.tar.gz"
+    },
+    "restore": {
+      "command": "./scripts/restore.sh <backup-file>",
+      "example": "./scripts/restore.sh ./backups/backup-2025-11-23-12-00.tar.gz",
+      "process": [
+        "Validates backup file",
+        "Creates pre-restore backup",
+        "Stops services",
+        "Extracts and restores data",
+        "Verifies database integrity",
+        "Restarts services",
+        "Runs health checks"
+      ]
+    }
+  },
+  "monitoring": {
+    "logs": {
+      "docker": "docker-compose logs -f",
+      "kubernetes": "kubectl logs -f deployment/bolt-ai-app -n bolt-ai",
+      "location": "./data/logs/"
+    },
+    "metrics": {
+      "prometheus": "Expose /metrics endpoint",
+      "grafana": "Import dashboards for visualization",
+      "alerts": "Configure alerting rules"
+    }
+  },
+  "troubleshooting": {
+    "common_issues": {
+      "port_already_in_use": {
+        "symptom": "Error: address already in use",
+        "solution": "Change PORT in .env or stop conflicting service"
+      },
+      "database_locked": {
+        "symptom": "SQLite database is locked",
+        "solution": "Stop all instances accessing the database"
+      },
+      "redis_connection_failed": {
+        "symptom": "Cannot connect to Redis",
+        "solution": "Ensure Redis is running: docker-compose up redis -d"
+      },
+      "health_check_fails": {
+        "symptom": "Health check returns 5xx errors",
+        "solution": "Check logs: docker-compose logs app"
+      }
+    }
+  },
+  "security": {
+    "best_practices": [
+      "Never commit secrets to repository",
+      "Use GitHub Secrets for CI/CD credentials",
+      "Run containers as non-root user",
+      "Keep dependencies updated (npm audit)",
+      "Enable HTTPS in production",
+      "Regularly scan Docker images (Trivy)",
+      "Implement rate limiting",
+      "Use strong authentication tokens"
+    ]
+  },
+  "performance": {
+    "optimization_tips": [
+      "Enable Redis caching",
+      "Use connection pooling for database",
+      "Enable gzip compression",
+      "Implement CDN for static assets",
+      "Scale horizontally with multiple instances",
+      "Monitor and optimize database queries",
+      "Use Kubernetes HPA for auto-scaling"
+    ]
+  }
+}
+

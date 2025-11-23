@@ -1,0 +1,319 @@
+{
+  "title": "BOLT AI Trading System - CI/CD Pipeline Documentation",
+  "version": "1.0.0",
+  "last_updated": "2025-11-23",
+  "overview": {
+    "description": "Complete CI/CD pipeline documentation for automated testing, security scanning, and deployment",
+    "tools": ["GitHub Actions", "Docker", "Trivy", "Snyk", "k6", "Artillery"],
+    "workflows": ["CI", "Deploy", "Test", "Security", "Performance"]
+  },
+  "workflows": {
+    "ci_pipeline": {
+      "file": ".github/workflows/ci.yml",
+      "trigger": {
+        "on_push": ["main", "develop"],
+        "on_pull_request": ["main", "develop"]
+      },
+      "jobs": {
+        "lint_and_typecheck": {
+          "description": "Runs linter and TypeScript type checking",
+          "steps": ["Checkout", "Setup Node.js", "Install deps", "Lint", "Type check"]
+        },
+        "build": {
+          "description": "Builds project on multiple Node versions",
+          "matrix": ["Node 18.x", "Node 20.x"],
+          "steps": ["Checkout", "Setup Node.js", "Cache", "Install", "Test", "Build", "Upload artifacts"]
+        },
+        "environment_check": {
+          "description": "Validates required environment variables",
+          "checks": ["HF_TOKEN", "HF_ENGINE_BASE_URL", "DATABASE_PATH", "REDIS_HOST", "PORT"]
+        },
+        "quality_checks": {
+          "description": "Code quality and security audit",
+          "steps": ["Formatting check", "Security audit"]
+        }
+      },
+      "artifacts": {
+        "build-artifacts": {
+          "includes": ["dist/", "package.json", "package-lock.json"],
+          "retention": "7 days"
+        }
+      }
+    },
+    "deploy_pipeline": {
+      "file": ".github/workflows/deploy.yml",
+      "trigger": {
+        "on_push": ["main"],
+        "manual": "workflow_dispatch"
+      },
+      "jobs": {
+        "ci_check": {
+          "description": "Waits for CI pipeline to complete successfully",
+          "dependency": "CI workflow must pass"
+        },
+        "build_docker": {
+          "description": "Builds and pushes Docker image",
+          "registries": ["Docker Hub", "GitHub Container Registry"],
+          "platforms": ["linux/amd64", "linux/arm64"],
+          "security_scan": "Trivy"
+        },
+        "deploy_staging": {
+          "description": "Deploys to staging environment",
+          "environment": "staging",
+          "steps": ["Deploy to HF Space", "Wait", "Health check", "Notify"]
+        },
+        "deploy_production": {
+          "description": "Deploys to production environment",
+          "environment": "production",
+          "dependency": "deploy_staging must succeed",
+          "steps": ["Backup", "Deploy", "Health check", "Monitor", "Rollback on failure"]
+        },
+        "docker_registry_backup": {
+          "description": "Pushes backup image to Docker registry",
+          "tags": ["backup-YYYYMMDD-HHMMSS"]
+        }
+      },
+      "rollback": {
+        "triggers": [
+          "Health check fails",
+          "Error rate > 5%",
+          "Manual trigger"
+        ],
+        "process": [
+          "Stop new deployment",
+          "Restore previous image",
+          "Restart services",
+          "Verify health",
+          "Notify team"
+        ]
+      }
+    },
+    "test_pipeline": {
+      "file": ".github/workflows/test.yml",
+      "trigger": {
+        "on_pull_request": ["main", "develop"],
+        "on_push": ["develop"]
+      },
+      "jobs": {
+        "test": {
+          "description": "Runs test suite on multiple platforms",
+          "matrix": {
+            "node": ["18.x", "20.x"],
+            "os": ["ubuntu-latest", "windows-latest"]
+          },
+          "services": ["redis"],
+          "test_types": ["unit", "integration"]
+        },
+        "e2e_tests": {
+          "description": "End-to-end testing",
+          "steps": ["Setup", "Start app", "Wait", "Run E2E tests"]
+        },
+        "test_docker": {
+          "description": "Tests Docker image build and health",
+          "steps": ["Build", "Run container", "Health check"]
+        }
+      },
+      "coverage": {
+        "tool": "Codecov",
+        "upload": "Only on ubuntu-latest with Node 20.x"
+      }
+    },
+    "security_pipeline": {
+      "file": ".github/workflows/security.yml",
+      "trigger": {
+        "on_push": ["main", "develop"],
+        "on_pull_request": ["main"],
+        "schedule": "Daily at 6 AM UTC",
+        "manual": "workflow_dispatch"
+      },
+      "jobs": {
+        "dependency_scan": {
+          "description": "Scans npm dependencies for vulnerabilities",
+          "tool": "npm audit",
+          "thresholds": {
+            "critical": 0,
+            "high": 5
+          }
+        },
+        "docker_image_scan": {
+          "description": "Scans Docker image for vulnerabilities",
+          "tool": "Trivy",
+          "severity": ["CRITICAL", "HIGH", "MEDIUM"],
+          "output": "SARIF format uploaded to GitHub Security"
+        },
+        "code_security_scan": {
+          "description": "Static code analysis for security issues",
+          "tools": ["Snyk", "CodeQL"],
+          "languages": ["JavaScript", "TypeScript"]
+        },
+        "secret_scan": {
+          "description": "Scans for committed secrets",
+          "tool": "TruffleHog"
+        },
+        "license_compliance": {
+          "description": "Checks dependency licenses",
+          "allowed": ["MIT", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "ISC", "0BSD"]
+        },
+        "create_security_issues": {
+          "description": "Automatically creates GitHub issues for findings",
+          "trigger": "On failure"
+        },
+        "notify_team": {
+          "description": "Sends Slack notification",
+          "trigger": "On failure"
+        }
+      }
+    },
+    "performance_pipeline": {
+      "file": ".github/workflows/performance.yml",
+      "trigger": {
+        "on_push": ["main"],
+        "schedule": "Weekly on Sunday at 2 AM UTC",
+        "manual": "workflow_dispatch"
+      },
+      "jobs": {
+        "load_testing": {
+          "description": "Load testing with k6",
+          "tool": "k6",
+          "stages": [
+            "Ramp up to 50 users (2m)",
+            "Stay at 50 users (5m)",
+            "Ramp to 100 users (2m)",
+            "Stay at 100 users (5m)",
+            "Ramp down (2m)"
+          ],
+          "thresholds": {
+            "p95_response_time": "< 500ms",
+            "p99_response_time": "< 1000ms",
+            "error_rate": "< 5%"
+          }
+        },
+        "stress_testing": {
+          "description": "Stress testing with Artillery",
+          "tool": "Artillery",
+          "phases": [
+            "Ramp 10 → 50 arrivals/sec (60s)",
+            "Ramp 50 → 200 arrivals/sec (120s)",
+            "Sustain 200 arrivals/sec (60s)"
+          ]
+        },
+        "memory_leak_detection": {
+          "description": "Detects memory leaks",
+          "tools": ["clinic.js", "memlab"],
+          "status": "Planned"
+        },
+        "response_time_benchmark": {
+          "description": "Benchmarks API response times",
+          "iterations": 100,
+          "threshold": "Average < 200ms"
+        },
+        "compare_baseline": {
+          "description": "Compares with previous performance",
+          "fail_threshold": "20% degradation"
+        }
+      }
+    }
+  },
+  "secrets_configuration": {
+    "required": {
+      "DOCKER_USERNAME": "Docker Hub username",
+      "DOCKER_PASSWORD": "Docker Hub password or token",
+      "HF_TOKEN": "HuggingFace API token",
+      "HF_SPACE_NAME": "HuggingFace Space name"
+    },
+    "optional": {
+      "CODECOV_TOKEN": "Codecov upload token",
+      "SNYK_TOKEN": "Snyk authentication token",
+      "AWS_ACCESS_KEY": "AWS access key for S3",
+      "AWS_SECRET_KEY": "AWS secret key for S3",
+      "SLACK_WEBHOOK": "Slack webhook URL for notifications",
+      "STAGING_URL": "Staging environment URL",
+      "PRODUCTION_URL": "Production environment URL"
+    },
+    "setup_instructions": [
+      "Go to GitHub repository settings",
+      "Navigate to Secrets and variables → Actions",
+      "Click 'New repository secret'",
+      "Add each required secret with its value"
+    ]
+  },
+  "badges": {
+    "ci": "![CI](https://github.com/USERNAME/REPO/workflows/CI/badge.svg)",
+    "deploy": "![Deploy](https://github.com/USERNAME/REPO/workflows/Deploy/badge.svg)",
+    "security": "![Security](https://github.com/USERNAME/REPO/workflows/Security/badge.svg)",
+    "test": "![Tests](https://github.com/USERNAME/REPO/workflows/Test%20Suite/badge.svg)"
+  },
+  "notifications": {
+    "slack": {
+      "events": [
+        "Deployment success",
+        "Deployment failure",
+        "Security vulnerabilities",
+        "Performance degradation",
+        "Rollback triggered"
+      ],
+      "setup": "Set SLACK_WEBHOOK secret"
+    },
+    "github_issues": {
+      "events": [
+        "Security vulnerabilities",
+        "Performance regressions"
+      ],
+      "labels": ["security", "performance", "high-priority"]
+    }
+  },
+  "testing_pipeline": {
+    "local": {
+      "ci": [
+        "git checkout -b test-ci",
+        "git commit --allow-empty -m 'Test CI'",
+        "git push origin test-ci",
+        "Check GitHub Actions tab"
+      ],
+      "deployment": [
+        "git checkout main",
+        "git merge test-ci",
+        "git push origin main",
+        "Monitor deployment in Actions"
+      ]
+    },
+    "verification": {
+      "ci": "Check that all jobs pass",
+      "deploy": "Verify health check succeeds",
+      "security": "No critical vulnerabilities found",
+      "performance": "Metrics within thresholds"
+    }
+  },
+  "maintenance": {
+    "updating_workflows": {
+      "process": [
+        "Edit workflow files in .github/workflows/",
+        "Test changes in feature branch",
+        "Create PR and verify workflow runs",
+        "Merge to main after approval"
+      ]
+    },
+    "dependency_updates": {
+      "github_actions": "Update action versions regularly",
+      "docker_images": "Update base images monthly",
+      "node_versions": "Update Node.js versions as needed"
+    }
+  },
+  "troubleshooting": {
+    "workflow_fails": {
+      "check_logs": "Click on failed job in GitHub Actions",
+      "common_causes": [
+        "Missing secrets",
+        "Invalid configuration",
+        "Network issues",
+        "Dependency conflicts"
+      ]
+    },
+    "deployment_fails": {
+      "automatic_rollback": "Pipeline will rollback automatically",
+      "manual_rollback": "./scripts/deploy.sh --rollback",
+      "check_health": "./scripts/health-check.sh <url>"
+    }
+  }
+}
+

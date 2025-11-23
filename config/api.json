@@ -1,0 +1,137 @@
+{
+  "binance": {
+    "apiKey": "",
+    "secretKey": "",
+    "testnet": true,
+    "rateLimits": {
+      "requestsPerSecond": 10,
+      "dailyLimit": 100000
+    }
+  },
+  "telegram": {
+    "botToken": "",
+    "chatId": ""
+  },
+  "database": {
+    "path": "./data/boltai.db",
+    "encrypted": true,
+    "backupEnabled": true
+  },
+  "redis": {
+    "host": "localhost",
+    "port": 6379
+  },
+  "exchange": {
+    "name": "multi-provider",
+    "demoMode": false,
+    "realDataMode": true,
+    "primarySource": "coingecko",
+    "fallbackSources": ["coinmarketcap", "cryptocompare"],
+    "tradingEnabled": false
+  },
+  "marketData": {
+    "symbols": ["BTC", "ETH", "ADA", "DOT", "LINK", "LTC", "BCH", "XLM", "XRP", "TRX", "SOL", "BNB", "MATIC", "AVAX"],
+    "updateInterval": 5000,
+    "newsUpdateInterval": 30000,
+    "sentimentUpdateInterval": 300000
+  },
+  "analysis": {
+    "rsiPeriod": 14,
+    "trendAnalysis": true,
+    "autoTrading": false
+  },
+  "apis": {
+    "coingecko": {
+      "enabled": true,
+      "key": "",
+      "baseUrl": "https://api.coingecko.com/api/v3"
+    },
+    "coinmarketcap": {
+      "enabled": true,
+      "key": "b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c",
+      "baseUrl": "https://pro-api.coinmarketcap.com/v2"
+    },
+    "cryptocompare": {
+      "enabled": true,
+      "key": "e79c8e6d4c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f",
+      "baseUrl": "https://min-api.cryptocompare.com/data"
+    },
+    "etherscan": {
+      "enabled": true,
+      "key": "SZHYFZK2RR8H9TIMJBVW54V4H81K2Z2KR2",
+      "baseUrl": "https://api.etherscan.io/api"
+    },
+    "bscscan": {
+      "enabled": true,
+      "key": "K62RKHGXTDCG53RU4MCG6XABIMJKTN19IT",
+      "baseUrl": "https://api.bscscan.com/api"
+    },
+    "tronscan": {
+      "enabled": true,
+      "key": "7ae72726-bffe-4e74-9c33-97b761eeea21",
+      "baseUrl": "https://apilist.tronscan.org/api"
+    },
+    "newsapi": {
+      "enabled": true,
+      "key": "pub_346789abc123def456789ghi012345jkl",
+      "baseUrl": "https://newsapi.org/v2"
+    },
+    "cryptopanic": {
+      "enabled": true,
+      "key": "",
+      "baseUrl": "https://cryptopanic.com/api/v1"
+    },
+    "alternative": {
+      "enabled": true,
+      "key": "",
+      "baseUrl": "https://api.alternative.me"
+    },
+    "clankapp": {
+      "enabled": false,
+      "key": "",
+      "baseUrl": "https://api.clankapp.com"
+    },
+    "huggingface": {
+      "enabled": true,
+      "key": "",
+      "baseUrl": "https://api-inference.huggingface.co",
+      "datasetsBaseUrl": "https://datasets-server.huggingface.co",
+      "primaryModel": "ElKulako/cryptobert",
+      "fallbackModel": "kk08/CryptoBERT",
+      "datasets": {
+        "BTC": "WinkingFace/CryptoLM-Bitcoin-BTC-USDT",
+        "ETH": "WinkingFace/CryptoLM-Ethereum-ETH-USDT",
+        "SOL": "WinkingFace/CryptoLM-Solana-SOL-USDT",
+        "XRP": "WinkingFace/CryptoLM-Ripple-XRP-USDT",
+        "DEFAULT": "linxy/CryptoCoin"
+      }
+    }
+  },
+  "apiPriority": [
+    "huggingface",
+    "coingecko",
+    "binance",
+    "coinmarketcap",
+    "cryptocompare"
+  ],
+  "cache": {
+    "ttl": {
+      "market_data": 120,
+      "news": 600,
+      "sentiment": 3600,
+      "fear_greed": 300,
+      "social": 300,
+      "hf_ohlcv": 180,
+      "hf_sentiment": 900
+    }
+  },
+  "dynamicWeighting": {
+    "updateInterval": 300000,
+    "minWeight": 0.05,
+    "maxWeight": 0.5,
+    "accuracyFactor": 0.4,
+    "freshnessFactor": 0.2,
+    "qualityFactor": 0.2,
+    "volatilityFactor": 0.2
+  }
+}

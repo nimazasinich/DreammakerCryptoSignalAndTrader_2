@@ -1,0 +1,276 @@
+{
+  "title": "BOLT AI Trading System - Rollback Procedures",
+  "version": "1.0.0",
+  "last_updated": "2025-11-23",
+  "overview": {
+    "description": "Comprehensive rollback procedures for BOLT AI Trading System deployments",
+    "rollback_types": ["Automatic", "Manual", "Emergency"],
+    "recovery_time_objective": "< 5 minutes",
+    "recovery_point_objective": "Last known good deployment"
+  },
+  "automatic_rollback": {
+    "triggers": {
+      "health_check_failure": {
+        "condition": "Health endpoint returns non-200 status after deployment",
+        "wait_time": "30 seconds",
+        "retries": 3
+      },
+      "high_error_rate": {
+        "condition": "Error rate > 5% in first 5 minutes",
+        "monitoring": "Application logs and metrics"
+      },
+      "performance_degradation": {
+        "condition": "Response time > 2x baseline",
+        "measurement": "Average response time over 2 minutes"
+      },
+      "websocket_failures": {
+        "condition": "Cannot establish WebSocket connections",
+        "threshold": "50% failure rate"
+      }
+    },
+    "process": {
+      "detection": "Monitoring detects issue",
+      "notification": "Team notified via Slack/email",
+      "execution": [
+        "Stop new deployment",
+        "Tag current image as failed",
+        "Restore previous Docker image",
+        "Restart containers with old version",
+        "Verify health checks pass",
+        "Confirm metrics return to normal"
+      ],
+      "duration": "2-3 minutes"
+    },
+    "implementation": {
+      "ci_cd": "Automatic in deploy.yml workflow",
+      "script": "./scripts/deploy.sh --rollback"
+    }
+  },
+  "manual_rollback": {
+    "when_to_use": [
+      "Issues detected after automatic rollback window",
+      "Data corruption concerns",
+      "Critical bug discovered post-deployment",
+      "Performance issues not caught by automation"
+    ],
+    "docker_compose": {
+      "steps": [
+        "Identify last good backup: ls -lt backups/",
+        "Stop current deployment: docker-compose down",
+        "Find backup image: docker images | grep backup",
+        "Tag backup as latest: docker tag bolt-ai:backup-TIMESTAMP bolt-ai:latest",
+        "Start with old version: docker-compose up -d",
+        "Verify health: ./scripts/health-check.sh http://localhost:8001",
+        "Restore database if needed: ./scripts/restore.sh backups/backup-TIMESTAMP.tar.gz"
+      ],
+      "commands": [
+        "docker-compose down",
+        "docker tag bolt-ai:backup-20251123-120000 bolt-ai:latest",
+        "docker-compose up -d",
+        "./scripts/health-check.sh http://localhost:8001"
+      ]
+    },
+    "kubernetes": {
+      "steps": [
+        "List deployment history: kubectl rollout history deployment/bolt-ai-app -n bolt-ai",
+        "View specific revision: kubectl rollout history deployment/bolt-ai-app -n bolt-ai --revision=N",
+        "Rollback to previous: kubectl rollout undo deployment/bolt-ai-app -n bolt-ai",
+        "Rollback to specific: kubectl rollout undo deployment/bolt-ai-app -n bolt-ai --to-revision=N",
+        "Monitor rollout: kubectl rollout status deployment/bolt-ai-app -n bolt-ai",
+        "Verify pods: kubectl get pods -n bolt-ai",
+        "Check logs: kubectl logs -f deployment/bolt-ai-app -n bolt-ai"
+      ],
+      "commands": [
+        "kubectl rollout history deployment/bolt-ai-app -n bolt-ai",
+        "kubectl rollout undo deployment/bolt-ai-app -n bolt-ai",
+        "kubectl rollout status deployment/bolt-ai-app -n bolt-ai"
+      ]
+    },
+    "script_based": {
+      "command": "./scripts/deploy.sh --rollback",
+      "process": [
+        "Script identifies latest backup",
+        "Stops current containers",
+        "Tags backup image as latest",
+        "Starts containers with backup",
+        "Runs health checks",
+        "Reports status"
+      ]
+    }
+  },
+  "emergency_rollback": {
+    "scenarios": [
+      "Complete system failure",
+      "Security breach",
+      "Critical data corruption",
+      "Service completely unavailable"
+    ],
+    "immediate_actions": {
+      "docker": [
+        "docker-compose down --remove-orphans",
+        "docker system prune -f",
+        "docker tag bolt-ai:backup-LATEST bolt-ai:latest",
+        "docker-compose up -d --force-recreate"
+      ],
+      "kubernetes": [
+        "kubectl scale deployment bolt-ai-app --replicas=0 -n bolt-ai",
+        "kubectl rollout undo deployment/bolt-ai-app -n bolt-ai --to-revision=KNOWN_GOOD",
+        "kubectl scale deployment bolt-ai-app --replicas=3 -n bolt-ai"
+      ]
+    },
+    "communication": {
+      "internal": "Immediate notification to all team members",
+      "external": "Status page update for users",
+      "stakeholders": "Email to management"
+    }
+  },
+  "database_rollback": {
+    "sqlite_restore": {
+      "command": "./scripts/restore.sh backups/backup-TIMESTAMP.tar.gz",
+      "process": [
+        "Validate backup file integrity",
+        "Create pre-restore snapshot",
+        "Stop application services",
+        "Replace database files",
+        "Verify database integrity: sqlite3 data/bolt.db 'PRAGMA integrity_check;'",
+        "Restart services",
+        "Run health checks"
+      ],
+      "caution": "Data created after backup will be lost"
+    },
+    "manual_restore": {
+      "steps": [
+        "docker-compose down",
+        "mv data/bolt.db data/bolt.db.failed",
+        "cp backups/extracted/data/bolt.db data/",
+        "docker-compose up -d",
+        "./scripts/health-check.sh http://localhost:8001"
+      ]
+    }
+  },
+  "verification_checklist": {
+    "post_rollback": [
+      {
+        "check": "Health endpoints responding",
+        "command": "curl http://localhost:8001/api/health",
+        "expected": "HTTP 200 with status: healthy"
+      },
+      {
+        "check": "Database accessible",
+        "command": "sqlite3 data/bolt.db '.tables'",
+        "expected": "List of tables displayed"
+      },
+      {
+        "check": "Redis connected",
+        "command": "docker-compose exec redis redis-cli ping",
+        "expected": "PONG"
+      },
+      {
+        "check": "WebSocket connections",
+        "method": "Manual test",
+        "expected": "Connections establish successfully"
+      },
+      {
+        "check": "Application logs clean",
+        "command": "docker-compose logs --tail=50 app",
+        "expected": "No errors or warnings"
+      },
+      {
+        "check": "Metrics endpoint",
+        "command": "curl http://localhost:8001/metrics",
+        "expected": "Metrics returned"
+      }
+    ]
+  },
+  "post_rollback_actions": {
+    "immediate": [
+      "Monitor application for 15 minutes",
+      "Check error rates and response times",
+      "Verify user functionality",
+      "Document rollback reason and time"
+    ],
+    "short_term": [
+      "Investigate root cause of failure",
+      "Create GitHub issue for failed deployment",
+      "Update rollback procedures if needed",
+      "Plan fix for the issue"
+    ],
+    "long_term": [
+      "Review deployment process",
+      "Improve testing coverage",
+      "Update monitoring and alerting",
+      "Conduct post-mortem"
+    ]
+  },
+  "rollback_scenarios": {
+    "scenario_1_bad_code": {
+      "issue": "New code causes application crashes",
+      "rollback_type": "Automatic via health check failure",
+      "steps": "CI/CD detects health check failure → automatic rollback",
+      "prevention": "Improve test coverage, staging deployment"
+    },
+    "scenario_2_performance": {
+      "issue": "Deployment causes significant performance degradation",
+      "rollback_type": "Manual via script",
+      "steps": "./scripts/deploy.sh --rollback",
+      "prevention": "Performance testing in CI/CD, load testing"
+    },
+    "scenario_3_data_issue": {
+      "issue": "Database migration fails or corrupts data",
+      "rollback_type": "Emergency with database restore",
+      "steps": "Stop services → restore database backup → rollback code → start services",
+      "prevention": "Test migrations in staging, backup before migrations"
+    },
+    "scenario_4_dependency": {
+      "issue": "New dependency version breaks functionality",
+      "rollback_type": "Manual rollback",
+      "steps": "Rollback to previous image with working dependencies",
+      "prevention": "Lock dependency versions, test in staging"
+    }
+  },
+  "prevention": {
+    "best_practices": [
+      "Always test in staging before production",
+      "Run full test suite before deployment",
+      "Create backup before every deployment",
+      "Use feature flags for risky changes",
+      "Deploy during low-traffic periods",
+      "Monitor closely for first 10 minutes post-deployment",
+      "Have team available during deployment",
+      "Document all changes in deployment"
+    ],
+    "deployment_gates": [
+      "CI pipeline must pass",
+      "Security scan must pass",
+      "Staging deployment must succeed",
+      "Manual approval for production",
+      "Backup created and verified"
+    ]
+  },
+  "monitoring_post_rollback": {
+    "metrics_to_watch": [
+      "Response times",
+      "Error rates",
+      "Request throughput",
+      "Database query times",
+      "Memory usage",
+      "CPU usage",
+      "WebSocket connections",
+      "Cache hit rates"
+    ],
+    "duration": "At least 30 minutes of stable operation",
+    "tools": [
+      "Application logs",
+      "Docker stats",
+      "Prometheus metrics",
+      "Health check script"
+    ]
+  },
+  "communication_template": {
+    "rollback_notification": {
+      "subject": "[ALERT] BOLT AI Deployment Rolled Back",
+      "body": "Deployment to {environment} has been rolled back.\n\nReason: {reason}\nTime: {timestamp}\nDuration: {duration}\nCurrent Status: {status}\n\nRollback performed by: {method}\nVerification: {verification_status}\n\nNext steps:\n1. Investigation underway\n2. Monitoring for stability\n3. Root cause analysis scheduled"
+    }
+  }
+}
+

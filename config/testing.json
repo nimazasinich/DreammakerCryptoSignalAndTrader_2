@@ -1,0 +1,49 @@
+{
+  "enabled": true,
+  "autoRun": false,
+  "baseURL": "http://localhost:3001",
+  "timeout": 10000,
+  "retries": 3,
+  "retryDelay": 1000,
+  "autoDetectBaseURL": true,
+  "autoRetry": true,
+  "adaptiveTimeout": true,
+  "failFast": false,
+  "parallelTests": true,
+  "maxParallel": 5,
+  "reportFormat": "console",
+  "reportDir": "./reports/api-tests",
+  "saveOnFail": true,
+  "mockMode": false,
+  "cacheResponses": false,
+  "reuseConnections": true,
+  "endpoints": {
+    "market": {
+      "enabled": true,
+      "timeout": 5000
+    },
+    "signals": {
+      "enabled": true,
+      "timeout": 10000
+    },
+    "ai": {
+      "enabled": true,
+      "timeout": 15000
+    },
+    "backtest": {
+      "enabled": true,
+      "timeout": 30000
+    }
+  },
+  "schedule": {
+    "enabled": false,
+    "cron": "0 */6 * * *",
+    "onStartup": false
+  },
+  "notifications": {
+    "enabled": false,
+    "onFailure": true,
+    "onSuccess": false
+  }
+}
+

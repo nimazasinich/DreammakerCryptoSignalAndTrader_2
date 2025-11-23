@@ -1,0 +1,68 @@
+{
+  "environments": [
+    {
+      "name": "development",
+      "type": "local",
+      "url": "http://localhost:8001",
+      "deployment": "docker-compose",
+      "autoUpdate": true,
+      "monitoring": false
+    },
+    {
+      "name": "staging",
+      "type": "cloud",
+      "url": "https://staging.bolt-ai.example.com",
+      "deployment": "docker",
+      "registry": "ghcr.io",
+      "autoUpdate": true,
+      "monitoring": true,
+      "healthCheck": {
+        "enabled": true,
+        "interval": "1m",
+        "timeout": "10s"
+      }
+    },
+    {
+      "name": "production",
+      "type": "cloud",
+      "url": "https://really-amin-datasourceforcryptocurrency.hf.space",
+      "deployment": "huggingface-space",
+      "autoUpdate": false,
+      "requiresApproval": true,
+      "monitoring": true,
+      "healthCheck": {
+        "enabled": true,
+        "interval": "30s",
+        "timeout": "10s"
+      },
+      "rollback": {
+        "enabled": true,
+        "automatic": true,
+        "triggers": ["health-check-failure", "high-error-rate"]
+      }
+    }
+  ],
+  "deploymentFlow": [
+    {
+      "stage": "commit",
+      "triggers": ["push", "pull_request"],
+      "actions": ["ci-tests", "linting", "type-checking"]
+    },
+    {
+      "stage": "build",
+      "triggers": ["ci-success"],
+      "actions": ["docker-build", "security-scan", "push-to-registry"]
+    },
+    {
+      "stage": "staging",
+      "triggers": ["push-to-main"],
+      "actions": ["deploy-staging", "smoke-tests", "health-check"]
+    },
+    {
+      "stage": "production",
+      "triggers": ["manual-approval"],
+      "actions": ["deploy-production", "health-check", "monitor"]
+    }
+  ]
+}
+

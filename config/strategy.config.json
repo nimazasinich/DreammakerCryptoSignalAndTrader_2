@@ -1,0 +1,93 @@
+{
+  "version": "2.0",
+  "updatedAt": "2025-11-07T00:00:00Z",
+  "description": "Unified strategy configuration with MTF, confluence, futures, and context gating",
+  "tfs": ["15m", "1h", "4h"],
+  "neutralEpsilon": 0.05,
+  "anyThreshold": 0.65,
+  "majorityThreshold": 0.60,
+  "confluence": {
+    "enabled": true,
+    "aiWeight": 0.5,
+    "techWeight": 0.35,
+    "contextWeight": 0.15,
+    "threshold": 0.60
+  },
+  "context": {
+    "sentiment": {
+      "decayHalfLifeMin": 180,
+      "sourceBlend": {
+        "fearGreed": 0.4,
+        "social": 0.6
+      }
+    },
+    "news": {
+      "decayHalfLifeMin": 240,
+      "sourceTrust": {
+        "tier1": 1.0,
+        "tier2": 0.7,
+        "unknown": 0.4
+      },
+      "eventRiskBoost": {
+        "listing": 0.2,
+        "hack": -0.5,
+        "regulatory": -0.3,
+        "upgrade": 0.3
+      }
+    },
+    "whales": {
+      "windowMin": 120,
+      "exchangeFlowWeight": 0.6,
+      "onchainWeight": 0.4,
+      "sizeZGate": 2.0
+    }
+  },
+  "futures": {
+    "counterTrend": {
+      "enabled": true,
+      "requireAdjTFConfirm": true,
+      "minConfluence": 0.70
+    },
+    "entry": {
+      "mode": "ATR",
+      "fixedSLPct": 0.02,
+      "atrK": 1.2,
+      "rr": 2.0,
+      "ladder": [0.4, 0.35, 0.25],
+      "trailing": {
+        "enabled": true,
+        "startAtTP1": true,
+        "atrK": 1.0
+      }
+    },
+    "leverage": {
+      "min": 2,
+      "max": 10,
+      "liqBufferPct": 0.35
+    },
+    "volatilityGate": {
+      "atrZMax": 3.0,
+      "onBreach": "reduceSize"
+    },
+    "cooldown": {
+      "enabled": true,
+      "afterConsecutiveSL": 2,
+      "bars": 20
+    },
+    "contextGates": {
+      "badNewsHold": {
+        "enabled": true,
+        "newsMin": -0.35,
+        "sentimentMin": -0.25
+      },
+      "shockReduce": {
+        "enabled": true,
+        "threshold": 0.45,
+        "sizeFactor": 0.6,
+        "leverageFactor": 0.7
+      }
+    }
+  },
+  "hotReload": true,
+  "reloadIntervalMs": 30000
+}
