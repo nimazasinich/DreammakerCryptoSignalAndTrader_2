@@ -1,0 +1,446 @@
+
+ tronscan
+7ae72726-bffe-4e74-9c33-97b761eeea21	
+
+Bscscan	
+K62RKHGXTDCG53RU4MCG6XABIMJKTN19IT
+
+eherscann_2	
+T6IR8VJHX2NE6ZJW2S3FDVN1TYG4PYYI45
+
+eherscann	
+SZHYFZK2RR8H9TIMJBVW54V4H81K2Z2KR2
+
+coinmarketcap
+04cf4b5b-9868-465c-8ba0-9f2e78c92eb1
+
+
+COINMARKETCAP_KEY:
+b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c
+
+NEWSAPI_KEY: 
+pub_346789abc123def456789ghi012345jkl
+
+CRYPTOCOMPARE_KEY:
+e79c8e6d4c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f
+
+
+در ادامه ۳۸ سرویس (primary + fallbacks) که قبلاً در حافظه داشتیم را دسته‌بندی و لیست کرده‌ام، و روش‌های ردیابی فعالیت نهنگ‌ها را هم به بخش مربوط اضافه کردم. این لیست در حافظه ذخیره شد.
+
+۱. Block Explorer APIs (۱۱ endpoint)
+TronScan (primary)
+
+TronGrid (fallback)
+
+Blockchair (TRON) (fallback)
+
+BscScan (primary)
+
+AnkrScan (BSC) (fallback)
+
+BinTools (BSC) (fallback)
+
+Etherscan (primary)
+
+Etherscan (backup key) (fallback)
+
+Infura (ETH) (fallback)
+
+Alchemy (ETH) (fallback)
+
+Covalent (ETH) (fallback)
+
+۲. Market Data APIs (۹ endpoint)
+CoinMarketCap (primary key #1)
+
+CoinMarketCap (primary key #2)
+
+CoinGecko (no key)
+
+Nomics
+
+Messari
+
+BraveNewCoin
+
+CryptoCompare (primary)
+
+Kaiko (fallback)
+
+CoinAPI.io (fallback)
+
+۳. News APIs (۷ endpoint)
+NewsAPI.org
+
+CryptoPanic
+
+CryptoControl
+
+CoinDesk API
+
+CoinTelegraph API
+
+CryptoSlate API
+
+The Block API
+
+۴. Sentiment & Mood APIs (۴ endpoint)
+Alternative.me (Fear & Greed)
+
+Santiment
+
+LunarCrush
+
+TheTie.io
+
+۵. On-Chain Analytics APIs (۴ endpoint)
+Glassnode
+
+IntoTheBlock
+
+Nansen
+
+The Graph (subgraphs)
+
+۶. Whale-Tracking APIs (۲ endpoint)
+WhaleAlert (primary)
+
+Arkham Intelligence (fallback)
+
+روش‌های ردیابی فعالیت نهنگ‌ها
+پویش تراکنش‌های بزرگ
+
+با WhaleAlert هر X ثانیه، endpoint /v1/transactions رو poll کن و فقط TX با مقدار دلخواه (مثلاً >۱M دلار) رو نمایش بده.
+
+وبهوک/نوتیفیکیشن
+
+از قابلیت Webhook در WhaleAlert یا Arkham استفاده کن تا به‌محض رخداد تراکنش بزرگ، درخواست POST بیاد.
+
+فیلتر مستقیم روی WebSocket
+
+اگر Infura/Alchemy یا BscScan WebSocket دارن، به mempool گوش بده و TXهایی با حجم بالا رو فیلتر کن.
+
+داشبورد نهنگ‌ها از Nansen یا Dune
+
+از Nansen Alerts یا کوئری‌های Dune برای رصد کیف‌پول‌های شناخته‌شده (smart money) و انتقالاتشان استفاده کن.
+
+نقشه حرارتی (Heatmap) تراکنش‌ها
+
+داده‌های WhaleAlert رو در یک نمودار خطی یا نقشه پخش جغرافیایی (اگر GPS دارن) نمایش بده.
+
+۷. Community Sentiment (۱ endpoint)
+Reddit
+
+
+
+Block Explorer APIs (۱۱ سرویس) 
+سرویس	API واقعی	شرح	نحوهٔ پیاده‌سازی
+TronScan	GET https://api.tronscan.org/api/account?address={address}&apiKey={KEY}	جزئیات حساب و موجودی Tron	fetch(url)، پارس JSON، نمایش balance
+TronGrid	GET https://api.trongrid.io/v1/accounts/{address}?apiKey={KEY}	همان عملکرد TronScan با endpoint متفاوت	مشابه fetch با URL جدید
+Blockchair	GET https://api.blockchair.com/tron/dashboards/address/{address}?key={KEY}	داشبورد آدرس TRON	fetch(url)، استفاده از data.address
+BscScan	GET https://api.bscscan.com/api?module=account&action=balance&address={address}&apikey={KEY}	موجودی حساب BSC	fetch(url)، نمایش result
+AnkrScan	GET https://api.ankr.com/scan/v1/bsc/address/{address}/balance?apiKey={KEY}	موجودی از API آنکر	fetch(url)، پارس JSON
+BinTools	GET https://api.bintools.io/v1/bsc/account/balance?address={address}&apikey={KEY}	جایگزین BscScan	مشابه fetch
+Etherscan	GET https://api.etherscan.io/api?module=account&action=balance&address={address}&apikey={KEY}	موجودی حساب ETH	fetch(url)، نمایش result
+Etherscan_2	GET https://api.etherscan.io/api?module=account&action=balance&address={address}&apikey={SECOND_KEY}	دومین کلید Etherscan	همانند بالا
+Infura	JSON-RPC POST به https://mainnet.infura.io/v3/{PROJECT_ID} با بدنه { "jsonrpc":"2.0","method":"eth_getBalance","params":["{address}","latest"],"id":1 }	استعلام موجودی از طریق RPC	fetch(url, {method:'POST', body:JSON.stringify(...)})
+Alchemy	JSON-RPC POST به https://eth-mainnet.alchemyapi.io/v2/{KEY} همانند Infura	استعلام RPC با سرعت و WebSocket	WebSocket: new WebSocket('wss://eth-mainnet.alchemyapi.io/v2/{KEY}')
+Covalent	GET https://api.covalenthq.com/v1/1/address/{address}/balances_v2/?key={KEY}	لیست دارایی‌های یک آدرس در شبکه Ethereum	fetch(url), پارس data.items
+
+۲. Market Data APIs (۹ سرویس) 
+سرویس	API واقعی	شرح	نحوهٔ پیاده‌سازی
+CoinMarketCap	GET https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC&convert=USD<br/>Header: X-CMC_PRO_API_KEY: {KEY}	قیمت لحظه‌ای و تغییرات درصدی	fetch(url,{headers:{'X-CMC_PRO_API_KEY':KEY}})
+CMC_Alt	همان endpoint بالا با کلید دوم	کلید جایگزین CMC	مانند بالا
+CoinGecko	GET https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd	بدون نیاز به کلید، قیمت ساده	fetch(url)
+Nomics	GET https://api.nomics.com/v1/currencies/ticker?key={KEY}&ids=BTC,ETH&convert=USD	قیمت و حجم معاملات	fetch(url)
+Messari	GET https://data.messari.io/api/v1/assets/bitcoin/metrics	متریک‌های پیشرفته (TVL، ROI و…)	fetch(url)
+BraveNewCoin	GET https://bravenewcoin.p.rapidapi.com/ohlcv/BTC/latest<br/>Headers: x-rapidapi-key: {KEY}	قیمت OHLCV لحظه‌ای	fetch(url,{headers:{…}})
+CryptoCompare	GET https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH&tsyms=USD&api_key={KEY}	قیمت چندگانه کریپто	fetch(url)
+Kaiko	GET https://us.market-api.kaiko.io/v2/data/trades.v1/exchanges/Coinbase/spot/trades?base_token=BTC&quote_token=USD&page_limit=10&api_key={KEY}	دیتای تریدهای زنده	fetch(url)
+CoinAPI.io	GET https://rest.coinapi.io/v1/exchangerate/BTC/USD?apikey={KEY}	نرخ تبدیل بین رمزارز و فیات	fetch(url)
+
+۳. News & Aggregators (۷ سرویس) 
+سرویس	API واقعی	شرح	نحوهٔ پیاده‌سازی
+NewsAPI.org	GET https://newsapi.org/v2/everything?q=crypto&apiKey={KEY}	اخبار گسترده	fetch(url)
+CryptoPanic	GET https://cryptopanic.com/api/v1/posts/?auth_token={KEY}	جمع‌آوری اخبار از منابع متعدد	fetch(url)
+CryptoControl	GET https://cryptocontrol.io/api/v1/public/news/local?language=EN&apiKey={KEY}	اخبار محلی و جهانی	fetch(url)
+CoinDesk API	GET https://api.coindesk.com/v2/prices/BTC/spot?api_key={KEY}	قیمت لحظه‌ای BTC	fetch(url)
+CoinTelegraph	GET https://api.cointelegraph.com/api/v1/articles?lang=en	فید مقالات CoinTelegraph	fetch(url)
+CryptoSlate	GET https://api.cryptoslate.com/news	اخبار و تحلیل‌های CryptoSlate	fetch(url)
+The Block API	GET https://api.theblock.co/v1/articles	مقالات تخصصی بلاک‌چین	fetch(url)
+
+۴. Sentiment & Mood (۴ سرویس) 
+سرویس	API واقعی	شرح	نحوهٔ پیاده‌سازی
+Alternative.me F&G	GET https://api.alternative.me/fng/?limit=1&format=json	شاخص ترس/طمع بازار	fetch(url)، مقدار data[0].value
+Santiment	GraphQL POST به https://api.santiment.net/graphql با { query: "...sentiment..." }	احساسات اجتماعی رمزارزها	fetch(url,{method:'POST',body:!...})
+LunarCrush	GET https://api.lunarcrush.com/v2?data=assets&key={KEY}	معیارهای اجتماعی و تعاملات	fetch(url)
+TheTie.io	GET https://api.thetie.io/data/sentiment?symbol=BTC&apiKey={KEY}	تحلیل احساسات بر اساس توییت‌ها	fetch(url)
+
+۵. On-Chain Analytics (۴ سرویس)
+سرویس	API واقعی	شرح	نحوهٔ پیاده‌سازی
+Glassnode	GET https://api.glassnode.com/v1/metrics/indicators/sopr_ratio?api_key={KEY}	شاخص‌های زنجیره‌ای (SOPR، HODL، …)	fetch(url)
+IntoTheBlock	GET https://api.intotheblock.com/v1/insights/bitcoin/holders_breakdown?key={KEY}	تجزیه و تحلیل دارندگان	fetch(url)
+Nansen	GET https://api.nansen.ai/v1/balances?chain=ethereum&address={address}&api_key={KEY}	مانیتور کیف‌پول‌های هوشمند (Smart Money)	fetch(url)
+The Graph	GraphQL POST به https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3 با queryهای اختصاصی	داده‌های on-chain از subgraphها	fetch(url,{method:'POST',body:!...})
+
+۶. Whale-Tracking (۲ سرویس)
+سرویس	API واقعی	شرح	نحوهٔ پیاده‌سازی
+WhaleAlert	GET https://api.whale-alert.io/v1/transactions?api_key={KEY}&min_value=1000000&start={ts}&end={ts}	تراکنش‌های بزرگ زنجیره‌ها	fetch(url)، فیلتر data.transactions با value>…
+Arkham	GET https://api.arkham.com/v1/address/{address}/transfers?api_key={KEY}	انتقالات کیف‌پول‌های شناخته‌شده	fetch(url)، مانیتور transfers
+
+ردیابی نهنگ‌ها:
+
+Polling دوره‌ای → setInterval(()=>fetch(url), interval)
+
+Webhook (WhaleAlert webhook config)
+
+WebSocket (Alchemy/Infura mempool feed)
+
+۷. Community Sentiment (۱ سرویس)
+سرویس	API واقعی	شرح	نحوهٔ پیاده‌سازی
+Reddit	GET https://www.reddit.com/r/CryptoCurrency/new.json?limit=10	پست‌های جدید در رِدیت	fetch(url), پارس data.data.children
+
+ذخیره در حافظه انجام شد.
+
+
+Sources
+
+
+
+
+
+
+
+
+Ask ChatGPT
+You said:
+برای سنتمنت منابع بیشتری پیدا کن منابع ارزشمندتری پیدا کن مارکت کپ مگه کلیدشو در اختیارت نذاشتم
+
+
+ChatGPT said:
+
+Thought for 4 seconds
+در جدول زیر منابع جدید و با ارزش‌تر برای تحلیل احساسات (Sentiment) گردآوری شده‌اند، همراه با API واقعی و نحوهٔ پیاده‌سازی. همچنین کلید CoinMarketCap که در اختیارت قرار دادی در اینجا هاردکد شده است.
+
+منابع پیشرفته‌تر برای Sentiment
+سرویس	API واقعی	شرح	نحوهٔ پیاده‌سازی (مثال)
+Santiment	POST https://api.santiment.net/graphql<br/>Body:		
+
+json
+Copy
+Edit
+{ "query":"{ projects(slug: \"bitcoin\") { sentimentMetrics { socialVolume, socialDominance } } }" }
+``` | حجم و تسلط بحث‌های اجتماعی روی پروژه‌ها                                      | 
+```js
+fetch(url, {
+  method:'POST',
+  headers:{'Content-Type':'application/json','Authorization':KEY},
+  body:JSON.stringify({query:…})
+})
+.then(r=>r.json())
+.then(data=>console.log(data));
+``` |
+| **LunarCrush**      | `GET https://api.lunarcrush.com/v2?data=assets&key={KEY}&symbol=BTC`                                          | معیارهای تعاملی شبکه‌های اجتماعی (engagement)                         | 
+```js
+fetch(url)
+  .then(r=>r.json())
+  .then(d=>console.log(d.data[0]));
+``` |
+| **TheTie.io**       | `GET https://api.thetie.io/data/sentiment?symbol=BTC&interval=1h&apiKey={KEY}`                               | امتیاز احساسات بر اساس توییت‌ها و اخبار                               | 
+```js
+fetch(url)
+  .then(r=>r.json())
+  .then(d=>console.log(d.sentiment));
+``` |
+| **CryptoQuant**     | `GET https://api.cryptoquant.com/v1/ohlcv/latest?symbol=BTC&token={KEY}`                                     | شاخص‌های درون‌زنجیره‌ای و احساسات نهنگ‌ها                             | 
+```js
+fetch(url)
+  .then(r=>r.json())
+  .then(d=>console.log(d));
+``` |
+| **Glassnode Social**| `GET https://api.glassnode.com/v1/metrics/social/mention_count?api_key={KEY}&a=BTC`                        | تعداد ذکر شدن BTC در شبکه‌های اجتماعی                                 | 
+```js
+fetch(url)
+  .then(r=>r.json())
+  .then(d=>console.log(d));
+``` |
+| **CoinGecko Comm.**  | `GET https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&market_data=false&community_data=true` | داده‌های اجتماعی (Reddit, Twitter)                                    | 
+```js
+fetch(url)
+  .then(r=>r.json())
+  .then(d=>console.log(d.community_data));
+``` |
+| **Messari Social**  | `GET https://data.messari.io/api/v1/assets/bitcoin/metrics/social`                                          | متریک‌های شبکه‌های اجتماعی (mentions, sentiment)                     | 
+```js
+fetch(url)
+  .then(r=>r.json())
+  .then(d=>console.log(d.data));
+``` |
+| **Reddit API**      | `GET https://www.reddit.com/r/CryptoCurrency/comments.json?limit=20`                                        | کامنت‌ها و ترندهای رِدیت                                              | 
+```js
+fetch(url)
+  .then(r=>r.json())
+  .then(d=>console.log(d.data.children));
+``` |
+
+> **نکته:** برای همهٔ این سرویس‌ها باید `{KEY}` را با کد API خود پر کنید.  
+> برای موارد GraphQL (Santiment, TheGraph) از `POST` و برای بقیه از `GET` استفاده می‌شود.
+
+---
+
+### به‌روزرسانی CoinMarketCap در `config.js`
+
+```js
+// config.js
+export const API_CONFIG = {
+  // … بقیه سرویس‌ها …
+
+  // Market Data APIs
+  coinmarketcap: {
+    primary: {
+      name: 'coinmarketcap',
+      baseUrl: 'https://pro-api.coinmarketcap.com/v1',
+      key: 'b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c'  // COINMARKETCAP_KEY هاردکد شده
+    },
+    fallbacks: [
+      {
+        name: 'coinmarketcapAlt',
+        baseUrl: 'https://pro-api.coinmarketcap.com/v1',
+        key: '04cf4b5b-9868-465c-8ba0-9f2e78c92eb1'  // کلید دوم
+      },
+      {
+        name: 'coingecko',
+        baseUrl: 'https://api.coingecko.com/api/v3',
+        key: '' // بدون کلید
+      }
+      // … بقیه fallbacks …
+    ]
+  }
+
+  // … سایر سرویس‌ها …
+// config.js
+export const API_CONFIG = {
+  // 1. Block Explorer APIs (11 endpoints)
+  tronscan: {
+    primary: {
+      name: 'tronscan',
+      baseUrl: 'https://api.tronscan.org/api',
+      key: '7ae72726-bffe-4e74-9c33-97b761eeea21'
+    },
+    fallbacks: [
+      { name: 'tronGrid',   baseUrl: 'https://api.trongrid.io',            key: '' },
+      { name: 'blockchair', baseUrl: 'https://api.blockchair.com/tron',    key: '' }
+    ]
+  },
+  bscscan: {
+    primary: {
+      name: 'bscscan',
+      baseUrl: 'https://api.bscscan.com/api',
+      key: 'K62RKHGXTDCG53RU4MCG6XABIMJKTN19IT'
+    },
+    fallbacks: [
+      { name: 'ankr',     baseUrl: 'https://api.ankr.com/scan/bsc',   key: '' },
+      { name: 'binTools', baseUrl: 'https://api.bintools.io/bsc',     key: '' }
+    ]
+  },
+  etherscan: {
+    primary: {
+      name: 'etherscan',
+      baseUrl: 'https://api.etherscan.io/api',
+      key: 'SZHYFZK2RR8H9TIMJBVW54V4H81K2Z2KR2'
+    },
+    fallbacks: [
+      { name: 'etherscan_2', baseUrl: 'https://api.etherscan.io/api', key: 'T6IR8VJHX2NE6ZJW2S3FDVN1TYG4PYYI45' },
+      { name: 'infura',      baseUrl: 'https://mainnet.infura.io/v3', key: '' },
+      { name: 'alchemy',     baseUrl: 'https://eth-mainnet.alchemyapi.io/v2', key: '' },
+      { name: 'covalent',    baseUrl: 'https://api.covalenthq.com/v1/1', key: '' }
+    ]
+  },
+
+  // 2. Market Data APIs (9 endpoints)
+  coinmarketcap: {
+    primary: {
+      name: 'coinmarketcap',
+      baseUrl: 'https://pro-api.coinmarketcap.com/v1',
+      key: 'b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c'
+    },
+    fallbacks: [
+      { name: 'coinmarketcapAlt', baseUrl: 'https://pro-api.coinmarketcap.com/v1', key: '04cf4b5b-9868-465c-8ba0-9f2e78c92eb1' },
+      { name: 'coingecko',        baseUrl: 'https://api.coingecko.com/api/v3',    key: '' },
+      { name: 'nomics',           baseUrl: 'https://api.nomics.com/v1',          key: '' },
+      { name: 'messari',          baseUrl: 'https://data.messari.io/api/v1',     key: '' },
+      { name: 'braveNewCoin',     baseUrl: 'https://bravenewcoin.p.rapidapi.com', key: '' }
+    ]
+  },
+  cryptocompare: {
+    primary: {
+      name: 'cryptocompare',
+      baseUrl: 'https://min-api.cryptocompare.com/data',
+      key: 'e79c8e6d4c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f'
+    },
+    fallbacks: [
+      { name: 'kaiko',   baseUrl: 'https://us.market-api.kaiko.io/v2', key: '' },
+      { name: 'coinapi', baseUrl: 'https://rest.coinapi.io/v1',      key: '' }
+    ]
+  },
+
+  // 3. News & Aggregators (7 endpoints)
+  newsapi: {
+    primary: {
+      name: 'newsapi',
+      baseUrl: 'https://newsapi.org/v2',
+      key: 'pub_346789abc123def456789ghi012345jkl'
+    },
+    fallbacks: [
+      { name: 'cryptoPanic',   baseUrl: 'https://cryptopanic.com/api/v1',    key: '' },
+      { name: 'cryptoControl', baseUrl: 'https://cryptocontrol.io/api/v1/public', key: '' },
+      { name: 'coinDesk',      baseUrl: 'https://api.coindesk.com/v2',     key: '' },
+      { name: 'coinTelegraph', baseUrl: 'https://api.cointelegraph.com',   key: '' },
+      { name: 'cryptoSlate',   baseUrl: 'https://api.cryptoslate.com',     key: '' },
+      { name: 'theBlock',      baseUrl: 'https://api.theblock.co/v1',      key: '' }
+    ]
+  },
+
+  // 4. Sentiment & Mood (8 endpoints)
+  // includes both basic and advanced sources
+  sentiment: {
+    primary: {
+      name: 'alternativeMe',
+      baseUrl: 'https://api.alternative.me/fng',
+      key: ''
+    },
+    fallbacks: [
+      { name: 'santiment',      baseUrl: 'https://api.santiment.net/graphql', key: 'YOUR_SANTIMENT_KEY' },
+      { name: 'lunarCrush',     baseUrl: 'https://api.lunarcrush.com/v2',     key: 'YOUR_LUNARCRUSH_KEY' },
+      { name: 'theTie',         baseUrl: 'https://api.thetie.io',            key: 'YOUR_THETIE_KEY' },
+      { name: 'cryptoQuant',    baseUrl: 'https://api.cryptoquant.com/v1',    key: 'YOUR_CRYPTOQUANT_KEY' },
+      { name: 'glassnodeSocial',baseUrl: 'https://api.glassnode.com/v1',     key: 'YOUR_GLASSNODE_KEY' },
+      { name: 'coingeckoComm',  baseUrl: 'https://api.coingecko.com/api/v3',  key: '' },
+      { name: 'messariSocial',  baseUrl: 'https://data.messari.io/api/v1',    key: '' },
+      { name: 'reddit',         baseUrl: 'https://www.reddit.com',           key: '' }
+    ]
+  },
+
+  // 5. On-Chain Analytics (4 endpoints)
+  glassnode:    { primary: { name: 'glassnode',    baseUrl: 'https://api.glassnode.com/v1',    key: '' } },
+  intoTheBlock: { primary: { name: 'intoTheBlock', baseUrl: 'https://api.intotheblock.com/v1', key: '' } },
+  nansen:       { primary: { name: 'nansen',       baseUrl: 'https://api.nansen.ai/v1',       key: '' } },
+  theGraph:     { primary: { name: 'theGraph',     baseUrl: 'https://api.thegraph.com/subgraphs/name', key: '' } },
+
+  // 6. Whale-Tracking (2 endpoints)
+  whaleAlert: {
+    primary: { name: 'whaleAlert', baseUrl: 'https://api.whale-alert.io/v1', key: 'YOUR_WHALEALERT_KEY' },
+    fallbacks: [
+      { name: 'arkham', baseUrl: 'https://api.arkham.com', key: 'YOUR_ARKHAM_KEY' }
+    ]
+  }
+};
+
+
+
+
+
+
+
+
+

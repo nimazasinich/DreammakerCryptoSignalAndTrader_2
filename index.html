@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google Fonts - Loaded asynchronously with fallback to system fonts -->
+    <!-- Preconnect removed to avoid proxy issues - fonts will load if available, otherwise use system fonts -->
+    <script>
+      // Load Google Fonts asynchronously without blocking page load
+      (function() {
+        try {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap';
+          link.media = 'print';
+          link.onload = function() { this.media = 'all'; };
+          link.onerror = function() { 
+            console.warn('Google Fonts failed to load (proxy/network issue), using system fonts');
+            this.remove();
+          };
+          document.head.appendChild(link);
+          
+          // Fallback timeout: if fonts don't load within 3 seconds, assume failure
+          setTimeout(function() {
+            if (link.media === 'print') {
+              console.warn('Google Fonts timeout, using system fonts');
+              link.remove();
+            }
+          }, 3000);
+        } catch (e) {
+          console.warn('Could not load Google Fonts, using system fonts:', e);
+        }
+      })();
+    </script>
+    <title>Dreammaker Crypto Signal & Trader - Advanced Trading Platform</title>
+    <script>
+      // Process shim for browser compatibility - fixes Redis/ioredis errors
+      if (typeof window !== 'undefined' && !window.process) {
+        window.process = {
+          env: {
+            NODE_ENV: 'development'
+          },
+          platform: 'browser',
+          version: '',
+          cwd: () => '',
+          nextTick: (cb) => setTimeout(cb, 0),
+          browser: true
+        };
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,54 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM"],
+    "noEmit": false,
+    "noEmitOnError": false,
+    "allowImportingTsExtensions": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    // Import/Export configurations
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": false,
+    // Type checking
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "alwaysStrict": false,
+    // Linting relaxation
+    "skipLibCheck": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": false,
+    // Module resolution
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "checkJs": false,
+    // Allow importing React components in type checking
+    "jsx": "preserve"
+  },
+  "include": [
+    "src/server.ts",
+    "src/server-simple.ts",
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "src/**/__tests__/**",
+    "src/views/**/*.tsx",
+    "src/components/**/*.tsx",
+    "src/**/__backup__/**",
+    "node_modules"
+  ]
+}

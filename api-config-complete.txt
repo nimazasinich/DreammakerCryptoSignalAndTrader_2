@@ -1,0 +1,1634 @@
+╔══════════════════════════════════════════════════════════════════════════════════════╗
+║                    CRYPTOCURRENCY API CONFIGURATION - COMPLETE GUIDE                 ║
+║                         تنظیمات کامل API های ارز دیجیتال                            ║
+║                              Updated: October 2025                                   ║
+╚══════════════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════════════
+                              🔑 API KEYS - کلیدهای API  
+═══════════════════════════════════════════════════════════════════════════════════════
+
+EXISTING KEYS (کلیدهای موجود):
+─────────────────────────────────
+TronScan:           7ae72726-bffe-4e74-9c33-97b761eeea21
+BscScan:            K62RKHGXTDCG53RU4MCG6XABIMJKTN19IT
+Etherscan:          SZHYFZK2RR8H9TIMJBVW54V4H81K2Z2KR2
+Etherscan_2:        T6IR8VJHX2NE6ZJW2S3FDVN1TYG4PYYI45
+CoinMarketCap:      04cf4b5b-9868-465c-8ba0-9f2e78c92eb1
+CoinMarketCap_2:    b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c
+NewsAPI:            pub_346789abc123def456789ghi012345jkl
+CryptoCompare:      e79c8e6d4c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+                🌐 CORS PROXY SOLUTIONS - راه‌حل‌های پروکسی CORS
+═══════════════════════════════════════════════════════════════════════════════════════
+
+FREE CORS PROXIES (پروکسی‌های رایگان):
+──────────────────────────────────────────
+
+1. AllOrigins (بدون محدودیت)
+   URL: https://api.allorigins.win/get?url={TARGET_URL}
+   Example: https://api.allorigins.win/get?url=https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd
+   Features: JSON/JSONP, گزینه raw content
+   
+2. CORS.SH (بدون rate limit)
+   URL: https://proxy.cors.sh/{TARGET_URL}
+   Example: https://proxy.cors.sh/https://api.coinmarketcap.com/v1/cryptocurrency/quotes/latest
+   Features: سریع، قابل اعتماد، نیاز به header Origin یا x-requested-with
+   
+3. Corsfix (60 req/min رایگان)
+   URL: https://proxy.corsfix.com/?url={TARGET_URL}
+   Example: https://proxy.corsfix.com/?url=https://api.etherscan.io/api
+   Features: header override، cached responses
+   
+4. CodeTabs (محبوب)
+   URL: https://api.codetabs.com/v1/proxy?quest={TARGET_URL}
+   Example: https://api.codetabs.com/v1/proxy?quest=https://api.binance.com/api/v3/ticker/price
+   
+5. ThingProxy (10 req/sec)
+   URL: https://thingproxy.freeboard.io/fetch/{TARGET_URL}
+   Example: https://thingproxy.freeboard.io/fetch/https://api.nomics.com/v1/currencies/ticker
+   Limit: 100,000 characters per request
+   
+6. Crossorigin.me
+   URL: https://crossorigin.me/{TARGET_URL}
+   Note: فقط GET، محدودیت 2MB
+   
+7. Self-Hosted CORS-Anywhere
+   GitHub: https://github.com/Rob--W/cors-anywhere
+   Deploy: Cloudflare Workers، Vercel، Heroku
+
+USAGE PATTERN (الگوی استفاده):
+────────────────────────────────
+// Without CORS Proxy
+fetch('https://api.example.com/data')
+
+// With CORS Proxy
+const corsProxy = 'https://api.allorigins.win/get?url=';
+fetch(corsProxy + encodeURIComponent('https://api.example.com/data'))
+  .then(res => res.json())
+  .then(data => console.log(data.contents));
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+            🔗 RPC NODE PROVIDERS - ارائه‌دهندگان نود RPC
+═══════════════════════════════════════════════════════════════════════════════════════
+
+ETHEREUM RPC ENDPOINTS:
+───────────────────────────────────
+
+1. Infura (رایگان: 100K req/day)
+   Mainnet: https://mainnet.infura.io/v3/{PROJECT_ID}
+   Sepolia: https://sepolia.infura.io/v3/{PROJECT_ID}
+   Docs: https://docs.infura.io
+   
+2. Alchemy (رایگان: 300M compute units/month)
+   Mainnet: https://eth-mainnet.g.alchemy.com/v2/{API_KEY}
+   Sepolia: https://eth-sepolia.g.alchemy.com/v2/{API_KEY}
+   WebSocket: wss://eth-mainnet.g.alchemy.com/v2/{API_KEY}
+   Docs: https://docs.alchemy.com
+   
+3. Ankr (رایگان: بدون محدودیت عمومی)
+   Mainnet: https://rpc.ankr.com/eth
+   Docs: https://www.ankr.com/docs
+   
+4. PublicNode (کاملا رایگان)
+   Mainnet: https://ethereum.publicnode.com
+   All-in-one: https://ethereum-rpc.publicnode.com
+   
+5. Cloudflare (رایگان)
+   Mainnet: https://cloudflare-eth.com
+   
+6. LlamaNodes (رایگان)
+   Mainnet: https://eth.llamarpc.com
+   
+7. 1RPC (رایگان با privacy)
+   Mainnet: https://1rpc.io/eth
+   
+8. Chainnodes (ارزان)
+   Mainnet: https://mainnet.chainnodes.org/{API_KEY}
+   
+9. dRPC (decentralized)
+   Mainnet: https://eth.drpc.org
+   Docs: https://drpc.org
+
+BSC (BINANCE SMART CHAIN) RPC:
+──────────────────────────────────
+
+1. Official BSC RPC (رایگان)
+   Mainnet: https://bsc-dataseed.binance.org
+   Alt1: https://bsc-dataseed1.defibit.io
+   Alt2: https://bsc-dataseed1.ninicoin.io
+   
+2. Ankr BSC
+   Mainnet: https://rpc.ankr.com/bsc
+   
+3. PublicNode BSC
+   Mainnet: https://bsc-rpc.publicnode.com
+   
+4. Nodereal BSC (رایگان: 3M req/day)
+   Mainnet: https://bsc-mainnet.nodereal.io/v1/{API_KEY}
+
+TRON RPC ENDPOINTS:
+───────────────────────────
+
+1. TronGrid (رایگان)
+   Mainnet: https://api.trongrid.io
+   Full Node: https://api.trongrid.io/wallet/getnowblock
+   
+2. TronStack (رایگان)
+   Mainnet: https://api.tronstack.io
+   
+3. Nile Testnet
+   Testnet: https://api.nileex.io
+
+POLYGON RPC:
+──────────────────
+
+1. Polygon Official (رایگان)
+   Mainnet: https://polygon-rpc.com
+   Mumbai: https://rpc-mumbai.maticvigil.com
+   
+2. Ankr Polygon
+   Mainnet: https://rpc.ankr.com/polygon
+   
+3. Alchemy Polygon
+   Mainnet: https://polygon-mainnet.g.alchemy.com/v2/{API_KEY}
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+        📊 BLOCK EXPLORER APIs - APIهای کاوشگر بلاکچین
+═══════════════════════════════════════════════════════════════════════════════════════
+
+CATEGORY 1: ETHEREUM EXPLORERS (11 endpoints)
+──────────────────────────────────────────────
+
+PRIMARY: Etherscan
+─────────────────────
+URL: https://api.etherscan.io/api
+Key: SZHYFZK2RR8H9TIMJBVW54V4H81K2Z2KR2
+Rate Limit: 5 calls/sec (free tier)
+Docs: https://docs.etherscan.io
+
+Endpoints:
+• Balance: ?module=account&action=balance&address={address}&tag=latest&apikey={KEY}
+• Transactions: ?module=account&action=txlist&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={KEY}
+• Token Balance: ?module=account&action=tokenbalance&contractaddress={contract}&address={address}&tag=latest&apikey={KEY}
+• Gas Price: ?module=gastracker&action=gasoracle&apikey={KEY}
+
+Example (No Proxy):
+fetch('https://api.etherscan.io/api?module=account&action=balance&address=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb&tag=latest&apikey=SZHYFZK2RR8H9TIMJBVW54V4H81K2Z2KR2')
+
+Example (With CORS Proxy):
+const proxy = 'https://api.allorigins.win/get?url=';
+const url = 'https://api.etherscan.io/api?module=account&action=balance&address=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb&apikey=SZHYFZK2RR8H9TIMJBVW54V4H81K2Z2KR2';
+fetch(proxy + encodeURIComponent(url))
+  .then(r => r.json())
+  .then(data => {
+    const result = JSON.parse(data.contents);
+    console.log('Balance:', result.result / 1e18, 'ETH');
+  });
+
+FALLBACK 1: Etherscan (Second Key)
+────────────────────────────────────
+URL: https://api.etherscan.io/api
+Key: T6IR8VJHX2NE6ZJW2S3FDVN1TYG4PYYI45
+
+FALLBACK 2: Blockchair
+──────────────────────
+URL: https://api.blockchair.com/ethereum/dashboards/address/{address}
+Free: 1,440 requests/day
+Docs: https://blockchair.com/api/docs
+
+FALLBACK 3: BlockScout (Open Source)
+─────────────────────────────────────
+URL: https://eth.blockscout.com/api
+Free: بدون محدودیت
+Docs: https://docs.blockscout.com
+
+FALLBACK 4: Ethplorer
+──────────────────────
+URL: https://api.ethplorer.io
+Endpoint: /getAddressInfo/{address}?apiKey=freekey
+Free: محدود
+Docs: https://github.com/EverexIO/Ethplorer/wiki/Ethplorer-API
+
+FALLBACK 5: Etherchain
+──────────────────────
+URL: https://www.etherchain.org/api
+Free: بله
+Docs: https://www.etherchain.org/documentation/api
+
+FALLBACK 6: Chainlens
+─────────────────────
+URL: https://api.chainlens.com
+Free tier available
+Docs: https://docs.chainlens.com
+
+
+CATEGORY 2: BSC EXPLORERS (6 endpoints)
+────────────────────────────────────────
+
+PRIMARY: BscScan
+────────────────
+URL: https://api.bscscan.com/api
+Key: K62RKHGXTDCG53RU4MCG6XABIMJKTN19IT
+Rate Limit: 5 calls/sec
+Docs: https://docs.bscscan.com
+
+Endpoints:
+• BNB Balance: ?module=account&action=balance&address={address}&apikey={KEY}
+• BEP-20 Balance: ?module=account&action=tokenbalance&contractaddress={token}&address={address}&apikey={KEY}
+• Transactions: ?module=account&action=txlist&address={address}&apikey={KEY}
+
+Example:
+fetch('https://api.bscscan.com/api?module=account&action=balance&address=0x1234...&apikey=K62RKHGXTDCG53RU4MCG6XABIMJKTN19IT')
+  .then(r => r.json())
+  .then(data => console.log('BNB:', data.result / 1e18));
+
+FALLBACK 1: BitQuery (BSC)
+──────────────────────────
+URL: https://graphql.bitquery.io
+Method: GraphQL POST
+Free: 10K queries/month
+Docs: https://docs.bitquery.io
+
+GraphQL Example:
+query {
+  ethereum(network: bsc) {
+    address(address: {is: "0x..."}) {
+      balances {
+        currency { symbol }
+        value
+      }
+    }
+  }
+}
+
+FALLBACK 2: Ankr MultiChain
+────────────────────────────
+URL: https://rpc.ankr.com/multichain
+Method: JSON-RPC POST
+Free: Public endpoints
+Docs: https://www.ankr.com/docs/
+
+FALLBACK 3: Nodereal BSC
+────────────────────────
+URL: https://bsc-mainnet.nodereal.io/v1/{API_KEY}
+Free tier: 3M requests/day
+Docs: https://docs.nodereal.io
+
+FALLBACK 4: BscTrace
+────────────────────
+URL: https://api.bsctrace.com
+Free: Limited
+Alternative explorer
+
+FALLBACK 5: 1inch BSC API
+─────────────────────────
+URL: https://api.1inch.io/v5.0/56
+Free: For trading data
+Docs: https://docs.1inch.io
+
+
+CATEGORY 3: TRON EXPLORERS (5 endpoints)
+─────────────────────────────────────────
+
+PRIMARY: TronScan
+─────────────────
+URL: https://apilist.tronscanapi.com/api
+Key: 7ae72726-bffe-4e74-9c33-97b761eeea21
+Rate Limit: Varies
+Docs: https://github.com/tronscan/tronscan-frontend/blob/dev2019/document/api.md
+
+Endpoints:
+• Account: /account?address={address}
+• Transactions: /transaction?address={address}&limit=20
+• TRC20 Transfers: /token_trc20/transfers?address={address}
+• Account Resources: /account/detail?address={address}
+
+Example:
+fetch('https://apilist.tronscanapi.com/api/account?address=TxxxXXXxxx')
+  .then(r => r.json())
+  .then(data => console.log('TRX Balance:', data.balance / 1e6));
+
+FALLBACK 1: TronGrid (Official)
+────────────────────────────────
+URL: https://api.trongrid.io
+Free: Public
+Docs: https://developers.tron.network/docs
+
+JSON-RPC Example:
+fetch('https://api.trongrid.io/wallet/getaccount', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    address: 'TxxxXXXxxx',
+    visible: true
+  })
+})
+
+FALLBACK 2: Tron Official API
+──────────────────────────────
+URL: https://api.tronstack.io
+Free: Public
+Docs: Similar to TronGrid
+
+FALLBACK 3: Blockchair (TRON)
+──────────────────────────────
+URL: https://api.blockchair.com/tron/dashboards/address/{address}
+Free: 1,440 req/day
+Docs: https://blockchair.com/api/docs
+
+FALLBACK 4: Tronscan API v2
+───────────────────────────
+URL: https://api.tronscan.org/api
+Alternative endpoint
+Similar structure
+
+FALLBACK 5: GetBlock TRON
+─────────────────────────
+URL: https://go.getblock.io/tron
+Free tier available
+Docs: https://getblock.io/docs/
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+          💰 MARKET DATA APIs - APIهای داده‌های بازار
+═══════════════════════════════════════════════════════════════════════════════════════
+
+CATEGORY 1: PRICE & MARKET CAP (15+ endpoints)
+───────────────────────────────────────────────
+
+PRIMARY: CoinGecko (FREE - بدون کلید)
+──────────────────────────────────────
+URL: https://api.coingecko.com/api/v3
+Rate Limit: 10-50 calls/min (free)
+Docs: https://www.coingecko.com/en/api/documentation
+
+Best Endpoints:
+• Simple Price: /simple/price?ids=bitcoin,ethereum&vs_currencies=usd
+• Coin Data: /coins/{id}?localization=false
+• Market Chart: /coins/{id}/market_chart?vs_currency=usd&days=7
+• Global Data: /global
+• Trending: /search/trending
+• Categories: /coins/categories
+
+Example (Works Everywhere):
+fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tron&vs_currencies=usd,eur')
+  .then(r => r.json())
+  .then(data => console.log(data));
+// Output: {bitcoin: {usd: 45000, eur: 42000}, ...}
+
+FALLBACK 1: CoinMarketCap (با کلید)
+─────────────────────────────────────
+URL: https://pro-api.coinmarketcap.com/v1
+Key 1: b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c
+Key 2: 04cf4b5b-9868-465c-8ba0-9f2e78c92eb1
+Rate Limit: 333 calls/day (free)
+Docs: https://coinmarketcap.com/api/documentation/v1/
+
+Endpoints:
+• Latest Quotes: /cryptocurrency/quotes/latest?symbol=BTC,ETH
+• Listings: /cryptocurrency/listings/latest?limit=100
+• Market Pairs: /cryptocurrency/market-pairs/latest?id=1
+
+Example (Requires API Key in Header):
+fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC', {
+  headers: {
+    'X-CMC_PRO_API_KEY': 'b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c'
+  }
+})
+.then(r => r.json())
+.then(data => console.log(data.data.BTC));
+
+With CORS Proxy:
+const proxy = 'https://proxy.cors.sh/';
+fetch(proxy + 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC', {
+  headers: {
+    'X-CMC_PRO_API_KEY': 'b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c',
+    'Origin': 'https://myapp.com'
+  }
+})
+
+FALLBACK 2: CryptoCompare
+─────────────────────────
+URL: https://min-api.cryptocompare.com/data
+Key: e79c8e6d4c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f
+Free: 100K calls/month
+Docs: https://min-api.cryptocompare.com/documentation
+
+Endpoints:
+• Price Multi: /pricemulti?fsyms=BTC,ETH&tsyms=USD,EUR&api_key={KEY}
+• Historical: /v2/histoday?fsym=BTC&tsym=USD&limit=30&api_key={KEY}
+• Top Volume: /top/totalvolfull?limit=10&tsym=USD&api_key={KEY}
+
+FALLBACK 3: Coinpaprika (FREE)
+───────────────────────────────
+URL: https://api.coinpaprika.com/v1
+Rate Limit: 20K calls/month
+Docs: https://api.coinpaprika.com/
+
+Endpoints:
+• Tickers: /tickers
+• Coin: /coins/btc-bitcoin
+• Historical: /coins/btc-bitcoin/ohlcv/historical
+
+FALLBACK 4: CoinCap (FREE)
+──────────────────────────
+URL: https://api.coincap.io/v2
+Rate Limit: 200 req/min
+Docs: https://docs.coincap.io/
+
+Endpoints:
+• Assets: /assets
+• Specific: /assets/bitcoin
+• History: /assets/bitcoin/history?interval=d1
+
+FALLBACK 5: Nomics (FREE)
+─────────────────────────
+URL: https://api.nomics.com/v1
+No Rate Limit on free tier
+Docs: https://p.nomics.com/cryptocurrency-bitcoin-api
+
+FALLBACK 6: Messari (FREE)
+──────────────────────────
+URL: https://data.messari.io/api/v1
+Rate Limit: Generous
+Docs: https://messari.io/api/docs
+
+FALLBACK 7: CoinLore (FREE)
+───────────────────────────
+URL: https://api.coinlore.net/api
+Rate Limit: None
+Docs: https://www.coinlore.com/cryptocurrency-data-api
+
+FALLBACK 8: Binance Public API
+───────────────────────────────
+URL: https://api.binance.com/api/v3
+Free: بله
+Docs: https://binance-docs.github.io/apidocs/spot/en/
+
+Endpoints:
+• Price: /ticker/price?symbol=BTCUSDT
+• 24hr Stats: /ticker/24hr?symbol=ETHUSDT
+
+FALLBACK 9: CoinDesk API
+────────────────────────
+URL: https://api.coindesk.com/v1
+Free: Bitcoin price index
+Docs: https://www.coindesk.com/coindesk-api
+
+FALLBACK 10: Mobula API
+───────────────────────
+URL: https://api.mobula.io/api/1
+Free: 50% cheaper than CMC
+Coverage: 2.3M+ cryptocurrencies
+Docs: https://developer.mobula.fi/
+
+FALLBACK 11: Token Metrics API
+───────────────────────────────
+URL: https://api.tokenmetrics.com/v2
+Free API key available
+AI-driven insights
+Docs: https://api.tokenmetrics.com/docs
+
+FALLBACK 12: FreeCryptoAPI
+──────────────────────────
+URL: https://api.freecryptoapi.com
+Free: Beginner-friendly
+Coverage: 3,000+ coins
+
+FALLBACK 13: DIA Data
+─────────────────────
+URL: https://api.diadata.org/v1
+Free: Decentralized oracle
+Transparent pricing
+Docs: https://docs.diadata.org
+
+FALLBACK 14: Alternative.me
+───────────────────────────
+URL: https://api.alternative.me/v2
+Free: Price + Fear & Greed
+Docs: In API responses
+
+FALLBACK 15: CoinStats API
+──────────────────────────
+URL: https://api.coinstats.app/public/v1
+Free tier available
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+          📰 NEWS & SOCIAL APIs - APIهای اخبار و شبکه‌های اجتماعی
+═══════════════════════════════════════════════════════════════════════════════════════
+
+CATEGORY 1: CRYPTO NEWS (10+ endpoints)
+────────────────────────────────────────
+
+PRIMARY: CryptoPanic (FREE)
+───────────────────────────
+URL: https://cryptopanic.com/api/v1
+Free: بله
+Docs: https://cryptopanic.com/developers/api/
+
+Endpoints:
+• Posts: /posts/?auth_token={TOKEN}&public=true
+• Currencies: /posts/?currencies=BTC,ETH
+• Filter: /posts/?filter=rising
+
+Example:
+fetch('https://cryptopanic.com/api/v1/posts/?public=true')
+  .then(r => r.json())
+  .then(data => console.log(data.results));
+
+FALLBACK 1: NewsAPI.org
+───────────────────────
+URL: https://newsapi.org/v2
+Key: pub_346789abc123def456789ghi012345jkl
+Free: 100 req/day
+Docs: https://newsapi.org/docs
+
+FALLBACK 2: CryptoControl
+─────────────────────────
+URL: https://cryptocontrol.io/api/v1/public
+Free tier available
+Docs: https://cryptocontrol.io/api
+
+FALLBACK 3: CoinDesk News
+─────────────────────────
+URL: https://www.coindesk.com/arc/outboundfeeds/rss/
+Free RSS feed
+
+FALLBACK 4: CoinTelegraph API
+─────────────────────────────
+URL: https://cointelegraph.com/api/v1
+Free: RSS and JSON feeds
+
+FALLBACK 5: CryptoSlate
+───────────────────────
+URL: https://cryptoslate.com/api
+Free: Limited
+
+FALLBACK 6: The Block API
+─────────────────────────
+URL: https://api.theblock.co/v1
+Premium service
+
+FALLBACK 7: Bitcoin Magazine RSS
+────────────────────────────────
+URL: https://bitcoinmagazine.com/.rss/full/
+Free RSS
+
+FALLBACK 8: Decrypt RSS
+───────────────────────
+URL: https://decrypt.co/feed
+Free RSS
+
+FALLBACK 9: Reddit Crypto
+─────────────────────────
+URL: https://www.reddit.com/r/CryptoCurrency/new.json
+Free: Public JSON
+Limit: 60 req/min
+
+Example:
+fetch('https://www.reddit.com/r/CryptoCurrency/hot.json?limit=25')
+  .then(r => r.json())
+  .then(data => console.log(data.data.children));
+
+FALLBACK 10: Twitter/X API (v2)
+───────────────────────────────
+URL: https://api.twitter.com/2
+Requires: OAuth 2.0
+Free tier: 1,500 tweets/month
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+        😱 SENTIMENT & MOOD APIs - APIهای احساسات بازار
+═══════════════════════════════════════════════════════════════════════════════════════
+
+CATEGORY 1: FEAR & GREED INDEX (5+ endpoints)
+──────────────────────────────────────────────
+
+PRIMARY: Alternative.me (FREE)
+──────────────────────────────
+URL: https://api.alternative.me/fng/
+Free: بدون محدودیت
+Docs: https://alternative.me/crypto/fear-and-greed-index/
+
+Endpoints:
+• Current: /?limit=1
+• Historical: /?limit=30
+• Date Range: /?limit=10&date_format=world
+
+Example:
+fetch('https://api.alternative.me/fng/?limit=1')
+  .then(r => r.json())
+  .then(data => {
+    const fng = data.data[0];
+    console.log(`Fear & Greed: ${fng.value} - ${fng.value_classification}`);
+  });
+// Output: "Fear & Greed: 45 - Fear"
+
+FALLBACK 1: LunarCrush
+──────────────────────
+URL: https://api.lunarcrush.com/v2
+Free tier: Limited
+Docs: https://lunarcrush.com/developers/api
+
+Endpoints:
+• Assets: ?data=assets&key={KEY}
+• Market: ?data=market&key={KEY}
+• Influencers: ?data=influencers&key={KEY}
+
+FALLBACK 2: Santiment (GraphQL)
+────────────────────────────────
+URL: https://api.santiment.net/graphql
+Free tier available
+Docs: https://api.santiment.net/graphiql
+
+GraphQL Example:
+query {
+  getMetric(metric: "sentiment_balance_total") {
+    timeseriesData(
+      slug: "bitcoin"
+      from: "2025-10-01T00:00:00Z"
+      to: "2025-10-31T00:00:00Z"
+      interval: "1d"
+    ) {
+      datetime
+      value
+    }
+  }
+}
+
+FALLBACK 3: TheTie.io
+─────────────────────
+URL: https://api.thetie.io
+Premium mainly
+Docs: https://docs.thetie.io
+
+FALLBACK 4: CryptoQuant
+───────────────────────
+URL: https://api.cryptoquant.com/v1
+Free tier: Limited
+Docs: https://docs.cryptoquant.com
+
+FALLBACK 5: Glassnode Social
+────────────────────────────
+URL: https://api.glassnode.com/v1/metrics/social
+Free tier: Limited
+Docs: https://docs.glassnode.com
+
+FALLBACK 6: Augmento (Social)
+──────────────────────────────
+URL: https://api.augmento.ai/v1
+AI-powered sentiment
+Free trial available
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+         🐋 WHALE TRACKING APIs - APIهای ردیابی نهنگ‌ها
+═══════════════════════════════════════════════════════════════════════════════════════
+
+CATEGORY 1: WHALE TRANSACTIONS (8+ endpoints)
+──────────────────────────────────────────────
+
+PRIMARY: Whale Alert
+────────────────────
+URL: https://api.whale-alert.io/v1
+Free: Limited (7-day trial)
+Paid: From $20/month
+Docs: https://docs.whale-alert.io
+
+Endpoints:
+• Transactions: /transactions?api_key={KEY}&min_value=1000000&start={timestamp}&end={timestamp}
+• Status: /status?api_key={KEY}
+
+Example:
+const start = Math.floor(Date.now()/1000) - 3600; // 1 hour ago
+const end = Math.floor(Date.now()/1000);
+fetch(`https://api.whale-alert.io/v1/transactions?api_key=YOUR_KEY&min_value=1000000&start=${start}&end=${end}`)
+  .then(r => r.json())
+  .then(data => {
+    data.transactions.forEach(tx => {
+      console.log(`${tx.amount} ${tx.symbol} from ${tx.from.owner} to ${tx.to.owner}`);
+    });
+  });
+
+FALLBACK 1: ClankApp (FREE)
+───────────────────────────
+URL: https://clankapp.com/api
+Free: بله
+Telegram: @clankapp
+Twitter: @ClankApp
+Docs: https://clankapp.com/api/
+
+Features:
+• 24 blockchains
+• Real-time whale alerts
+• Email & push notifications
+• No API key needed
+
+Example:
+fetch('https://clankapp.com/api/whales/recent')
+  .then(r => r.json())
+  .then(data => console.log(data));
+
+FALLBACK 2: BitQuery Whale Tracking
+────────────────────────────────────
+URL: https://graphql.bitquery.io
+Free: 10K queries/month
+Docs: https://docs.bitquery.io
+
+GraphQL Example (Large ETH Transfers):
+{
+  ethereum(network: ethereum) {
+    transfers(
+      amount: {gt: 1000}
+      currency: {is: "ETH"}
+      date: {since: "2025-10-25"}
+    ) {
+      block { timestamp { time } }
+      sender { address }
+      receiver { address }
+      amount
+      transaction { hash }
+    }
+  }
+}
+
+FALLBACK 3: Arkham Intelligence
+────────────────────────────────
+URL: https://api.arkham.com
+Paid service mainly
+Docs: https://docs.arkham.com
+
+FALLBACK 4: Nansen
+──────────────────
+URL: https://api.nansen.ai/v1
+Premium: Expensive but powerful
+Docs: https://docs.nansen.ai
+
+Features:
+• Smart Money tracking
+• Wallet labeling
+• Multi-chain support
+
+FALLBACK 5: DexCheck Whale Tracker
+───────────────────────────────────
+Free wallet tracking feature
+22 chains supported
+Telegram bot integration
+
+FALLBACK 6: DeBank
+──────────────────
+URL: https://api.debank.com
+Free: Portfolio tracking
+Web3 social features
+
+FALLBACK 7: Zerion API
+──────────────────────
+URL: https://api.zerion.io
+Similar to DeBank
+DeFi portfolio tracker
+
+FALLBACK 8: Whalemap
+────────────────────
+URL: https://whalemap.io
+Bitcoin & ERC-20 focus
+Charts and analytics
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+      🔍 ON-CHAIN ANALYTICS APIs - APIهای تحلیل زنجیره
+═══════════════════════════════════════════════════════════════════════════════════════
+
+CATEGORY 1: BLOCKCHAIN DATA (10+ endpoints)
+────────────────────────────────────────────
+
+PRIMARY: The Graph (Subgraphs)
+──────────────────────────────
+URL: https://api.thegraph.com/subgraphs/name/{org}/{subgraph}
+Free: Public subgraphs
+Docs: https://thegraph.com/docs/
+
+Popular Subgraphs:
+• Uniswap V3: /uniswap/uniswap-v3
+• Aave V2: /aave/protocol-v2
+• Compound: /graphprotocol/compound-v2
+
+Example (Uniswap V3):
+fetch('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    query: `{
+      pools(first: 5, orderBy: volumeUSD, orderDirection: desc) {
+        id
+        token0 { symbol }
+        token1 { symbol }
+        volumeUSD
+      }
+    }`
+  })
+})
+
+FALLBACK 1: Glassnode
+─────────────────────
+URL: https://api.glassnode.com/v1
+Free tier: Limited metrics
+Docs: https://docs.glassnode.com
+
+Endpoints:
+• SOPR: /metrics/indicators/sopr?a=BTC&api_key={KEY}
+• HODL Waves: /metrics/supply/hodl_waves?a=BTC&api_key={KEY}
+
+FALLBACK 2: IntoTheBlock
+────────────────────────
+URL: https://api.intotheblock.com/v1
+Free tier available
+Docs: https://developers.intotheblock.com
+
+FALLBACK 3: Dune Analytics
+──────────────────────────
+URL: https://api.dune.com/api/v1
+Free: Query results
+Docs: https://docs.dune.com/api-reference/
+
+FALLBACK 4: Covalent
+────────────────────
+URL: https://api.covalenthq.com/v1
+Free tier: 100K credits
+Multi-chain support
+Docs: https://www.covalenthq.com/docs/api/
+
+Example (Ethereum balances):
+fetch('https://api.covalenthq.com/v1/1/address/0x.../balances_v2/?key=YOUR_KEY')
+
+FALLBACK 5: Moralis
+───────────────────
+URL: https://deep-index.moralis.io/api/v2
+Free: 100K compute units/month
+Docs: https://docs.moralis.io
+
+FALLBACK 6: Alchemy NFT API
+───────────────────────────
+Included with Alchemy account
+NFT metadata & transfers
+
+FALLBACK 7: QuickNode Functions
+────────────────────────────────
+Custom on-chain queries
+Token balances, NFTs
+
+FALLBACK 8: Transpose
+─────────────────────
+URL: https://api.transpose.io
+Free tier available
+SQL-like queries
+
+FALLBACK 9: Footprint Analytics
+────────────────────────────────
+URL: https://api.footprint.network
+Free: Community tier
+No-code analytics
+
+FALLBACK 10: Nansen Query
+─────────────────────────
+Premium institutional tool
+Advanced on-chain intelligence
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+                    🔧 COMPLETE JAVASCRIPT IMPLEMENTATION
+                          پیاده‌سازی کامل جاوااسکریپت
+═══════════════════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONFIG.JS - تنظیمات مرکزی API
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const API_CONFIG = {
+  // CORS Proxies (پروکسی‌های CORS)
+  corsProxies: [
+    'https://api.allorigins.win/get?url=',
+    'https://proxy.cors.sh/',
+    'https://proxy.corsfix.com/?url=',
+    'https://api.codetabs.com/v1/proxy?quest=',
+    'https://thingproxy.freeboard.io/fetch/'
+  ],
+  
+  // Block Explorers (کاوشگرهای بلاکچین)
+  explorers: {
+    ethereum: {
+      primary: {
+        name: 'etherscan',
+        baseUrl: 'https://api.etherscan.io/api',
+        key: 'SZHYFZK2RR8H9TIMJBVW54V4H81K2Z2KR2',
+        rateLimit: 5 // calls per second
+      },
+      fallbacks: [
+        { name: 'etherscan2', baseUrl: 'https://api.etherscan.io/api', key: 'T6IR8VJHX2NE6ZJW2S3FDVN1TYG4PYYI45' },
+        { name: 'blockchair', baseUrl: 'https://api.blockchair.com/ethereum', key: '' },
+        { name: 'blockscout', baseUrl: 'https://eth.blockscout.com/api', key: '' },
+        { name: 'ethplorer', baseUrl: 'https://api.ethplorer.io', key: 'freekey' }
+      ]
+    },
+    bsc: {
+      primary: {
+        name: 'bscscan',
+        baseUrl: 'https://api.bscscan.com/api',
+        key: 'K62RKHGXTDCG53RU4MCG6XABIMJKTN19IT',
+        rateLimit: 5
+      },
+      fallbacks: [
+        { name: 'blockchair', baseUrl: 'https://api.blockchair.com/binance-smart-chain', key: '' },
+        { name: 'bitquery', baseUrl: 'https://graphql.bitquery.io', key: '', method: 'graphql' }
+      ]
+    },
+    tron: {
+      primary: {
+        name: 'tronscan',
+        baseUrl: 'https://apilist.tronscanapi.com/api',
+        key: '7ae72726-bffe-4e74-9c33-97b761eeea21',
+        rateLimit: 10
+      },
+      fallbacks: [
+        { name: 'trongrid', baseUrl: 'https://api.trongrid.io', key: '' },
+        { name: 'tronstack', baseUrl: 'https://api.tronstack.io', key: '' },
+        { name: 'blockchair', baseUrl: 'https://api.blockchair.com/tron', key: '' }
+      ]
+    }
+  },
+  
+  // Market Data (داده‌های بازار)
+  marketData: {
+    primary: {
+      name: 'coingecko',
+      baseUrl: 'https://api.coingecko.com/api/v3',
+      key: '', // بدون کلید
+      needsProxy: false,
+      rateLimit: 50 // calls per minute
+    },
+    fallbacks: [
+      { 
+        name: 'coinmarketcap', 
+        baseUrl: 'https://pro-api.coinmarketcap.com/v1',
+        key: 'b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c',
+        headerKey: 'X-CMC_PRO_API_KEY',
+        needsProxy: true
+      },
+      { 
+        name: 'coinmarketcap2', 
+        baseUrl: 'https://pro-api.coinmarketcap.com/v1',
+        key: '04cf4b5b-9868-465c-8ba0-9f2e78c92eb1',
+        headerKey: 'X-CMC_PRO_API_KEY',
+        needsProxy: true
+      },
+      { name: 'coincap', baseUrl: 'https://api.coincap.io/v2', key: '' },
+      { name: 'coinpaprika', baseUrl: 'https://api.coinpaprika.com/v1', key: '' },
+      { name: 'binance', baseUrl: 'https://api.binance.com/api/v3', key: '' },
+      { name: 'coinlore', baseUrl: 'https://api.coinlore.net/api', key: '' }
+    ]
+  },
+  
+  // RPC Nodes (نودهای RPC)
+  rpcNodes: {
+    ethereum: [
+      'https://eth.llamarpc.com',
+      'https://ethereum.publicnode.com',
+      'https://cloudflare-eth.com',
+      'https://rpc.ankr.com/eth',
+      'https://eth.drpc.org'
+    ],
+    bsc: [
+      'https://bsc-dataseed.binance.org',
+      'https://bsc-dataseed1.defibit.io',
+      'https://rpc.ankr.com/bsc',
+      'https://bsc-rpc.publicnode.com'
+    ],
+    polygon: [
+      'https://polygon-rpc.com',
+      'https://rpc.ankr.com/polygon',
+      'https://polygon-bor-rpc.publicnode.com'
+    ]
+  },
+  
+  // News Sources (منابع خبری)
+  news: {
+    primary: {
+      name: 'cryptopanic',
+      baseUrl: 'https://cryptopanic.com/api/v1',
+      key: '',
+      needsProxy: false
+    },
+    fallbacks: [
+      { name: 'reddit', baseUrl: 'https://www.reddit.com/r/CryptoCurrency', key: '' }
+    ]
+  },
+  
+  // Sentiment (احساسات)
+  sentiment: {
+    primary: {
+      name: 'alternative.me',
+      baseUrl: 'https://api.alternative.me/fng',
+      key: '',
+      needsProxy: false
+    }
+  },
+  
+  // Whale Tracking (ردیابی نهنگ)
+  whaleTracking: {
+    primary: {
+      name: 'clankapp',
+      baseUrl: 'https://clankapp.com/api',
+      key: '',
+      needsProxy: false
+    }
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// API-CLIENT.JS - کلاینت API با مدیریت خطا و fallback
+// ═══════════════════════════════════════════════════════════════════════════════
+
+class CryptoAPIClient {
+  constructor(config) {
+    this.config = config;
+    this.currentProxyIndex = 0;
+    this.requestCache = new Map();
+    this.cacheTimeout = 60000; // 1 minute
+  }
+  
+  // استفاده از CORS Proxy
+  async fetchWithProxy(url, options = {}) {
+    const proxies = this.config.corsProxies;
+    
+    for (let i = 0; i < proxies.length; i++) {
+      const proxyUrl = proxies[this.currentProxyIndex] + encodeURIComponent(url);
+      
+      try {
+        console.log(`🔄 Trying proxy ${this.currentProxyIndex + 1}/${proxies.length}`);
+        
+        const response = await fetch(proxyUrl, {
+          ...options,
+          headers: {
+            ...options.headers,
+            'Origin': window.location.origin,
+            'x-requested-with': 'XMLHttpRequest'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Handle allOrigins response format
+          return data.contents ? JSON.parse(data.contents) : data;
+        }
+      } catch (error) {
+        console.warn(`❌ Proxy ${this.currentProxyIndex + 1} failed:`, error.message);
+      }
+      
+      // Switch to next proxy
+      this.currentProxyIndex = (this.currentProxyIndex + 1) % proxies.length;
+    }
+    
+    throw new Error('All CORS proxies failed');
+  }
+  
+  // بدون پروکسی
+  async fetchDirect(url, options = {}) {
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      throw new Error(`Direct fetch failed: ${error.message}`);
+    }
+  }
+  
+  // با cache و fallback
+  async fetchWithFallback(primaryConfig, fallbacks, endpoint, params = {}) {
+    const cacheKey = `${primaryConfig.name}-${endpoint}-${JSON.stringify(params)}`;
+    
+    // Check cache
+    if (this.requestCache.has(cacheKey)) {
+      const cached = this.requestCache.get(cacheKey);
+      if (Date.now() - cached.timestamp < this.cacheTimeout) {
+        console.log('📦 Using cached data');
+        return cached.data;
+      }
+    }
+    
+    // Try primary
+    try {
+      const data = await this.makeRequest(primaryConfig, endpoint, params);
+      this.requestCache.set(cacheKey, { data, timestamp: Date.now() });
+      return data;
+    } catch (error) {
+      console.warn('⚠️ Primary failed, trying fallbacks...', error.message);
+    }
+    
+    // Try fallbacks
+    for (const fallback of fallbacks) {
+      try {
+        console.log(`🔄 Trying fallback: ${fallback.name}`);
+        const data = await this.makeRequest(fallback, endpoint, params);
+        this.requestCache.set(cacheKey, { data, timestamp: Date.now() });
+        return data;
+      } catch (error) {
+        console.warn(`❌ Fallback ${fallback.name} failed:`, error.message);
+      }
+    }
+    
+    throw new Error('All endpoints failed');
+  }
+  
+  // ساخت درخواست
+  async makeRequest(apiConfig, endpoint, params = {}) {
+    let url = `${apiConfig.baseUrl}${endpoint}`;
+    
+    // Add query params
+    const queryParams = new URLSearchParams();
+    if (apiConfig.key) {
+      queryParams.append('apikey', apiConfig.key);
+    }
+    Object.entries(params).forEach(([key, value]) => {
+      queryParams.append(key, value);
+    });
+    
+    if (queryParams.toString()) {
+      url += '?' + queryParams.toString();
+    }
+    
+    const options = {};
+    
+    // Add headers if needed
+    if (apiConfig.headerKey && apiConfig.key) {
+      options.headers = {
+        [apiConfig.headerKey]: apiConfig.key
+      };
+    }
+    
+    // Use proxy if needed
+    if (apiConfig.needsProxy) {
+      return await this.fetchWithProxy(url, options);
+    } else {
+      return await this.fetchDirect(url, options);
+    }
+  }
+  
+  // ═══════════════ SPECIFIC API METHODS ═══════════════
+  
+  // Get ETH Balance (با fallback)
+  async getEthBalance(address) {
+    const { ethereum } = this.config.explorers;
+    return await this.fetchWithFallback(
+      ethereum.primary,
+      ethereum.fallbacks,
+      '',
+      {
+        module: 'account',
+        action: 'balance',
+        address: address,
+        tag: 'latest'
+      }
+    );
+  }
+  
+  // Get BTC Price (multi-source)
+  async getBitcoinPrice() {
+    const { marketData } = this.config;
+    
+    try {
+      // Try CoinGecko first (no key needed, no CORS)
+      const data = await this.fetchDirect(
+        `${marketData.primary.baseUrl}/simple/price?ids=bitcoin&vs_currencies=usd,eur`
+      );
+      return {
+        source: 'CoinGecko',
+        usd: data.bitcoin.usd,
+        eur: data.bitcoin.eur
+      };
+    } catch (error) {
+      // Fallback to Binance
+      try {
+        const data = await this.fetchDirect(
+          'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT'
+        );
+        return {
+          source: 'Binance',
+          usd: parseFloat(data.price),
+          eur: null
+        };
+      } catch (err) {
+        throw new Error('All price sources failed');
+      }
+    }
+  }
+  
+  // Get Fear & Greed Index
+  async getFearGreed() {
+    const url = `${this.config.sentiment.primary.baseUrl}/?limit=1`;
+    const data = await this.fetchDirect(url);
+    return {
+      value: parseInt(data.data[0].value),
+      classification: data.data[0].value_classification,
+      timestamp: new Date(parseInt(data.data[0].timestamp) * 1000)
+    };
+  }
+  
+  // Get Trending Coins
+  async getTrendingCoins() {
+    const url = `${this.config.marketData.primary.baseUrl}/search/trending`;
+    const data = await this.fetchDirect(url);
+    return data.coins.map(item => ({
+      id: item.item.id,
+      name: item.item.name,
+      symbol: item.item.symbol,
+      rank: item.item.market_cap_rank,
+      thumb: item.item.thumb
+    }));
+  }
+  
+  // Get Crypto News
+  async getCryptoNews(limit = 10) {
+    const url = `${this.config.news.primary.baseUrl}/posts/?public=true`;
+    const data = await this.fetchDirect(url);
+    return data.results.slice(0, limit).map(post => ({
+      title: post.title,
+      url: post.url,
+      source: post.source.title,
+      published: new Date(post.published_at)
+    }));
+  }
+  
+  // Get Recent Whale Transactions
+  async getWhaleTransactions() {
+    try {
+      const url = `${this.config.whaleTracking.primary.baseUrl}/whales/recent`;
+      return await this.fetchDirect(url);
+    } catch (error) {
+      console.warn('Whale API not available');
+      return [];
+    }
+  }
+  
+  // Multi-source price aggregator
+  async getAggregatedPrice(symbol) {
+    const sources = [
+      {
+        name: 'CoinGecko',
+        fetch: async () => {
+          const data = await this.fetchDirect(
+            `${this.config.marketData.primary.baseUrl}/simple/price?ids=${symbol}&vs_currencies=usd`
+          );
+          return data[symbol]?.usd;
+        }
+      },
+      {
+        name: 'Binance',
+        fetch: async () => {
+          const data = await this.fetchDirect(
+            `https://api.binance.com/api/v3/ticker/price?symbol=${symbol.toUpperCase()}USDT`
+          );
+          return parseFloat(data.price);
+        }
+      },
+      {
+        name: 'CoinCap',
+        fetch: async () => {
+          const data = await this.fetchDirect(
+            `https://api.coincap.io/v2/assets/${symbol}`
+          );
+          return parseFloat(data.data.priceUsd);
+        }
+      }
+    ];
+    
+    const prices = await Promise.allSettled(
+      sources.map(async source => ({
+        source: source.name,
+        price: await source.fetch()
+      }))
+    );
+    
+    const successful = prices
+      .filter(p => p.status === 'fulfilled')
+      .map(p => p.value);
+    
+    if (successful.length === 0) {
+      throw new Error('All price sources failed');
+    }
+    
+    const avgPrice = successful.reduce((sum, p) => sum + p.price, 0) / successful.length;
+    
+    return {
+      symbol,
+      sources: successful,
+      average: avgPrice,
+      spread: Math.max(...successful.map(p => p.price)) - Math.min(...successful.map(p => p.price))
+    };
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// USAGE EXAMPLES - مثال‌های استفاده
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Initialize
+const api = new CryptoAPIClient(API_CONFIG);
+
+// Example 1: Get Ethereum Balance
+async function example1() {
+  try {
+    const address = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb';
+    const balance = await api.getEthBalance(address);
+    console.log('ETH Balance:', parseInt(balance.result) / 1e18);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+// Example 2: Get Bitcoin Price from Multiple Sources
+async function example2() {
+  try {
+    const price = await api.getBitcoinPrice();
+    console.log(`BTC Price (${price.source}): $${price.usd}`);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+// Example 3: Get Fear & Greed Index
+async function example3() {
+  try {
+    const fng = await api.getFearGreed();
+    console.log(`Fear & Greed: ${fng.value} (${fng.classification})`);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+// Example 4: Get Trending Coins
+async function example4() {
+  try {
+    const trending = await api.getTrendingCoins();
+    console.log('Trending Coins:');
+    trending.forEach((coin, i) => {
+      console.log(`${i + 1}. ${coin.name} (${coin.symbol})`);
+    });
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+// Example 5: Get Latest News
+async function example5() {
+  try {
+    const news = await api.getCryptoNews(5);
+    console.log('Latest News:');
+    news.forEach((article, i) => {
+      console.log(`${i + 1}. ${article.title} - ${article.source}`);
+    });
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+// Example 6: Aggregate Price from Multiple Sources
+async function example6() {
+  try {
+    const priceData = await api.getAggregatedPrice('bitcoin');
+    console.log('Price Sources:');
+    priceData.sources.forEach(s => {
+      console.log(`- ${s.source}: $${s.price.toFixed(2)}`);
+    });
+    console.log(`Average: $${priceData.average.toFixed(2)}`);
+    console.log(`Spread: $${priceData.spread.toFixed(2)}`);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+// Example 7: Dashboard - All Data
+async function dashboardExample() {
+  console.log('🚀 Loading Crypto Dashboard...\n');
+  
+  try {
+    // Price
+    const btcPrice = await api.getBitcoinPrice();
+    console.log(`💰 BTC: $${btcPrice.usd.toLocaleString()}`);
+    
+    // Fear & Greed
+    const fng = await api.getFearGreed();
+    console.log(`😱 Fear & Greed: ${fng.value} (${fng.classification})`);
+    
+    // Trending
+    const trending = await api.getTrendingCoins();
+    console.log(`\n🔥 Trending:`);
+    trending.slice(0, 3).forEach((coin, i) => {
+      console.log(`   ${i + 1}. ${coin.name}`);
+    });
+    
+    // News
+    const news = await api.getCryptoNews(3);
+    console.log(`\n📰 Latest News:`);
+    news.forEach((article, i) => {
+      console.log(`   ${i + 1}. ${article.title.substring(0, 50)}...`);
+    });
+    
+  } catch (error) {
+    console.error('Dashboard Error:', error.message);
+  }
+}
+
+// Run examples
+console.log('═══════════════════════════════════════');
+console.log('   CRYPTO API CLIENT - TEST SUITE');
+console.log('═══════════════════════════════════════\n');
+
+// Uncomment to run specific examples:
+// example1();
+// example2();
+// example3();
+// example4();
+// example5();
+// example6();
+dashboardExample();
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+                          📝 QUICK REFERENCE - مرجع سریع
+═══════════════════════════════════════════════════════════════════════════════════════
+
+BEST FREE APIs (بهترین APIهای رایگان):
+─────────────────────────────────────────
+
+✅ PRICES & MARKET DATA:
+   1. CoinGecko (بدون کلید، بدون CORS)
+   2. Binance Public API (بدون کلید)
+   3. CoinCap (بدون کلید)
+   4. CoinPaprika (بدون کلید)
+
+✅ BLOCK EXPLORERS:
+   1. Blockchair (1,440 req/day)
+   2. BlockScout (بدون محدودیت)
+   3. Public RPC nodes (various)
+
+✅ NEWS:
+   1. CryptoPanic (بدون کلید)
+   2. Reddit JSON API (60 req/min)
+
+✅ SENTIMENT:
+   1. Alternative.me F&G (بدون محدودیت)
+
+✅ WHALE TRACKING:
+   1. ClankApp (بدون کلید)
+   2. BitQuery GraphQL (10K/month)
+
+✅ RPC NODES:
+   1. PublicNode (همه شبکه‌ها)
+   2. Ankr (عمومی)
+   3. LlamaNodes (بدون ثبت‌نام)
+
+
+RATE LIMIT STRATEGIES (استراتژی‌های محدودیت):
+───────────────────────────────────────────────
+
+1. کش کردن (Caching):
+   - ذخیره نتایج برای 1-5 دقیقه
+   - استفاده از localStorage برای کش مرورگر
+
+2. چرخش کلید (Key Rotation):
+   - استفاده از چندین کلید API
+   - تعویض خودکار در صورت محدودیت
+
+3. Fallback Chain:
+   - Primary → Fallback1 → Fallback2
+   - تا 5-10 جایگزین برای هر سرویس
+
+4. Request Queuing:
+   - صف بندی درخواست‌ها
+   - تاخیر بین درخواست‌ها
+
+5. Multi-Source Aggregation:
+   - دریافت از چند منبع همزمان
+   - میانگین گیری نتایج
+
+
+ERROR HANDLING (مدیریت خطا):
+──────────────────────────────
+
+try {
+  const data = await api.fetchWithFallback(primary, fallbacks, endpoint, params);
+} catch (error) {
+  if (error.message.includes('rate limit')) {
+    // Switch to fallback
+  } else if (error.message.includes('CORS')) {
+    // Use CORS proxy
+  } else {
+    // Show error to user
+  }
+}
+
+
+DEPLOYMENT TIPS (نکات استقرار):
+─────────────────────────────────
+
+1. Backend Proxy (توصیه می‌شود):
+   - Node.js/Express proxy server
+   - Cloudflare Worker
+   - Vercel Serverless Function
+
+2. Environment Variables:
+   - ذخیره کلیدها در .env
+   - عدم نمایش در کد فرانت‌اند
+
+3. Rate Limiting:
+   - محدودسازی درخواست کاربر
+   - استفاده از Redis برای کنترل
+
+4. Monitoring:
+   - لاگ گرفتن از خطاها
+   - ردیابی استفاده از API
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+                              🔗 USEFUL LINKS - لینک‌های مفید
+═══════════════════════════════════════════════════════════════════════════════════════
+
+DOCUMENTATION:
+• CoinGecko API: https://www.coingecko.com/api/documentation
+• Etherscan API: https://docs.etherscan.io
+• BscScan API: https://docs.bscscan.com
+• TronGrid: https://developers.tron.network
+• Alchemy: https://docs.alchemy.com
+• Infura: https://docs.infura.io
+• The Graph: https://thegraph.com/docs
+• BitQuery: https://docs.bitquery.io
+
+CORS PROXY ALTERNATIVES:
+• CORS Anywhere: https://github.com/Rob--W/cors-anywhere
+• AllOrigins: https://github.com/gnuns/allOrigins
+• CORS.SH: https://cors.sh
+• Corsfix: https://corsfix.com
+
+RPC LISTS:
+• ChainList: https://chainlist.org
+• Awesome RPC: https://github.com/arddluma/awesome-list-rpc-nodes-providers
+
+TOOLS:
+• Postman: https://www.postman.com
+• Insomnia: https://insomnia.rest
+• GraphiQL: https://graphiql-online.com
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+                            ⚠️ IMPORTANT NOTES - نکات مهم
+═══════════════════════════════════════════════════════════════════════════════════════
+
+1. ⚠️ NEVER expose API keys in frontend code
+   - همیشه از backend proxy استفاده کنید
+   - کلیدها را در environment variables ذخیره کنید
+
+2. 🔄 Always implement fallbacks
+   - حداقل 2-3 جایگزین برای هر سرویس
+   - تست منظم fallbackها
+
+3. 💾 Cache responses when possible
+   - صرفه‌جویی در استفاده از API
+   - سرعت بیشتر برای کاربر
+
+4. 📊 Monitor API usage
+   - ردیابی تعداد درخواست‌ها
+   - هشدار قبل از رسیدن به محدودیت
+
+5. 🔐 Secure your endpoints
+   - محدودسازی domain
+   - استفاده از CORS headers
+   - Rate limiting برای کاربران
+
+6. 🌐 Test with and without CORS proxies
+   - برخی APIها CORS را پشتیبانی می‌کنند
+   - استفاده از پروکسی فقط در صورت نیاز
+
+7. 📱 Mobile-friendly implementations
+   - بهینه‌سازی برای شبکه‌های ضعیف
+   - کاهش اندازه درخواست‌ها
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+                              END OF CONFIGURATION FILE
+                              پایان فایل تنظیمات
+═══════════════════════════════════════════════════════════════════════════════════════
+
+Last Updated: October 31, 2025
+Version: 2.0
+Author: AI Assistant
+License: Free to use
+
+For updates and more resources, check:
+- GitHub: Search for "awesome-crypto-apis"
+- Reddit: r/CryptoCurrency, r/ethdev
+- Discord: Web3 developer communities

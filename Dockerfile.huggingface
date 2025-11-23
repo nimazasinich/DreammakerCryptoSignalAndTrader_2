@@ -1,0 +1,48 @@
+# Ultra-simple Dockerfile for Hugging Face Spaces
+# Tested and reliable approach
+
+FROM node:20-alpine
+
+# Install everything we need
+RUN apk add --no-cache \
+    python3 make g++ gcc musl-dev \
+    nginx curl bash
+
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm ci --prefer-offline --no-audit
+
+# Build app
+COPY . .
+RUN npm run build:client
+RUN npx esbuild src/server.ts \
+  --bundle \
+  --platform=node \
+  --target=node20 \
+  --format=cjs \
+  --outfile=dist/server.js
+
+# Setup nginx
+RUN mkdir -p /run/nginx /etc/nginx/http.d && \
+    echo 'server {' > /etc/nginx/http.d/default.conf && \
+    echo '  listen 7860;' >> /etc/nginx/http.d/default.conf && \
+    echo '  root /app/dist;' >> /etc/nginx/http.d/default.conf && \
+    echo '  location / { try_files $uri /index.html; }' >> /etc/nginx/http.d/default.conf && \
+    echo '  location /api/ { proxy_pass http://127.0.0.1:8000/; }' >> /etc/nginx/http.d/default.conf && \
+    echo '  location /ws { proxy_pass http://127.0.0.1:8000/ws; proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection "upgrade"; }' >> /etc/nginx/http.d/default.conf && \
+    echo '}' >> /etc/nginx/http.d/default.conf
+
+# Simple startup script
+RUN echo '#!/bin/bash' > /start.sh && \
+    echo 'PORT=8000 node /app/dist/server.js &' >> /start.sh && \
+    echo 'sleep 5' >> /start.sh && \
+    echo 'nginx -g "daemon off;"' >> /start.sh && \
+    chmod +x /start.sh
+
+ENV NODE_ENV=production
+
+EXPOSE 7860
+
+CMD ["/start.sh"]

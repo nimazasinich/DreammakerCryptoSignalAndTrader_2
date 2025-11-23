@@ -1,0 +1,443 @@
+{
+  "title": "Connection & Data Retrieval - Testing Checklist",
+  "date": "2025-11-23",
+  "status": "Ready for Testing",
+
+  "prerequisites": {
+    "environment": [
+      "✓ env file updated with PORT=8001",
+      "✓ VITE_API_BASE=http://localhost:8001",
+      "✓ VITE_WS_BASE=ws://localhost:8001",
+      "✓ HF_ENGINE_BASE_URL set to remote Space URL",
+      "✓ Node.js >= 18.0.0 installed",
+      "✓ npm >= 9.0.0 installed"
+    ],
+    "dependencies": [
+      "Run: npm install (if needed)"
+    ]
+  },
+
+  "phase_1_backend_health": {
+    "description": "Verify backend server starts and endpoints work",
+    "tests": [
+      {
+        "test": "Start backend server",
+        "command": "npm run dev:server",
+        "expected": [
+          "Server running on port 8001",
+          "No EADDRINUSE errors",
+          "WebSocket server initialized"
+        ],
+        "pass_criteria": "Backend starts without errors"
+      },
+      {
+        "test": "Health endpoint",
+        "command": "curl http://localhost:8001/api/health",
+        "expected": "{\"ok\":true,\"source\":\"hf_engine\",...}",
+        "pass_criteria": "Returns 200 OK with JSON"
+      },
+      {
+        "test": "Market prices endpoint",
+        "command": "curl \"http://localhost:8001/api/market/prices?symbols=BTC,ETH\"",
+        "expected": "JSON with price data for BTC and ETH",
+        "pass_criteria": "Returns 200 OK with price array"
+      },
+      {
+        "test": "HF health endpoint",
+        "command": "curl http://localhost:8001/api/hf/health",
+        "expected": "{\"success\":true,...} or 503 if HF Space is sleeping",
+        "pass_criteria": "Returns valid JSON response"
+      },
+      {
+        "test": "OHLCV endpoint",
+        "command": "curl \"http://localhost:8001/api/hf/ohlcv?symbol=BTCUSDT&timeframe=1h&limit=100\"",
+        "expected": "JSON with OHLCV data array",
+        "pass_criteria": "Returns data or proper error message"
+      },
+      {
+        "test": "Candlestick endpoint",
+        "command": "curl \"http://localhost:8001/market/candlestick/BTCUSDT?interval=1h&limit=100\"",
+        "expected": "Array of candlestick data",
+        "pass_criteria": "Returns data or falls back gracefully"
+      }
+    ],
+    "validation": "All backend endpoints return valid responses"
+  },
+
+  "phase_2_websocket_connection": {
+    "description": "Verify WebSocket connection works",
+    "tests": [
+      {
+        "test": "WebSocket connection",
+        "tool": "wscat",
+        "install": "npm install -g wscat (if not installed)",
+        "command": "wscat -c ws://localhost:8001/ws",
+        "expected": [
+          "Connected",
+          "Receive heartbeat ping every 30s"
+        ],
+        "pass_criteria": "Connection establishes and stays open"
+      },
+      {
+        "test": "WebSocket messages",
+        "action": "Keep wscat connection open",
+        "expected": "Receive periodic messages from server",
+        "pass_criteria": "No disconnections or errors"
+      }
+    ],
+    "validation": "WebSocket connects on port 8001 without frame errors"
+  },
+
+  "phase_3_frontend_startup": {
+    "description": "Verify frontend starts and connects to backend",
+    "tests": [
+      {
+        "test": "Start frontend",
+        "command": "npm run dev:client",
+        "expected": [
+          "Vite server starts on port 5173",
+          "No build errors",
+          "Console shows 'Endpoint Configuration' in dev mode"
+        ],
+        "pass_criteria": "Frontend compiles and serves without errors"
+      },
+      {
+        "test": "Open browser",
+        "action": "Navigate to http://localhost:5173",
+        "expected": [
+          "App loads without errors",
+          "No 'Connection refused' errors in console",
+          "No WebSocket frame header errors"
+        ],
+        "pass_criteria": "App renders successfully"
+      },
+      {
+        "test": "Check browser console",
+        "action": "Open DevTools → Console",
+        "expected": [
+          "No red errors about port 8002",
+          "No 'Invalid frame header' errors",
+          "May see connection status logs in dev mode"
+        ],
+        "pass_criteria": "No connection errors in console"
+      }
+    ],
+    "validation": "Frontend connects to backend on correct port"
+  },
+
+  "phase_4_connection_status_ui": {
+    "description": "Verify connection status components work",
+    "tests": [
+      {
+        "test": "Connection status badge",
+        "action": "Look for connection indicator in UI",
+        "expected": "Green badge/dot when all systems operational",
+        "pass_criteria": "Status indicator shows 'healthy' state"
+      },
+      {
+        "test": "Hover over status indicator",
+        "action": "Hover mouse over connection status",
+        "expected": "Tooltip or popup showing connection details",
+        "pass_criteria": "Shows backend, HF Space, WebSocket status"
+      },
+      {
+        "test": "Refresh connection status",
+        "action": "Click refresh button on status indicator",
+        "expected": "Status refreshes, shows loading then updated state",
+        "pass_criteria": "Refresh works without errors"
+      }
+    ],
+    "validation": "Connection status UI displays correctly"
+  },
+
+  "phase_5_data_loading": {
+    "description": "Verify data loads from all sources",
+    "tests": [
+      {
+        "test": "Market prices load",
+        "action": "Navigate to dashboard or market view",
+        "expected": "Prices for BTC, ETH, etc. display",
+        "pass_criteria": "Real price data appears"
+      },
+      {
+        "test": "Charts render",
+        "action": "Open any chart/OHLCV view",
+        "expected": [
+          "Chart loads with candlestick data",
+          "No 'NOT_ENOUGH_BARS' errors",
+          "At least 50 bars displayed"
+        ],
+        "pass_criteria": "Charts render with real data"
+      },
+      {
+        "test": "WebSocket updates",
+        "action": "Keep app open for 30-60 seconds",
+        "expected": "Prices update in real-time via WebSocket",
+        "pass_criteria": "Data refreshes automatically"
+      }
+    ],
+    "validation": "All data loads and displays correctly"
+  },
+
+  "phase_6_graceful_degradation": {
+    "description": "Test fallback behavior when sources fail",
+    "tests": [
+      {
+        "test": "HuggingFace Space down",
+        "action": "Block HF Space URL or simulate 503 error",
+        "expected": [
+          "Yellow warning banner appears",
+          "Message: 'HuggingFace Space unavailable, using fallback'",
+          "Data still loads from backend sources",
+          "App remains usable"
+        ],
+        "pass_criteria": "Graceful degradation to fallback sources"
+      },
+      {
+        "test": "Backend server down",
+        "action": "Stop backend server (Ctrl+C)",
+        "expected": [
+          "Red error banner appears",
+          "Message: 'Backend server unavailable'",
+          "Cached data displayed if available",
+          "Retry button appears"
+        ],
+        "pass_criteria": "App shows error but doesn't crash"
+      },
+      {
+        "test": "WebSocket disconnected",
+        "action": "Block WebSocket connection",
+        "expected": [
+          "WebSocket status shows 'offline'",
+          "App falls back to HTTP polling",
+          "Data still refreshes (slower)",
+          "No app crash"
+        ],
+        "pass_criteria": "App works without WebSocket"
+      },
+      {
+        "test": "All sources unavailable",
+        "action": "Stop all services + disconnect internet",
+        "expected": [
+          "Offline indicator shows",
+          "Cached data displayed with warning",
+          "UI remains functional",
+          "Retry button available"
+        ],
+        "pass_criteria": "App remains usable with cached data"
+      }
+    ],
+    "validation": "App handles all failure scenarios gracefully"
+  },
+
+  "phase_7_error_handling": {
+    "description": "Test error boundaries and error states",
+    "tests": [
+      {
+        "test": "API error handling",
+        "action": "Simulate 404/500 errors from API",
+        "expected": [
+          "Error message displays",
+          "Retry button appears",
+          "Connection status shown",
+          "No app crash"
+        ],
+        "pass_criteria": "Errors handled gracefully"
+      },
+      {
+        "test": "Timeout handling",
+        "action": "Simulate slow network (DevTools throttling)",
+        "expected": [
+          "Loading spinner shows",
+          "Timeout after 10s",
+          "Error message appears",
+          "Retry option available"
+        ],
+        "pass_criteria": "Timeouts handled properly"
+      },
+      {
+        "test": "Empty data handling",
+        "action": "Request data that returns empty array",
+        "expected": [
+          "Empty state message shows",
+          "'No data available' or similar",
+          "No JavaScript errors"
+        ],
+        "pass_criteria": "Empty states handled gracefully"
+      }
+    ],
+    "validation": "All error scenarios handled without crashes"
+  },
+
+  "phase_8_performance": {
+    "description": "Verify performance and no memory leaks",
+    "tests": [
+      {
+        "test": "Initial load time",
+        "action": "Refresh page and measure time to interactive",
+        "expected": "Page loads within 3-5 seconds",
+        "pass_criteria": "Acceptable load performance"
+      },
+      {
+        "test": "WebSocket reconnection",
+        "action": "Restart backend while frontend running",
+        "expected": [
+          "WebSocket attempts reconnection",
+          "Exponential backoff used",
+          "Reconnects when backend available"
+        ],
+        "pass_criteria": "Reconnection works automatically"
+      },
+      {
+        "test": "Memory usage",
+        "action": "Keep app open for 5-10 minutes",
+        "expected": [
+          "Memory stays stable",
+          "No continuous growth",
+          "WebSocket pings don't accumulate"
+        ],
+        "pass_criteria": "No memory leaks detected"
+      }
+    ],
+    "validation": "App performs well under normal usage"
+  },
+
+  "phase_9_integration": {
+    "description": "Test full integration across all components",
+    "tests": [
+      {
+        "test": "Full user flow",
+        "steps": [
+          "1. Start backend and frontend",
+          "2. Load app in browser",
+          "3. Check connection status (should be green)",
+          "4. Navigate to market prices view",
+          "5. Verify prices load",
+          "6. Open chart view",
+          "7. Verify OHLCV data renders",
+          "8. Stop HuggingFace (simulate down)",
+          "9. Verify warning banner appears",
+          "10. Confirm data still loads from fallback",
+          "11. Click retry button",
+          "12. Verify status updates"
+        ],
+        "pass_criteria": "Complete flow works end-to-end"
+      }
+    ],
+    "validation": "All components work together seamlessly"
+  },
+
+  "phase_10_regression": {
+    "description": "Verify no existing features broken",
+    "tests": [
+      {
+        "test": "Trading functionality",
+        "action": "Test buy/sell orders",
+        "expected": "Orders work as before",
+        "pass_criteria": "No regression in trading"
+      },
+      {
+        "test": "Analysis tools",
+        "action": "Test technical indicators",
+        "expected": "Indicators calculate correctly",
+        "pass_criteria": "No regression in analysis"
+      },
+      {
+        "test": "Settings page",
+        "action": "Open settings, change values",
+        "expected": "Settings save and apply",
+        "pass_criteria": "No regression in settings"
+      }
+    ],
+    "validation": "All existing features still work"
+  },
+
+  "success_criteria": {
+    "must_pass": [
+      "✓ Backend starts on port 8001",
+      "✓ WebSocket connects without frame errors",
+      "✓ No 'Connection refused' errors",
+      "✓ Market data loads successfully",
+      "✓ Charts render with OHLCV data",
+      "✓ Connection status indicator works",
+      "✓ Graceful degradation when HF Space down",
+      "✓ Error states show properly",
+      "✓ Retry buttons work",
+      "✓ No app crashes on errors"
+    ],
+    "should_pass": [
+      "✓ WebSocket reconnects automatically",
+      "✓ Degraded mode banner appears when appropriate",
+      "✓ Cached data used when services unavailable",
+      "✓ Performance acceptable under load",
+      "✓ No memory leaks after extended use"
+    ],
+    "nice_to_have": [
+      "✓ All three connection status variants work",
+      "✓ Error boundaries catch and display errors",
+      "✓ Loading states show during data fetch",
+      "✓ Empty states display when no data"
+    ]
+  },
+
+  "failure_scenarios": {
+    "if_backend_wont_start": {
+      "issue": "Port 8001 already in use",
+      "solution": [
+        "Run: npx kill-port 8001",
+        "Or set PORT=8002 in env file and update frontend config",
+        "Or set PORT_AUTO=true in env file"
+      ]
+    },
+    "if_websocket_fails": {
+      "issue": "Invalid frame header errors",
+      "solution": [
+        "Verify WS_BASE in env is 'ws://localhost:8001'",
+        "Clear browser cache",
+        "Restart both backend and frontend",
+        "Check no proxy interfering with WebSocket"
+      ]
+    },
+    "if_hf_space_404": {
+      "issue": "HuggingFace Space endpoints not found",
+      "solution": [
+        "This is expected - HF Space may be sleeping",
+        "Wait 30-60 seconds for space to wake up",
+        "Or use fallback sources (app should work anyway)",
+        "Check HF_ENGINE_BASE_URL is correct in env"
+      ]
+    },
+    "if_no_data_loads": {
+      "issue": "All API calls failing",
+      "solution": [
+        "Check internet connection",
+        "Verify backend is running",
+        "Check browser console for specific errors",
+        "Test API endpoints with curl",
+        "Check connection status indicator"
+      ]
+    },
+    "if_charts_dont_render": {
+      "issue": "OHLCV data not available",
+      "solution": [
+        "Check /api/hf/ohlcv endpoint returns data",
+        "Verify symbol format (BTCUSDT vs BTC)",
+        "Check MIN_OHLC_BARS requirement",
+        "Look for specific error in console"
+      ]
+    }
+  },
+
+  "reporting": {
+    "on_success": "Mark all tests as PASSED and proceed to production",
+    "on_failure": "Document failed test, error messages, steps to reproduce",
+    "logs_to_collect": [
+      "Backend console output",
+      "Frontend browser console",
+      "Network tab (failed requests)",
+      "Connection status indicator state",
+      "Screenshots of error states"
+    ]
+  }
+}
+

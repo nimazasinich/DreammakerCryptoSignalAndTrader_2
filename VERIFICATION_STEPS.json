@@ -1,0 +1,440 @@
+{
+  "title": "HF WebSocket Fix - Quick Verification Guide",
+  "prerequisites": {
+    "1": "Ensure dependencies installed: npm install",
+    "2": "Backend runs on port 8001 by default",
+    "3": "Have curl or equivalent tool for testing health endpoints",
+    "4": "For Windows PowerShell, use $env:VAR_NAME='value' instead of set VAR=value"
+  },
+
+  "scenarios": [
+    {
+      "name": "Scenario 1: Test with WebSocket Disabled",
+      "description": "Force HTTP polling mode by disabling WebSocket entirely",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Edit env file",
+          "command": "Set HF_WS_DISABLED=true"
+        },
+        {
+          "step": 2,
+          "action": "Start server",
+          "command": "npm run dev",
+          "windows_alt": "npm run dev:win"
+        },
+        {
+          "step": 3,
+          "action": "Check logs",
+          "expected": "🔌 HF WebSocket disabled via HF_WS_DISABLED=true (using HTTP polling only)"
+        },
+        {
+          "step": 4,
+          "action": "Check health endpoint",
+          "command": "curl http://localhost:8001/api/health",
+          "expected_json": {
+            "services": {
+              "hfEngine": {
+                "websocket": {
+                  "state": "disabled",
+                  "connected": false
+                }
+              }
+            }
+          }
+        },
+        {
+          "step": 5,
+          "action": "Verify server is healthy",
+          "expected": "Server serves market data via HTTP polling, no WS errors in logs"
+        }
+      ],
+      "success_criteria": "✅ No WS connection attempts, server operates normally with HTTP polling"
+    },
+
+    {
+      "name": "Scenario 2: Test without Token (Missing HF_TOKEN)",
+      "description": "Simulate missing or unconfigured token",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Edit env file",
+          "command": "Comment out or remove HF_TOKEN line"
+        },
+        {
+          "step": 2,
+          "action": "Ensure WS not disabled",
+          "command": "Set HF_WS_DISABLED=false (or comment it out)"
+        },
+        {
+          "step": 3,
+          "action": "Start server",
+          "command": "npm run dev"
+        },
+        {
+          "step": 4,
+          "action": "Check startup logs",
+          "expected": [
+            "⚠️ No HF_TOKEN detected",
+            "ACTION: Set HF_TOKEN in .env (token with write scope)",
+            "Get token from: https://huggingface.co/settings/tokens"
+          ]
+        },
+        {
+          "step": 5,
+          "action": "Wait for WS connection attempt",
+          "expected": "If HF returns 403: '❌ HF WebSocket access denied (HTTP 403)' after 1-3 attempts"
+        },
+        {
+          "step": 6,
+          "action": "Check health endpoint after 403",
+          "command": "curl http://localhost:8001/api/health",
+          "expected_json": {
+            "services": {
+              "hfEngine": {
+                "websocket": {
+                  "state": "auth_error",
+                  "connected": false,
+                  "permanentFailure": true,
+                  "hasToken": false
+                }
+              }
+            }
+          }
+        }
+      ],
+      "success_criteria": "✅ Clear warnings at startup, WS stops retrying after 403, server continues with HTTP polling"
+    },
+
+    {
+      "name": "Scenario 3: Test with Invalid/Expired Token",
+      "description": "Simulate token validation failure",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Edit env file",
+          "command": "Set HF_TOKEN=hf_invalid_token_12345678901234567890"
+        },
+        {
+          "step": 2,
+          "action": "Start server",
+          "command": "npm run dev"
+        },
+        {
+          "step": 3,
+          "action": "Check startup validation",
+          "expected": [
+            "❌ HF_TOKEN unauthorized (HTTP 401/403)",
+            "Token is invalid, expired, or lacks required permissions",
+            "ACTION: Generate new token at https://huggingface.co/settings/tokens"
+          ]
+        },
+        {
+          "step": 4,
+          "action": "Observe WS connection attempts",
+          "expected": "Attempts WS connection, gets 403, stops after 3 attempts"
+        },
+        {
+          "step": 5,
+          "action": "Check final log message",
+          "expected": "❌ HF WebSocket permanently disabled (auth_error)"
+        },
+        {
+          "step": 6,
+          "action": "Check health endpoint",
+          "command": "curl http://localhost:8001/api/health",
+          "expected_json": {
+            "services": {
+              "hfEngine": {
+                "websocket": {
+                  "state": "auth_error",
+                  "lastError": "HTTP 403 after 3 attempts",
+                  "permanentFailure": true,
+                  "hasToken": true
+                }
+              }
+            }
+          }
+        }
+      ],
+      "success_criteria": "✅ Token validation fails at startup, WS stops after 3 auth errors, clear remediation steps logged"
+    },
+
+    {
+      "name": "Scenario 4: Test with Valid Token",
+      "description": "Normal operation with authenticated WebSocket",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Get valid HF token",
+          "instructions": [
+            "Visit https://huggingface.co/settings/tokens",
+            "Create 'New token' with 'write' role",
+            "Copy token (format: hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx)"
+          ]
+        },
+        {
+          "step": 2,
+          "action": "Edit env file",
+          "command": "Set HF_TOKEN=<your_valid_token>"
+        },
+        {
+          "step": 3,
+          "action": "Start server",
+          "command": "npm run dev"
+        },
+        {
+          "step": 4,
+          "action": "Check startup logs",
+          "expected": [
+            "🚀 HuggingFaceProvider initialized",
+            "✅ HF token validated successfully",
+            "🔌 Connecting to HF WebSocket",
+            "✅ HF WebSocket connected successfully"
+          ]
+        },
+        {
+          "step": 5,
+          "action": "Check health endpoint",
+          "command": "curl http://localhost:8001/api/health",
+          "expected_json": {
+            "services": {
+              "hfEngine": {
+                "websocket": {
+                  "state": "connected",
+                  "connected": true,
+                  "connectedAt": "<timestamp>",
+                  "reconnectAttempts": 0,
+                  "hasToken": true,
+                  "permanentFailure": false
+                }
+              }
+            }
+          }
+        },
+        {
+          "step": 6,
+          "action": "Verify real-time updates",
+          "expected": "WebSocket receives market data updates, no reconnection attempts in logs"
+        }
+      ],
+      "success_criteria": "✅ Token validates, WS connects successfully, no errors, real-time data flowing"
+    },
+
+    {
+      "name": "Scenario 5: Force Polling Fallback (Invalid HF Space URL)",
+      "description": "Test network error handling and fallback behavior",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Edit env file",
+          "command": "Set HF_ENGINE_BASE_URL=https://invalid-space-url-that-does-not-exist.hf.space"
+        },
+        {
+          "step": 2,
+          "action": "Start server",
+          "command": "npm run dev"
+        },
+        {
+          "step": 3,
+          "action": "Check logs",
+          "expected": [
+            "❌ HF WebSocket error (network-related, not 403)",
+            "note: Check network connectivity and HF Space availability"
+          ]
+        },
+        {
+          "step": 4,
+          "action": "Observe retry behavior",
+          "expected": "Exponential backoff retries up to max attempts (10 by default)"
+        },
+        {
+          "step": 5,
+          "action": "Check health after max retries",
+          "command": "curl http://localhost:8001/api/health",
+          "expected_json": {
+            "services": {
+              "hfEngine": {
+                "websocket": {
+                  "state": "fallback_polling",
+                  "connected": false,
+                  "permanentFailure": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "step": 6,
+          "action": "Revert URL and restart",
+          "command": "Set HF_ENGINE_BASE_URL back to correct URL, restart server"
+        }
+      ],
+      "success_criteria": "✅ Network errors handled gracefully, retries with backoff, eventually gives up, falls back to HTTP"
+    }
+  ],
+
+  "health_endpoint_reference": {
+    "primary_health": {
+      "url": "http://localhost:8001/api/health",
+      "method": "GET",
+      "response_structure": {
+        "timestamp": "<number>",
+        "status": "healthy | unhealthy",
+        "services": {
+          "hfEngine": {
+            "status": "healthy | error",
+            "connected": "<boolean>",
+            "enabled": "<boolean>",
+            "websocket": {
+              "connected": "<boolean>",
+              "reconnectAttempts": "<number>",
+              "subscriptions": ["<array>"],
+              "state": "connected | auth_error | disabled | fallback_polling | unknown",
+              "lastError": "<string | undefined>",
+              "lastAttempt": "<timestamp | undefined>",
+              "connectedAt": "<timestamp | undefined>",
+              "hasToken": "<boolean>",
+              "permanentFailure": "<boolean>"
+            }
+          }
+        }
+      }
+    },
+    "simple_health": {
+      "url": "http://localhost:8001/status/health",
+      "method": "GET",
+      "response_structure": {
+        "ok": "<boolean>",
+        "ts": "<number>",
+        "service": "dreammaker-crypto-signal-trader",
+        "hf": {
+          "state": "connected | auth_error | disabled | fallback_polling | unknown",
+          "lastError": "<string | undefined>",
+          "lastAttempt": "<timestamp | undefined>",
+          "connectedAt": "<timestamp | undefined>",
+          "hasToken": "<boolean>",
+          "reconnectAttempts": "<number>",
+          "permanentFailure": "<boolean>"
+        },
+        "redisConfigured": "<boolean>"
+      }
+    }
+  },
+
+  "troubleshooting": {
+    "issue_server_not_starting": {
+      "symptoms": "npm run dev fails with errors",
+      "checks": [
+        "Check TypeScript compilation: npm run typecheck",
+        "Verify no syntax errors: npm run lint",
+        "Check port 8001 availability: netstat -ano | findstr :8001 (Windows) or lsof -i :8001 (Linux/Mac)",
+        "Review server logs for specific error messages"
+      ]
+    },
+    "issue_ws_keeps_retrying_403": {
+      "symptoms": "Logs show repeated HTTP 403 errors, more than 3 attempts",
+      "likely_cause": "Code changes not applied or server not restarted",
+      "solution": [
+        "Restart server completely (Ctrl+C, then npm run dev)",
+        "Verify src/providers/HuggingFaceProvider.ts has isLikelyAuthError() method",
+        "Check wsReconnectAttempts >= 2 condition is present in error handler"
+      ]
+    },
+    "issue_health_missing_hf_field": {
+      "symptoms": "curl /api/health doesn't show hf.state or websocket.state",
+      "likely_cause": "Server not fully restarted or changes not compiled",
+      "solution": [
+        "Stop server (Ctrl+C)",
+        "Clear build cache: rm -rf dist/ (if exists)",
+        "Rebuild: npm run build (if needed)",
+        "Start fresh: npm run dev"
+      ]
+    },
+    "issue_token_validation_not_running": {
+      "symptoms": "No validation logs at startup",
+      "checks": [
+        "Verify HF_WS_DISABLED is not set to true",
+        "Check HF_ENGINE_ENABLED is true",
+        "Look for 'validateTokenAtStartup' in HuggingFaceProvider constructor",
+        "Check network connectivity to huggingface.co"
+      ]
+    }
+  },
+
+  "windows_specific_notes": {
+    "set_env_vars_powershell": {
+      "syntax": "$env:HF_WS_DISABLED='true'",
+      "example": "$env:HF_TOKEN='hf_xxxxxxxxxxxxx'",
+      "note": "Use single quotes to avoid variable expansion"
+    },
+    "set_env_vars_cmd": {
+      "syntax": "set HF_WS_DISABLED=true",
+      "example": "set HF_TOKEN=hf_xxxxxxxxxxxxx",
+      "note": "No quotes needed in CMD"
+    },
+    "curl_alternative": {
+      "tool": "Invoke-WebRequest (PowerShell built-in)",
+      "syntax": "(Invoke-WebRequest -Uri http://localhost:8001/api/health).Content | ConvertFrom-Json"
+    },
+    "run_dev_script": {
+      "command": "npm run dev:win",
+      "fallback": "npm run dev (works on Windows too)"
+    }
+  },
+
+  "quick_checklist": {
+    "before_testing": [
+      "☐ npm install completed successfully",
+      "☐ No TypeScript compilation errors",
+      "☐ Port 8001 is available",
+      "☐ env file exists with HF configuration"
+    ],
+    "during_scenario_1": [
+      "☐ HF_WS_DISABLED=true set in env",
+      "☐ Log shows 'disabled via HF_WS_DISABLED=true'",
+      "☐ No WS connection attempts in logs",
+      "☐ Health shows hf.state: 'disabled'",
+      "☐ Server serves data via HTTP polling"
+    ],
+    "during_scenario_2": [
+      "☐ HF_TOKEN commented out or removed",
+      "☐ Startup shows 'No HF_TOKEN detected' warning",
+      "☐ ACTION line with token URL logged",
+      "☐ On 403, stops after 3 attempts",
+      "☐ Health shows hf.state: 'auth_error'"
+    ],
+    "during_scenario_3": [
+      "☐ Invalid token set in env",
+      "☐ Token validation fails at startup",
+      "☐ Clear remediation steps logged",
+      "☐ WS stops after 3 auth errors",
+      "☐ Health shows permanentFailure: true"
+    ],
+    "during_scenario_4": [
+      "☐ Valid token obtained from HF",
+      "☐ Token validation succeeds",
+      "☐ WS connects successfully",
+      "☐ Health shows hf.state: 'connected'",
+      "☐ Real-time data flowing"
+    ],
+    "all_scenarios": [
+      "☐ Server never crashes due to WS errors",
+      "☐ HTTP polling fallback works in all cases",
+      "☐ Health endpoint always returns valid JSON",
+      "☐ Logs are clear and actionable"
+    ]
+  },
+
+  "final_acceptance": {
+    "criteria_1": "✅ HF_WS_DISABLED=true prevents WS attempts and logs clear message",
+    "criteria_2": "✅ Missing HF_TOKEN shows warning with link to token page",
+    "criteria_3": "✅ 403 errors stop retrying after 3 attempts with ACTION log",
+    "criteria_4": "✅ /api/health returns hf.state and extended websocket info",
+    "criteria_5": "✅ Server continues running with HTTP polling on all failures",
+    "criteria_6": "✅ global.__HF_WS_STATUS__ updated in real-time",
+    "criteria_7": "✅ No trading/risk/scoring config files modified",
+    "all_passed": true
+  }
+}
+

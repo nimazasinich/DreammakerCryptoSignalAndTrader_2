@@ -1,0 +1,242 @@
+{
+  "title": "HuggingFace WebSocket 403 Error - Resolution Guide",
+  "issue": "WebSocket connection to HF Space fails with HTTP 403 (Forbidden)",
+  "root_cause": "Token lacks 'write' role OR token is expired/invalid",
+  "status": "Enhanced with better diagnostics and explicit error messages",
+  
+  "symptoms": {
+    "logs_show": [
+      "❌ HF WebSocket access denied (HTTP 403)",
+      "hasToken: true (but still getting 403)",
+      "❌ HF WebSocket permanently disabled (auth_error)",
+      "System will continue using HTTP polling fallback"
+    ],
+    "health_endpoint": {
+      "hf.state": "auth_error",
+      "permanentFailure": true,
+      "hasToken": true
+    }
+  },
+
+  "root_cause_explanation": {
+    "huggingface_spaces": "Spaces with interactive features (WebSocket endpoints) require 'write' role tokens",
+    "read_role_insufficient": "Tokens with only 'read' role cannot access WebSocket endpoints",
+    "token_expired": "Expired tokens will also return 403",
+    "token_invalid": "Invalid or malformed tokens will return 403"
+  },
+
+  "resolution_steps": {
+    "step_1": {
+      "title": "Generate New Token with 'write' Role",
+      "actions": [
+        "1. Navigate to https://huggingface.co/settings/tokens",
+        "2. Click 'New token' button",
+        "3. Provide descriptive name: 'WebSocket Access Token' or 'HF Space Write Access'",
+        "4. CRITICAL: Select 'write' role (NOT 'read' role)",
+        "5. Click 'Generate token'",
+        "6. Copy the token immediately (format: hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx)"
+      ],
+      "important": "The token MUST have 'write' role. 'read' role tokens will still return 403 for WebSocket access."
+    },
+    "step_2": {
+      "title": "Update Environment Configuration",
+      "actions": [
+        "1. Open the 'env' file in project root",
+        "2. Find the line: HF_TOKEN=...",
+        "3. Replace with: HF_TOKEN=<your_new_write_token>",
+        "4. Save the file",
+        "5. Alternative: Can also use HUGGINGFACE_API_KEY=<token> (both are supported)"
+      ],
+      "example": "HF_TOKEN=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",
+      "note": "Do NOT commit the token to version control. Keep it in .env (which should be in .gitignore)"
+    },
+    "step_3": {
+      "title": "Verify Token Format",
+      "checks": [
+        "Token should start with 'hf_'",
+        "Token should be approximately 37 characters long",
+        "Example format: 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"
+      ],
+      "validation": "The system will validate token format at startup and log warnings if invalid"
+    },
+    "step_4": {
+      "title": "Restart Server",
+      "commands": [
+        "Stop current server: Ctrl+C",
+        "Start fresh: npm run dev",
+        "Or: npm run dev:server (server only)"
+      ],
+      "what_to_watch": [
+        "Startup logs should show: '✅ HF token validated successfully'",
+        "WebSocket connection: '🔌 Connecting to HF WebSocket'",
+        "Success: '✅ HF WebSocket connected successfully'",
+        "If still 403: Check error logs for specific guidance"
+      ]
+    },
+    "step_5": {
+      "title": "Verify Connection",
+      "health_check": "curl http://localhost:8001/api/health",
+      "expected_response": {
+        "services": {
+          "hfEngine": {
+            "websocket": {
+              "state": "connected",
+              "connected": true,
+              "connectedAt": "<timestamp>",
+              "hasToken": true,
+              "permanentFailure": false
+            }
+          }
+        },
+        "hf": {
+          "state": "connected",
+          "hasToken": true
+        }
+      },
+      "if_still_auth_error": "See troubleshooting section below"
+    }
+  },
+
+  "enhanced_logging": {
+    "startup_validation": {
+      "with_valid_token": "✅ HF token validated successfully",
+      "with_invalid_token": "❌ HF_TOKEN unauthorized (HTTP 401/403) - Token is invalid, expired, or lacks required permissions",
+      "with_no_token": "⚠️ No HF_TOKEN detected"
+    },
+    "websocket_connection": {
+      "with_token": "🔑 Using HF_TOKEN for WebSocket authentication | tokenFormat: 'valid'",
+      "token_format_check": "⚠️ HF_TOKEN format appears invalid (should start with 'hf_' and be ~37 chars)",
+      "connection_attempt": "🔌 Connecting to HF WebSocket | hasToken: true, tokenFormatValid: true"
+    },
+    "auth_errors": {
+      "first_attempt": "❌ HF WebSocket access denied (HTTP 403) | Token may lack 'write' role or be expired",
+      "permanent_failure": "❌ HF WebSocket permanently disabled (auth_error) | Token requires 'write' role for WebSocket access",
+      "actionable_steps": [
+        "1. Navigate to https://huggingface.co/settings/tokens",
+        "2. Create 'New token' with 'write' role (NOT 'read' role)",
+        "3. Copy token and set HF_TOKEN=<new_token> in .env file",
+        "4. Restart server"
+      ]
+    }
+  },
+
+  "code_verification": {
+    "websocket_headers": {
+      "location": "src/providers/HuggingFaceProvider.ts:706-710",
+      "implementation": "Token is correctly passed in Authorization header:",
+      "code_snippet": "this.ws = new WebSocket(wsUrl, {\n  headers: this.config.token ? {\n    'Authorization': `Bearer ${this.config.token}`\n  } : {}\n});",
+      "status": "✅ CORRECT - Token is being sent in headers"
+    },
+    "token_validation": {
+      "location": "src/providers/hfTokenValidator.ts",
+      "functionality": [
+        "Validates token format (hf_xxx... ~37 chars)",
+        "Calls HF whoami-v2 API to verify token authorization",
+        "Logs actionable error messages based on validation result"
+      ],
+      "status": "✅ ACTIVE - Runs at startup (async, non-blocking)"
+    }
+  },
+
+  "troubleshooting": {
+    "issue_token_exists_but_still_403": {
+      "possible_causes": [
+        "Token has 'read' role instead of 'write' role (most common)",
+        "Token is expired",
+        "Token was revoked/deleted",
+        "Token format is invalid"
+      ],
+      "solution": "Generate NEW token with 'write' role from https://huggingface.co/settings/tokens"
+    },
+    "issue_token_validation_silent": {
+      "check": "Look for '✅ HF token validated successfully' or '❌ HF_TOKEN unauthorized' in startup logs",
+      "if_missing": [
+        "Verify HF_WS_DISABLED is not set to 'true'",
+        "Check HF_ENGINE_ENABLED is 'true'",
+        "Check network connectivity to huggingface.co",
+        "Token validation runs async - may appear after other startup logs"
+      ]
+    },
+    "issue_websocket_still_retrying_after_3_attempts": {
+      "symptom": "Logs show more than 3 connection attempts",
+      "likely_cause": "Code changes not applied or server not fully restarted",
+      "solution": [
+        "Stop server completely (Ctrl+C)",
+        "Verify src/providers/HuggingFaceProvider.ts has isLikelyAuthError() method",
+        "Check wsReconnectAttempts >= 2 condition in error handlers",
+        "Restart: npm run dev"
+      ]
+    },
+    "issue_health_endpoint_missing_hf_field": {
+      "symptom": "curl /api/health doesn't show hf.state or websocket.state",
+      "solution": [
+        "Stop server (Ctrl+C)",
+        "Clear build cache: rm -rf dist/ (if exists)",
+        "Rebuild: npm run build (if needed)",
+        "Start fresh: npm run dev"
+      ]
+    }
+  },
+
+  "workaround": {
+    "disable_websocket": {
+      "when_to_use": "If you cannot obtain a 'write' role token or want to skip WebSocket entirely",
+      "how": "Set HF_WS_DISABLED=true in env file",
+      "result": [
+        "No WebSocket connection attempts",
+        "System uses HTTP polling only (works fine, just slightly slower)",
+        "Health endpoint shows hf.state: 'disabled'",
+        "Server operates normally"
+      ],
+      "note": "HTTP polling is fully functional and tested. WebSocket is optional for real-time efficiency."
+    }
+  },
+
+  "verification_checklist": {
+    "before_testing": [
+      "☐ New token generated with 'write' role",
+      "☐ Token copied and set in env file as HF_TOKEN=...",
+      "☐ Token format verified (starts with 'hf_', ~37 chars)",
+      "☐ Server restarted after token update"
+    ],
+    "after_restart": [
+      "☐ Startup logs show '✅ HF token validated successfully'",
+      "☐ Logs show '🔑 Using HF_TOKEN for WebSocket authentication'",
+      "☐ Logs show '🔌 Connecting to HF WebSocket'",
+      "☐ Logs show '✅ HF WebSocket connected successfully'",
+      "☐ NO 403 errors in logs",
+      "☐ Health endpoint shows hf.state: 'connected'",
+      "☐ Health endpoint shows permanentFailure: false"
+    ],
+    "if_still_failing": [
+      "☐ Verify token has 'write' role (not 'read') at https://huggingface.co/settings/tokens",
+      "☐ Check token hasn't expired or been revoked",
+      "☐ Verify token format is correct",
+      "☐ Check network connectivity to huggingface.co",
+      "☐ Review error logs for specific guidance"
+    ]
+  },
+
+  "quick_reference": {
+    "token_url": "https://huggingface.co/settings/tokens",
+    "required_role": "write (NOT read)",
+    "token_format": "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx (~37 chars)",
+    "env_variable": "HF_TOKEN=<your_token> or HUGGINGFACE_API_KEY=<your_token>",
+    "health_endpoint": "http://localhost:8001/api/health",
+    "expected_state": "connected (not auth_error)",
+    "workaround": "Set HF_WS_DISABLED=true to use HTTP polling only"
+  },
+
+  "summary": {
+    "problem": "WebSocket 403 errors due to insufficient token permissions",
+    "solution": "Generate new token with 'write' role from HuggingFace settings",
+    "enhancements": [
+      "Enhanced logging shows token format validation",
+      "Explicit error messages emphasize 'write' role requirement",
+      "Step-by-step ACTION logs guide token regeneration",
+      "Health endpoint shows detailed auth status"
+    ],
+    "status": "Code correctly sends token in headers. Issue is token permissions, not code."
+  }
+}
+

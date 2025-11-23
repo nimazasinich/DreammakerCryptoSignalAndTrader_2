@@ -1,0 +1,107 @@
+# Backend runs on port 8001 (not 8002!)
+VITE_API_BASE=http://localhost:8001
+VITE_API_URL=http://localhost:8001
+VITE_WS_BASE=ws://localhost:8001
+VITE_WS_URL=ws://localhost:8001
+
+# HuggingFace Engine URL (for frontend direct access)
+VITE_HF_ENGINE_URL=https://really-amin-datasourceforcryptocurrency.hf.space
+
+# Data Policy - Allow graceful degradation for better UX
+VITE_APP_MODE=online
+VITE_STRICT_REAL_DATA=false
+VITE_USE_MOCK_DATA=false
+VITE_ALLOW_FAKE_DATA=false
+VITE_ALLOW_FALLBACK_DATA=true
+VITE_USE_CACHED_DATA=true
+
+# Prima
+VITE_DISABLE_INITIAL_LOAD=false
+VITE_REFRESH_MS=120000
+VITE_ENABLE_MONITORING_VIEW=true
+
+# ============================================
+# HuggingFace Data Engine - PRIMARY DATA SOURCE (ONLY SOURCE)
+# ============================================
+PRIMARY_DATA_SOURCE=huggingface
+HF_ENGINE_ENABLED=true
+HF_ENGINE_BASE_URL=https://really-amin-datasourceforcryptocurrency.hf.space
+HF_ENGINE_TIMEOUT_MS=15000
+HF_ENGINE_USER_AGENT=DreammakerCryptoBackend/1.0
+
+# ============================================
+# HuggingFace Token Configuration
+# ============================================
+# IMPORTANT: Generate a new token with "write" role from https://huggingface.co/settings/tokens
+# Token format: hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx (starts with 'hf_', ~37 chars)
+# 
+# Without a valid token:
+#   - WebSocket connections may return HTTP 403 (Forbidden)
+#   - System will automatically fall back to HTTP polling (works fine, just slower)
+#   - Token validation happens at startup and provides actionable error messages
+#
+# To get a token:
+#   1. Visit https://huggingface.co/settings/tokens
+#   2. Create "New token" with "write" role
+#   3. Copy token and set HF_TOKEN= below
+#   4. Restart server
+HF_TOKEN=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
+
+# Alternative token env var (HF_TOKEN takes precedence if both set)
+# HUGGINGFACE_API_KEY=
+
+# ============================================
+# HuggingFace WebSocket Configuration (Optional)
+# ============================================
+# WebSocket provides real-time updates. If disabled or auth fails, system uses HTTP polling.
+# Server continues running normally in either mode.
+
+# Set to 'true' to forcibly disable WebSocket and use HTTP polling only
+# Use this if you don't have a token or want to prevent WS connection attempts
+HF_WS_DISABLED=false
+
+# Maximum reconnection attempts before giving up (default: 10)
+# Set lower (e.g., 3) for faster failure detection on persistent auth errors
+# HF_WS_MAX_RECONNECT_ATTEMPTS=10
+
+# Base delay between reconnection attempts in milliseconds (default: 5000)
+# HF_WS_RECONNECT_DELAY_MS=5000
+
+# Exponential backoff factor (default: 1.5)
+# Each retry waits: base_delay * (backoff_factor ^ attempt_number)
+# HF_WS_BACKOFF_FACTOR=1.5
+
+# ============================================
+# WebSocket Auth Behavior
+# ============================================
+# - If HF_TOKEN is missing or invalid -> logs warning, attempts WS (may get 403), falls back to HTTP
+# - On 403 errors -> stops retrying after 3 attempts, logs actionable remediation steps
+# - Check /api/health endpoint for hf.state: 'connected' | 'auth_error' | 'disabled' | 'fallback_polling'
+
+# ============================================
+# DISABLED: Binance and KuCoin Services
+# ============================================
+# These services are disabled due to geo-restrictions (Binance HTTP 451) and DNS errors (KuCoin)
+# All data must be loaded from Hugging Face Hub via Hub-and-Spoke architecture
+BINANCE_ENABLED=false
+KUCOIN_ENABLED=false
+ENABLE_BINANCE_SOURCE=false
+ENABLE_KUCOIN_SOURCE=false
+
+# API Base URL for Hub-and-Spoke architecture (proxy to Hugging Face Hub)
+API_BASE_URL=http://localhost:8001
+
+# ============================================
+# Resilience/Fallback – بهینه‌سازی شده برای پایداری
+# ============================================
+AXIOS_MAX_RETRIES=3
+BOOT_NO_RETRY=false
+BOOT_PRIMARY_ONLY=false
+BOOT_WINDOW_MS=120000
+
+# ============================================
+# Backend Server Configuration
+# ============================================
+PORT=8001
+PORT_AUTO=false
+NODE_ENV=development

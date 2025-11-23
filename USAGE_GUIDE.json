@@ -1,0 +1,166 @@
+{
+  "title": "Quick Usage Guide - New Components & Features",
+  "date": "2025-11-23",
+
+  "1_environment_setup": {
+    "description": "Update environment configuration",
+    "steps": [
+      "1. Copy the updated 'env' file (already done)",
+      "2. Ensure these key values are set:",
+      "   PORT=8001",
+      "   VITE_API_BASE=http://localhost:8001",
+      "   VITE_WS_BASE=ws://localhost:8001",
+      "   HF_ENGINE_BASE_URL=https://really-amin-datasourceforcryptocurrency.hf.space",
+      "3. Restart backend and frontend"
+    ]
+  },
+
+  "2_import_connection_status": {
+    "description": "Show connection status in your app",
+    "example_badge": {
+      "code": "import { ConnectionStatus } from './components/ConnectionStatus';\n\nfunction Header() {\n  return (\n    <header>\n      <h1>My App</h1>\n      <ConnectionStatus variant=\"badge\" />\n    </header>\n  );\n}",
+      "use_case": "Show compact status indicator in header/navbar"
+    },
+    "example_banner": {
+      "code": "import { ConnectionStatus } from './components/ConnectionStatus';\n\nfunction App() {\n  return (\n    <div>\n      <ConnectionStatus variant=\"banner\" showDetails />\n      {/* Rest of your app */}\n    </div>\n  );\n}",
+      "use_case": "Show warning banner when connection is degraded"
+    },
+    "example_indicator": {
+      "code": "import { ConnectionStatus } from './components/ConnectionStatus';\n\nfunction SettingsPage() {\n  return (\n    <div>\n      <h2>System Status</h2>\n      <ConnectionStatus variant=\"indicator\" showDetails />\n    </div>\n  );\n}",
+      "use_case": "Show detailed connection info in settings/diagnostics page"
+    }
+  },
+
+  "3_use_connection_hook": {
+    "description": "Access connection status in any component",
+    "code": "import { useConnectionStatus } from '../hooks/useConnectionStatus';\n\nfunction MyComponent() {\n  const { isHealthy, isDegraded, statusMessage, refresh } = useConnectionStatus();\n\n  if (isDegraded) {\n    return (\n      <div className=\"warning\">\n        <p>{statusMessage}</p>\n        <button onClick={refresh}>Retry</button>\n      </div>\n    );\n  }\n\n  return <div>All systems operational ✅</div>;\n}",
+    "use_case": "Custom connection status handling in components"
+  },
+
+  "4_add_error_boundary": {
+    "description": "Catch and display React errors gracefully",
+    "code": "import { ErrorBoundary } from './components/ErrorBoundary';\nimport App from './App';\n\nfunction Root() {\n  return (\n    <ErrorBoundary>\n      <App />\n    </ErrorBoundary>\n  );\n}",
+    "use_case": "Wrap app root to catch all errors with user-friendly UI"
+  },
+
+  "5_use_loading_states": {
+    "description": "Show loading, error, and empty states",
+    "code": "import { DataLoadingState } from './components/DataLoadingState';\nimport { useState, useEffect } from 'react';\n\nfunction DataComponent() {\n  const [data, setData] = useState(null);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState(null);\n\n  const fetchData = async () => {\n    setLoading(true);\n    setError(null);\n    try {\n      const result = await fetch('/api/market/prices?symbols=BTC,ETH');\n      const json = await result.json();\n      setData(json);\n    } catch (err) {\n      setError(err);\n    } finally {\n      setLoading(false);\n    }\n  };\n\n  useEffect(() => { fetchData(); }, []);\n\n  return (\n    <DataLoadingState\n      loading={loading}\n      error={error}\n      empty={!data || data.length === 0}\n      onRetry={fetchData}\n      showConnectionStatus\n    >\n      {/* Your data display here */}\n      <div>{JSON.stringify(data)}</div>\n    </DataLoadingState>\n  );\n}",
+    "use_case": "Unified loading/error handling for data fetching"
+  },
+
+  "6_use_centralized_endpoints": {
+    "description": "Use centralized endpoint configuration",
+    "code": "import { getBackendUrl, getBackendWsUrl, ENDPOINTS } from '../config/endpoints';\n\n// Get full backend API URL\nconst pricesUrl = getBackendUrl(ENDPOINTS.backend.prices);\n// Result: http://localhost:8001/api/market/prices\n\n// Get WebSocket URL\nconst wsUrl = getBackendWsUrl('/ws');\n// Result: ws://localhost:8001/ws\n\n// Fetch data\nconst response = await fetch(pricesUrl);\nconst data = await response.json();",
+    "use_case": "Always use centralized config instead of hardcoded URLs"
+  },
+
+  "7_check_health_before_requests": {
+    "description": "Pre-flight health check before API calls",
+    "code": "import { connectionMonitor } from '../services/ConnectionMonitor';\n\nasync function fetchData() {\n  // Check if backend is healthy\n  const isHealthy = await connectionMonitor.preFlightCheck('backend');\n  \n  if (!isHealthy) {\n    console.warn('Backend is not available, using cached data');\n    return getCachedData();\n  }\n  \n  // Proceed with API call\n  const response = await fetch('/api/market/prices');\n  return response.json();\n}",
+    "use_case": "Avoid unnecessary API calls when services are down"
+  },
+
+  "8_import_styles": {
+    "description": "Import connection status styles",
+    "code": "// In your main app file (e.g., App.tsx or main.tsx)\nimport './styles/connection-status.css';",
+    "note": "Styles are already written, just import them"
+  },
+
+  "component_props": {
+    "ConnectionStatus": {
+      "variant": "badge | banner | indicator (default: indicator)",
+      "showDetails": "boolean (default: false) - Show detailed connection info",
+      "className": "string - Additional CSS classes"
+    },
+    "ErrorBoundary": {
+      "children": "ReactNode - Components to wrap",
+      "fallback": "ReactNode - Custom error UI (optional)"
+    },
+    "DataLoadingState": {
+      "loading": "boolean - Show loading spinner",
+      "error": "Error | string | null - Error to display",
+      "empty": "boolean - Show empty state",
+      "emptyMessage": "string - Custom empty message",
+      "errorMessage": "string - Custom error title",
+      "onRetry": "() => void - Retry callback",
+      "children": "ReactNode - Content to show when loaded",
+      "showConnectionStatus": "boolean - Show connection info in errors"
+    }
+  },
+
+  "hook_return_values": {
+    "useConnectionStatus": {
+      "health": "ConnectionHealth | null - Raw health data",
+      "status": "DataSourceStatus | null - Data source status",
+      "statusMessage": "string - User-friendly status message",
+      "isHealthy": "boolean - All systems operational",
+      "isDegraded": "boolean - Using fallback sources",
+      "isOffline": "boolean - All sources unavailable",
+      "refresh": "() => Promise<void> - Manually refresh status",
+      "loading": "boolean - Status check in progress"
+    }
+  },
+
+  "example_full_integration": {
+    "description": "Complete example with all features",
+    "code": "// main.tsx or App.tsx\nimport React from 'react';\nimport { ErrorBoundary } from './components/ErrorBoundary';\nimport { ConnectionStatus } from './components/ConnectionStatus';\nimport { DataLoadingState } from './components/DataLoadingState';\nimport { useConnectionStatus } from './hooks/useConnectionStatus';\nimport './styles/connection-status.css';\n\nfunction Dashboard() {\n  const { isDegraded } = useConnectionStatus();\n  const [prices, setPrices] = React.useState(null);\n  const [loading, setLoading] = React.useState(true);\n  const [error, setError] = React.useState(null);\n\n  const fetchPrices = async () => {\n    setLoading(true);\n    setError(null);\n    try {\n      const res = await fetch('/api/market/prices?symbols=BTC,ETH');\n      if (!res.ok) throw new Error(`HTTP ${res.status}`);\n      const data = await res.json();\n      setPrices(data);\n    } catch (err) {\n      setError(err);\n    } finally {\n      setLoading(false);\n    }\n  };\n\n  React.useEffect(() => { fetchPrices(); }, []);\n\n  return (\n    <div className=\"dashboard\">\n      {/* Header with connection badge */}\n      <header>\n        <h1>Crypto Dashboard</h1>\n        <ConnectionStatus variant=\"badge\" />\n      </header>\n\n      {/* Warning banner when degraded */}\n      {isDegraded && (\n        <ConnectionStatus variant=\"banner\" showDetails />\n      )}\n\n      {/* Main content with loading states */}\n      <DataLoadingState\n        loading={loading}\n        error={error}\n        empty={!prices || prices.length === 0}\n        onRetry={fetchPrices}\n        showConnectionStatus\n      >\n        <div className=\"price-grid\">\n          {prices?.map(p => (\n            <div key={p.symbol}>\n              <h3>{p.symbol}</h3>\n              <p>${p.price}</p>\n            </div>\n          ))}\n        </div>\n      </DataLoadingState>\n    </div>\n  );\n}\n\nfunction App() {\n  return (\n    <ErrorBoundary>\n      <Dashboard />\n    </ErrorBoundary>\n  );\n}\n\nexport default App;"
+  },
+
+  "testing_connection_states": {
+    "description": "How to test different connection states",
+    "test_degraded_mode": {
+      "action": "Stop HuggingFace Space or block its URL",
+      "expected": "Yellow warning banner, fallback sources used, degraded indicator"
+    },
+    "test_offline_mode": {
+      "action": "Stop backend server",
+      "expected": "Red error banner, cached data shown, offline indicator"
+    },
+    "test_websocket_offline": {
+      "action": "Backend running but WebSocket failing",
+      "expected": "App works with HTTP polling, WebSocket shows disconnected"
+    },
+    "test_error_boundary": {
+      "action": "Throw an error in a component",
+      "expected": "Error boundary shows friendly error page with retry"
+    }
+  },
+
+  "common_patterns": {
+    "pattern_1_header_badge": {
+      "use": "Show connection status in app header",
+      "code": "<ConnectionStatus variant=\"badge\" />"
+    },
+    "pattern_2_degraded_banner": {
+      "use": "Warn users when using fallback data",
+      "code": "{isDegraded && <ConnectionStatus variant=\"banner\" showDetails />}"
+    },
+    "pattern_3_settings_page": {
+      "use": "Show detailed diagnostics in settings",
+      "code": "<ConnectionStatus variant=\"indicator\" showDetails />"
+    },
+    "pattern_4_data_fetching": {
+      "use": "Handle loading/error states for data",
+      "code": "<DataLoadingState loading={loading} error={error} onRetry={refetch}>{content}</DataLoadingState>"
+    },
+    "pattern_5_global_errors": {
+      "use": "Catch all React errors",
+      "code": "<ErrorBoundary><App /></ErrorBoundary>"
+    }
+  },
+
+  "tips_and_best_practices": [
+    "Always import connection-status.css in your main app file",
+    "Wrap your app root with ErrorBoundary for global error handling",
+    "Use ConnectionStatus badge in header for always-visible status",
+    "Show degraded banner only when isDegraded is true",
+    "Use DataLoadingState for all async data fetching",
+    "Implement retry buttons on all error states",
+    "Check connection health before making critical API calls",
+    "Use centralized endpoints config instead of hardcoded URLs",
+    "Enable auto-refresh on connection status (default 30s)",
+    "Show detailed connection info in settings/diagnostics pages"
+  ]
+}
+

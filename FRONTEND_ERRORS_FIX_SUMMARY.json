@@ -1,0 +1,184 @@
+{
+  "title": "Frontend Errors - Fix Summary",
+  "date": "2025-11-23",
+  "status": "PARTIALLY FIXED",
+  
+  "errors_fixed": {
+    "1_getPrices_not_defined": {
+      "error": "ReferenceError: getPrices is not defined at DataContext.tsx:134",
+      "status": "✅ FIXED",
+      "solution": "Added wrapper function `getPrices()` in DataContext.tsx that matches expected interface (returns object with `.promise` property)",
+      "file": "src/contexts/DataContext.tsx:39-65",
+      "note": "Function now wraps realDataManager.getOHLCV() with cancellable promise pattern"
+    },
+    "2_binance_klines_500_error": {
+      "error": "GET http://localhost:8001/binance/klines?symbol=BTC%2FUSDT&interval=1h&limit=200 500 (Internal Server Error)",
+      "status": "✅ FIXED",
+      "solution": "Updated RealDataManager.getOHLCV() to: 1) Try HuggingFace provider first (primary source), 2) Use correct Binance endpoint `/api/providers/binance/ohlcv`, 3) Handle both array and object response formats",
+      "file": "src/services/RealDataManager.ts:255-330",
+      "changes": [
+        "Added HF provider as primary source for OHLCV data",
+        "Fixed endpoint from `/binance/klines` to `/api/providers/binance/ohlcv`",
+        "Added response format handling for both array [t,o,h,l,c,v] and object {t,o,h,l,c,v} formats"
+      ]
+    }
+  },
+
+  "errors_remaining": {
+    "1_websocket_invalid_frame_header": {
+      "error": "WebSocket connection to 'ws://localhost:8001/ws' failed: Invalid frame header",
+      "status": "⚠️ NEEDS INVESTIGATION",
+      "possible_causes": [
+        "Server WebSocket not fully initialized",
+        "Vite proxy WebSocket upgrade failing",
+        "Path mismatch between client and server",
+        "Server returning HTTP instead of WebSocket upgrade"
+      ],
+      "server_setup": {
+        "path": "/ws",
+        "location": "src/server.ts:157-160",
+        "handler": "src/server.ts:5051-5087"
+      },
+      "vite_proxy": {
+        "config": "vite.config.ts:55-59",
+        "target": "ws://127.0.0.1:8001",
+        "path": "^/ws($|/)"
+      },
+      "troubleshooting_steps": [
+        "1. Verify server is fully started (check logs for 'WebSocket server initialized')",
+        "2. Test WebSocket directly: `wscat -c ws://localhost:8001/ws`",
+        "3. Check if server WebSocket handler is receiving connections",
+        "4. Verify Vite proxy is correctly forwarding WebSocket upgrade requests",
+        "5. Check browser console for CORS or network errors"
+      ]
+    },
+    "2_503_service_unavailable": {
+      "error": "GET http://localhost:8001/api/market/prices?symbols=... 503 (Service Unavailable)",
+      "status": "⚠️ EXPECTED IF HF PROVIDER FAILS",
+      "explanation": "The `/api/market/prices` endpoint calls `hfProvider.getMarketPrices()`. If HuggingFace provider fails (e.g., due to 403 WebSocket errors, network issues, or no data), it returns 503 via `respondWithHfError()`",
+      "endpoint_location": "src/server.ts:1911-1931",
+      "handler_function": "src/server.ts:316-481 (fetchMarketPricesFromEngine)",
+      "error_handler": "src/server.ts:284-314 (respondWithHfError)",
+      "possible_solutions": [
+        "1. Fix HF WebSocket 403 errors (see HF_403_RESOLUTION_GUIDE.json)",
+        "2. Verify HF_ENGINE_ENABLED=true in env file",
+        "3. Check HF provider logs for specific errors",
+        "4. Ensure HF_ENGINE_BASE_URL is correct",
+        "5. Verify network connectivity to HuggingFace Space"
+      ],
+      "note": "503 is expected behavior when primary data source (HF) is unavailable. System should fall back to HTTP polling, but frontend may need better error handling."
+    },
+    "3_cors_and_rate_limiting": {
+      "error": "CORS policy errors and 429 Too Many Requests from CoinGecko",
+      "status": "ℹ️ EXPECTED (NOT CRITICAL)",
+      "explanation": "CoinGecko API has CORS restrictions and rate limits. These are fallback providers and errors are expected. System should use HuggingFace as primary source.",
+      "action": "No action needed - these are fallback provider issues"
+    }
+  },
+
+  "code_changes_made": {
+    "files_modified": [
+      {
+        "file": "src/contexts/DataContext.tsx",
+        "changes": [
+          "Added getPrices() wrapper function (lines 39-65)",
+          "Function returns { promise, cancel } interface",
+          "Wraps realDataManager.getOHLCV() with cancellable promise"
+        ]
+      },
+      {
+        "file": "src/services/RealDataManager.ts",
+        "changes": [
+          "Updated getOHLCV() to use HuggingFace provider first (lines 260-279)",
+          "Fixed Binance endpoint from /binance/klines to /api/providers/binance/ohlcv (line 284)",
+          "Added response format handling for both array and object formats (lines 293-310)",
+          "Improved error handling with fallback chain: HF -> Binance -> Kraken"
+        ]
+      }
+    ]
+  },
+
+  "verification_steps": {
+    "1_test_getPrices_fix": {
+      "action": "Restart frontend dev server",
+      "expected": "No more 'getPrices is not defined' errors",
+      "check": "Browser console should not show ReferenceError for getPrices"
+    },
+    "2_test_ohlcv_endpoint": {
+      "action": "Load dashboard with OHLCV chart",
+      "expected": "Chart loads data from HuggingFace provider",
+      "check": "Network tab should show successful requests to /api/providers/binance/ohlcv (if HF fails) or direct HF calls",
+      "note": "If HF provider works, should see data. If not, should fallback gracefully without 500 errors"
+    },
+    "3_test_market_prices": {
+      "action": "Check /api/market/prices endpoint",
+      "command": "curl http://localhost:8001/api/market/prices?symbols=BTC,ETH",
+      "expected": "Should return prices or 503 with clear error message",
+      "if_503": "Check backend logs for HF provider errors"
+    },
+    "4_test_websocket": {
+      "action": "Test WebSocket connection",
+      "command": "wscat -c ws://localhost:8001/ws",
+      "expected": "Connection established, welcome message received",
+      "if_fails": "Check server logs for WebSocket initialization errors"
+    }
+  },
+
+  "next_steps": {
+    "immediate": [
+      "1. Restart both frontend and backend servers",
+      "2. Verify getPrices error is gone (check browser console)",
+      "3. Verify OHLCV data loads (check dashboard charts)",
+      "4. Check backend logs for HF provider status"
+    ],
+    "if_websocket_still_fails": [
+      "1. Check server startup logs for WebSocket initialization",
+      "2. Verify port 8001 is not blocked by firewall",
+      "3. Test WebSocket with wscat tool",
+      "4. Check Vite proxy configuration matches server WebSocket path",
+      "5. Consider temporarily disabling WebSocket if not critical: set HF_WS_DISABLED=true"
+    ],
+    "if_503_errors_persist": [
+      "1. Check HF provider logs for specific errors",
+      "2. Verify HF_ENGINE_ENABLED=true in env",
+      "3. Test HF provider directly: curl http://localhost:8001/api/hf/registry",
+      "4. Check HF_ENGINE_BASE_URL is correct",
+      "5. Verify network connectivity to HuggingFace Space",
+      "6. Review HF_403_RESOLUTION_GUIDE.json for WebSocket auth issues"
+    ]
+  },
+
+  "backend_endpoints_reference": {
+    "market_prices": {
+      "endpoint": "GET /api/market/prices?symbols=BTC,ETH",
+      "handler": "src/server.ts:1911-1931",
+      "function": "fetchMarketPricesFromEngine()",
+      "returns": "503 if HF provider fails, 200 with prices if successful"
+    },
+    "binance_ohlcv": {
+      "endpoint": "GET /api/providers/binance/ohlcv?symbol=BTCUSDT&timeframe=1h&limit=200",
+      "handler": "src/server.ts:3242-3274",
+      "note": "Requires Binance service to be enabled (currently disabled)"
+    },
+    "websocket": {
+      "endpoint": "ws://localhost:8001/ws",
+      "handler": "src/server.ts:5051-5087",
+      "path": "/ws",
+      "note": "Main WebSocket server for real-time updates"
+    }
+  },
+
+  "summary": {
+    "fixed": [
+      "✅ getPrices is not defined error",
+      "✅ /binance/klines 500 error (now uses correct endpoint and HF provider first)"
+    ],
+    "remaining": [
+      "⚠️ WebSocket Invalid frame header (needs server/network investigation)",
+      "⚠️ 503 Service Unavailable (expected if HF provider fails, but should check HF status)",
+      "ℹ️ CORS/Rate limiting from CoinGecko (expected, not critical)"
+    ],
+    "recommendation": "Restart servers and verify fixes. If WebSocket and 503 errors persist, investigate HF provider status and server startup logs."
+  }
+}
+

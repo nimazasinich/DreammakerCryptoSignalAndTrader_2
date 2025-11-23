@@ -1,0 +1,244 @@
+{
+  "title": "BOLT AI CI/CD Pipeline - Quick Start Guide",
+  "version": "1.0.0",
+  "last_updated": "2025-11-23",
+  "quick_commands": {
+    "local_development": {
+      "start": "docker-compose up -d",
+      "stop": "docker-compose down",
+      "logs": "docker-compose logs -f app",
+      "health_check": "bash scripts/health-check.sh http://localhost:8001",
+      "restart": "docker-compose restart app"
+    },
+    "testing": {
+      "unit_tests": "npm test",
+      "build": "npm run build",
+      "type_check": "npx tsc --noEmit",
+      "lint": "npm run lint"
+    },
+    "deployment": {
+      "deploy_staging": "git push origin main (triggers automatic staging deploy)",
+      "deploy_production": "Manual approval in GitHub Actions",
+      "manual_deploy": "bash scripts/deploy.sh --environment production",
+      "rollback": "bash scripts/deploy.sh --rollback"
+    },
+    "backup_restore": {
+      "create_backup": "bash scripts/backup.sh",
+      "list_backups": "ls -lt backups/",
+      "restore_backup": "bash scripts/restore.sh backups/backup-TIMESTAMP.tar.gz"
+    },
+    "monitoring": {
+      "check_health": "curl http://localhost:8001/api/health",
+      "check_hf_health": "curl http://localhost:8001/api/hf/health",
+      "view_metrics": "curl http://localhost:8001/metrics",
+      "docker_stats": "docker stats"
+    }
+  },
+  "first_time_setup": {
+    "step_by_step": [
+      {
+        "step": 1,
+        "title": "Install prerequisites",
+        "actions": [
+          "Install Docker and Docker Compose",
+          "Install Node.js 20.x",
+          "Install Git"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Clone and configure",
+        "commands": [
+          "git clone <repository-url>",
+          "cd bolt-ai",
+          "copy .env.example to .env (Windows) or cp .env.example .env (Linux/Mac)",
+          "Edit .env and add your HF_TOKEN and other credentials"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Configure GitHub Secrets",
+        "actions": [
+          "Go to GitHub repository settings",
+          "Navigate to Secrets and variables → Actions",
+          "Add DOCKER_USERNAME",
+          "Add DOCKER_PASSWORD",
+          "Add HF_TOKEN",
+          "Add HF_SPACE_NAME",
+          "Add optional secrets (SLACK_WEBHOOK, etc.)"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Test locally",
+        "commands": [
+          "docker-compose up -d",
+          "Wait 30 seconds for services to start",
+          "bash scripts/health-check.sh http://localhost:8001 (Linux/Mac/Git Bash)",
+          "curl http://localhost:8001/api/health (Windows PowerShell)",
+          "Open http://localhost:8001 in browser"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Test CI pipeline",
+        "commands": [
+          "git checkout -b test-pipeline",
+          "git commit --allow-empty -m 'Test CI pipeline'",
+          "git push origin test-pipeline",
+          "Go to GitHub Actions tab and watch the workflow"
+        ]
+      },
+      {
+        "step": 6,
+        "title": "Deploy to staging",
+        "commands": [
+          "git checkout main",
+          "git merge test-pipeline",
+          "git push origin main",
+          "Watch GitHub Actions for automatic staging deployment"
+        ]
+      }
+    ]
+  },
+  "windows_users": {
+    "important": "Shell scripts (.sh) require Git Bash, WSL, or a Unix-like shell",
+    "alternatives": {
+      "git_bash": "Included with Git for Windows - recommended",
+      "wsl": "Windows Subsystem for Linux",
+      "docker": "Run scripts inside Docker containers"
+    },
+    "script_execution": {
+      "git_bash": "bash scripts/health-check.sh http://localhost:8001",
+      "wsl": "bash scripts/health-check.sh http://localhost:8001",
+      "direct_curl": "curl http://localhost:8001/api/health (in PowerShell)"
+    }
+  },
+  "common_tasks": {
+    "view_logs": {
+      "all_services": "docker-compose logs",
+      "follow_app": "docker-compose logs -f app",
+      "last_100_lines": "docker-compose logs --tail=100 app",
+      "with_timestamps": "docker-compose logs -f -t app"
+    },
+    "restart_services": {
+      "all": "docker-compose restart",
+      "app_only": "docker-compose restart app",
+      "redis_only": "docker-compose restart redis",
+      "rebuild_and_restart": "docker-compose up -d --build"
+    },
+    "database_operations": {
+      "backup_db": "bash scripts/backup.sh",
+      "view_db_tables": "sqlite3 data/bolt.db '.tables'",
+      "db_shell": "sqlite3 data/bolt.db",
+      "check_db_integrity": "sqlite3 data/bolt.db 'PRAGMA integrity_check;'"
+    },
+    "troubleshooting": {
+      "port_in_use": "Change PORT in .env file",
+      "containers_not_starting": "docker-compose down && docker-compose up -d",
+      "database_locked": "Stop all containers: docker-compose down",
+      "redis_connection_failed": "docker-compose up redis -d",
+      "view_container_status": "docker-compose ps",
+      "rebuild_from_scratch": "docker-compose down -v && docker-compose up -d --build"
+    }
+  },
+  "workflow_triggers": {
+    "ci_yml": {
+      "trigger": "Push to main/develop or PR",
+      "what_it_does": "Builds, tests, and validates code"
+    },
+    "deploy_yml": {
+      "trigger": "Push to main branch",
+      "what_it_does": "Builds Docker image and deploys"
+    },
+    "test_yml": {
+      "trigger": "Pull requests",
+      "what_it_does": "Runs comprehensive test suite"
+    },
+    "security_yml": {
+      "trigger": "Daily at 6 AM UTC or manual",
+      "what_it_does": "Scans for security vulnerabilities"
+    },
+    "performance_yml": {
+      "trigger": "Weekly on Sunday or manual",
+      "what_it_does": "Load and stress testing"
+    }
+  },
+  "debugging": {
+    "workflow_failed": [
+      "Go to GitHub Actions tab",
+      "Click on failed workflow",
+      "Click on failed job",
+      "Expand failed step to see error",
+      "Check if secrets are configured",
+      "Verify syntax in workflow file"
+    ],
+    "deployment_failed": [
+      "Check GitHub Actions logs",
+      "Run health check manually",
+      "Check docker-compose logs",
+      "Verify environment variables",
+      "Try rollback: bash scripts/deploy.sh --rollback"
+    ],
+    "health_check_failed": [
+      "Check if services are running: docker-compose ps",
+      "View application logs: docker-compose logs app",
+      "Check port availability: netstat -an | grep 8001",
+      "Verify .env configuration",
+      "Try restarting: docker-compose restart"
+    ]
+  },
+  "production_checklist": {
+    "before_first_deployment": [
+      "✓ All GitHub secrets configured",
+      "✓ HuggingFace Space created",
+      "✓ CI pipeline passes on main branch",
+      "✓ Staging deployment successful",
+      "✓ Health checks working",
+      "✓ Backup script tested",
+      "✓ Rollback procedure tested",
+      "✓ Monitoring configured",
+      "✓ Alerts configured",
+      "✓ Team notified of deployment window"
+    ],
+    "during_deployment": [
+      "✓ Monitor GitHub Actions",
+      "✓ Watch health checks",
+      "✓ Monitor error rates",
+      "✓ Check response times",
+      "✓ Verify WebSocket connections",
+      "✓ Test critical user flows"
+    ],
+    "after_deployment": [
+      "✓ Monitor for 15 minutes",
+      "✓ Check logs for errors",
+      "✓ Verify metrics are normal",
+      "✓ Test API endpoints",
+      "✓ Confirm backup created",
+      "✓ Document any issues",
+      "✓ Send deployment notification"
+    ]
+  },
+  "useful_links": {
+    "documentation": {
+      "deployment_guide": "docs/deployment.json",
+      "cicd_guide": "docs/cicd.json",
+      "rollback_procedures": "docs/rollback.json",
+      "monitoring_setup": "docs/monitoring.json"
+    },
+    "external": {
+      "docker_docs": "https://docs.docker.com/",
+      "docker_compose_docs": "https://docs.docker.com/compose/",
+      "github_actions_docs": "https://docs.github.com/en/actions",
+      "huggingface_spaces": "https://huggingface.co/docs/hub/spaces"
+    }
+  },
+  "emergency_contacts": {
+    "note": "Update with your team's contact information",
+    "on_call_engineer": "TBD",
+    "team_lead": "TBD",
+    "slack_channel": "#bolt-ai-alerts",
+    "escalation_path": "Engineer → Team Lead → Management"
+  }
+}
+

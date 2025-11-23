@@ -1,0 +1,128 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+    theme: {
+      extend: {
+        colors: {
+          primary: {
+            DEFAULT: '#7C3AED',
+            50: '#FAF5FF',
+            100: '#F3E8FF',
+            200: '#E9D5FF',
+            300: '#D8B4FE',
+            400: '#C084FC',
+            500: '#A855F7',
+            600: '#9333EA',
+            700: '#7E22CE',
+            800: '#6B21A8',
+            900: '#581C87',
+            950: '#3B0764',
+          },
+          purple: {
+            50: '#FAF5FF',
+            100: '#F3E8FF',
+            200: '#E9D5FF',
+            300: '#D8B4FE',
+            400: '#C084FC',
+            500: '#A855F7',
+            600: '#9333EA',
+            700: '#7E22CE',
+            800: '#6B21A8',
+            900: '#581C87',
+          },
+          surface: {
+            DEFAULT: '#FFFFFF',
+            muted: '#F8FAFC',
+            subtle: '#F5F3FF',
+            page: '#FAFAFE',
+            glass: 'rgba(255, 255, 255, 0.7)',
+            'glass-dark': 'rgba(255, 255, 255, 0.5)',
+          },
+          border: {
+            DEFAULT: '#E5E7EB',
+            light: '#F1F5F9',
+            purple: '#E9D5FF',
+          },
+          text: {
+            base: '#0F172A',
+            muted: '#64748B',
+            secondary: '#475569',
+            inverse: '#FFFFFF',
+          },
+          success: '#10B981',
+          warning: '#F59E0B',
+          danger: '#EF4444',
+          info: '#3B82F6',
+        },
+        spacing: {
+          sidebar: '280px',
+        },
+        fontFamily: {
+          primary: ['Vazirmatn', 'Inter', 'Segoe UI', 'system-ui', '-apple-system', 'sans-serif'],
+          mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        },
+        fontSize: {
+          h1: ['32px', { lineHeight: '1.2', fontWeight: '700' }],
+          h2: ['24px', { lineHeight: '1.3', fontWeight: '600' }],
+          h3: ['18px', { lineHeight: '1.4', fontWeight: '600' }],
+          'body-lg': ['16px', { lineHeight: '1.6', fontWeight: '400' }],
+          body: ['14px', { lineHeight: '1.5', fontWeight: '400' }],
+          'body-sm': ['13px', { lineHeight: '1.4', fontWeight: '500' }],
+          caption: ['12px', { lineHeight: '1.4', fontWeight: '400' }],
+        },
+        borderRadius: {
+          sm: '12px',
+          md: '16px',
+          lg: '24px',
+          xl: '32px',
+          '2xl': '40px',
+          '3xl': '48px',
+        },
+        boxShadow: {
+          'glass': '0 8px 32px 0 rgba(124, 58, 237, 0.1)',
+          'glass-lg': '0 12px 48px 0 rgba(124, 58, 237, 0.15)',
+          'glass-xl': '0 20px 60px 0 rgba(124, 58, 237, 0.2)',
+          'purple-glow': '0 0 40px rgba(168, 85, 247, 0.4), 0 0 80px rgba(168, 85, 247, 0.2)',
+          'purple-glow-sm': '0 0 20px rgba(168, 85, 247, 0.3)',
+          'purple-glow-lg': '0 0 60px rgba(168, 85, 247, 0.5), 0 0 120px rgba(168, 85, 247, 0.3)',
+          'inner-glow': 'inset 0 0 20px rgba(168, 85, 247, 0.1)',
+          'card': '0 10px 40px rgba(124, 58, 237, 0.08)',
+          'card-hover': '0 20px 60px rgba(124, 58, 237, 0.15)',
+        },
+        backgroundImage: {
+          'gradient-purple': 'linear-gradient(135deg, #A855F7 0%, #7E22CE 100%)',
+          'gradient-purple-soft': 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)',
+          'gradient-glass': 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%)',
+          'gradient-radial-purple': 'radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.15) 0%, transparent 70%)',
+        },
+        backdropBlur: {
+          xs: '2px',
+          glass: '12px',
+          'glass-lg': '20px',
+        },
+        transitionDuration: {
+          standard: '200ms',
+        },
+        transitionTimingFunction: {
+          standard: 'cubic-bezier(0.4, 0, 0.2, 1)',
+          smooth: 'cubic-bezier(0.4, 0, 0.6, 1)',
+        },
+        animation: {
+          'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          'float': 'float 6s ease-in-out infinite',
+          'glow': 'glow 2s ease-in-out infinite',
+        },
+        keyframes: {
+          float: {
+            '0%, 100%': { transform: 'translateY(0px)' },
+            '50%': { transform: 'translateY(-10px)' },
+          },
+          glow: {
+            '0%, 100%': { opacity: '1' },
+            '50%': { opacity: '0.5' },
+          },
+        },
+      },
+    },
+  plugins: [],
+};
