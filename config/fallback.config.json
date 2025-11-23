@@ -1,0 +1,9 @@
+{
+  "order": ["memory","sqlite","files","hf","coingecko","binance","synthetic"],
+  "timeouts": { "hf": 1800, "coingecko": 1500, "binance": 1500 },
+  "ttlSec": { "market": 120, "hf": 180, "files": 3600, "synthetic": 60 },
+  "offlineAllow": true,
+  "minBars": 300,
+  "defaultTF": "15m",
+  "seed": 1337
+}

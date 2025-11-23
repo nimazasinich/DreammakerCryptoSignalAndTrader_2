@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BOLT AI – Signal Flow Visualizer</title>
+<style>
+  :root{
+    --bg:#F5F7FB;
+    --card:rgba(255,255,255,0.78);
+    --border:#E5E7EB;
+    --text:#0F172A;
+    --muted:#6B7280;
+    --success:#16A34A;
+    --warn:#F59E0B;
+    --danger:#EF4444;
+    --info:#2563EB;
+    --violet:#7C3AED;
+    --grad-a:#8B5CF6;
+    --grad-b:#EC4899;
+    --shadow: 0 10px 25px rgba(17,24,39,.08), 0 2px 6px rgba(17,24,39,.06);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  .hero{
+    position:sticky; top:0; z-index:5;
+    background:linear-gradient(120deg,rgba(139,92,246,.12),rgba(236,72,153,.12));
+    border-bottom:1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+  .hero-inner{
+    max-width:1200px; margin:0 auto; padding:18px 18px;
+    display:flex; align-items:center; gap:16px; justify-content:space-between;
+  }
+  .brand{
+    display:flex; align-items:center; gap:12px;
+  }
+  .brand .logo{
+    width:40px; height:40px; border-radius:12px;
+    background: radial-gradient(135px 65px at 20% 20%, rgba(139,92,246,.9), transparent 60%),
+                radial-gradient(135px 65px at 80% 80%, rgba(236,72,153,.9), transparent 60%),
+                #fff;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.6), var(--shadow);
+  }
+  .brand h1{font-size:18px; margin:0; font-weight:800; letter-spacing:.2px;}
+  .brand .sub{font-size:12px; color:var(--muted); margin-top:2px}
+  .controls{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    background:var(--card); border:1px solid var(--border);
+    padding:10px 12px; border-radius:12px; box-shadow:var(--shadow);
+  }
+  .btn{
+    border:1px solid var(--border);
+    background:linear-gradient(135deg, rgba(139,92,246,.18), rgba(236,72,153,.18));
+    color:#111827; font-weight:700; letter-spacing:.2px;
+    padding:10px 14px; border-radius:10px; cursor:pointer;
+    box-shadow: var(--shadow);
+    transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .btn:hover{ transform: translateY(-1px); }
+  .btn.secondary{ background:#fff }
+  .btn.ghost{
+    background:transparent; box-shadow:none;
+  }
+  .switch{
+    display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted);
+    padding:6px 8px; border-radius:10px; border:1px dashed var(--border);
+    background:#fff;
+  }
+  .switch input{ width:18px; height:18px; }
+  .speed{
+    display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted);
+  }
+  .speed input{ width:140px; }
+
+  .container{
+    max-width:1200px; margin:22px auto; padding:0 18px 28px;
+  }
+
+  /* Layout grid */
+  .grid{
+    display:grid;
+    grid-template-columns: 1.1fr .9fr .9fr 1.1fr;
+    grid-auto-rows:minmax(110px, auto);
+    gap:16px;
+  }
+
+  .card{
+    position:relative;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding:14px;
+    overflow: hidden;
+  }
+  .card h3{
+    margin:0 0 8px 0; font-size:14px; font-weight:800;
+    display:flex; align-items:center; gap:8px;
+  }
+  .status-dot{
+    width:9px; height:9px; border-radius:50%;
+    background: #CBD5E1; border:1px solid #fff; box-shadow: 0 0 0 3px rgba(0,0,0,.03);
+  }
+  .card[data-state="active"] .status-dot{ background: var(--info); animation: pulse 1.4s infinite; }
+  .card[data-state="passed"] .status-dot{ background: var(--success); }
+  .card[data-state="failed"] .status-dot{ background: var(--danger); }
+  .meta{ font-size:12px; color:var(--muted); display:flex; flex-wrap:wrap; gap:10px }
+  .kv{ display:flex; align-items:center; gap:6px }
+  .kv b{ color:#111827 }
+  .progress{
+    height:8px; background:#EEF2FF; border-radius:999px; overflow: hidden; border:1px solid #E0E7FF;
+    margin-top:10px;
+  }
+  .progress>.bar{
+    width:0%; height:100%; background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+    transition: width .35s ease;
+  }
+  @keyframes pulse{
+    0%{ transform: scale(1); box-shadow: 0 0 0 0 rgba(37,99,235,.35); }
+    70%{ transform: scale(1.1); box-shadow: 0 0 0 8px rgba(37,99,235,0); }
+    100%{ transform: scale(1); box-shadow: 0 0 0 0 rgba(37,99,235,0); }
+  }
+
+  /* Detector grid */
+  .detectors{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;
+  }
+  .pill{
+    display:inline-flex; align-items:center; gap:6px;
+    border:1px solid var(--border);
+    background:#fff; padding:6px 8px; border-radius:999px; font-size:12px; color:var(--muted);
+  }
+  .pill .dot{ width:6px; height:6px; border-radius:50%; background:#CBD5E1; }
+  .pill[data-on="true"] .dot{ background: var(--success); }
+  .small{ font-size:12px }
+  .json{
+    font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size:12px; white-space:pre-wrap; word-break:break-word;
+    background:#0B1020; color:#D1D5DB; border-radius:12px; padding:10px; border:1px solid #1F2937;
+  }
+  .badge{
+    display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px;
+    background:linear-gradient(135deg, rgba(139,92,246,.18), rgba(236,72,153,.18));
+    border:1px solid var(--border); font-weight:700; font-size:12px;
+  }
+
+  /* Connector layer */
+  svg#wires{
+    position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none;
+  }
+  .wire{ stroke:url(#grad); stroke-width:3.5; opacity:.35; }
+  .wire.active{ opacity:.9; stroke-width:4.5; filter: drop-shadow(0 2px 4px rgba(0,0,0,.18)); }
+
+  /* Toast */
+  .toast{
+    position: fixed; right:16px; bottom:16px; z-index:9999;
+    background:#111827; color:#E5E7EB; padding:10px 14px; border-radius:10px; box-shadow: var(--shadow);
+    opacity:0; transform: translateY(12px); transition: all .2s ease;
+  }
+  .toast.show{ opacity:1; transform: translateY(0); }
+
+  /* Responsive */
+  @media (max-width: 980px){
+    .grid{ grid-template-columns: 1fr; }
+    #svgLayer{ display:none }
+  }
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>BOLT AI – Signal Flow Visualizer</h1>
+          <div class="sub">Beautiful, animated, end-to-end signal decision pipeline</div>
+        </div>
+      </div>
+      <div class="controls" role="toolbar" aria-label="Controls">
+        <button class="btn" id="playBtn" type="button">▶ Play</button>
+        <button class="btn secondary" id="pauseBtn" type="button">⏸ Pause</button>
+        <button class="btn ghost" id="resetBtn" type="button">↺ Reset</button>
+        <button class="btn ghost" id="randomBtn" type="button">🎲 Randomize</button>
+        <label class="switch"><input id="aiToggle" type="checkbox" checked /> <span>AI Model</span></label>
+        <label class="switch"><input id="exToggle" type="checkbox" checked /> <span>Live Exchange</span></label>
+        <div class="speed">
+          <span>Speed</span>
+          <input id="speed" type="range" min="0.4" max="1.6" step="0.1" value="1">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" id="app">
+    <div id="svgLayer" style="position:relative">
+      <svg id="wires" aria-hidden="true">
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="var(--grad-a)"/>
+            <stop offset="100%" stop-color="var(--grad-b)"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="grid" id="grid">
+      <!-- Column 1 -->
+      <div class="card" id="node-source" data-state="idle" style="grid-column:1; grid-row:1;">
+        <h3><span class="status-dot"></span> Market Data Source</h3>
+        <div class="meta">
+          <div class="kv"><b>Provider:</b> <span id="provider">Binance</span></div>
+          <div class="kv"><b>Symbol:</b> <span id="symbol">BTC/USDT</span></div>
+          <div class="kv"><b>Frames:</b> 1m · 5m · 15m · 1h</div>
+        </div>
+        <div class="progress"><div class="bar" id="p-source"></div></div>
+      </div>
+
+      <div class="card" id="node-fe" data-state="idle" style="grid-column:1; grid-row:2;">
+        <h3><span class="status-dot"></span> Feature Engineering</h3>
+        <div class="meta small">
+          <div class="kv"><b>Price</b> + <b>Volume</b> + Volatility</div>
+          <div class="kv">OHLCV → standardized features</div>
+        </div>
+        <div class="progress"><div class="bar" id="p-fe"></div></div>
+      </div>
+
+      <!-- Column 2 -->
+      <div class="card" id="node-detectors" data-state="idle" style="grid-column:2; grid-row:1 / span 2;">
+        <h3><span class="status-dot"></span> Detectors</h3>
+        <div class="detectors" id="detectorPills">
+          <!-- pills inserted via JS -->
+        </div>
+        <div class="progress"><div class="bar" id="p-detectors"></div></div>
+      </div>
+
+      <!-- Column 3 -->
+      <div class="card" id="node-coregate" data-state="idle" style="grid-column:3; grid-row:1;">
+        <h3><span class="status-dot"></span> Core Gate (RSI & MACD)</h3>
+        <div class="meta">
+          <div class="kv"><b>RSI</b>: <span id="val-rsi">—</span></div>
+          <div class="kv"><b>MACD Hist</b>: <span id="val-macd">—</span></div>
+          <div class="kv"><b>Gate</b>: <span id="val-gate">HOLD</span></div>
+        </div>
+        <div class="progress"><div class="bar" id="p-coregate"></div></div>
+      </div>
+
+      <div class="card" id="node-aggregate" data-state="idle" style="grid-column:3; grid-row:2;">
+        <h3><span class="status-dot"></span> Aggregation & Scoring</h3>
+        <div class="meta">
+          <div class="kv"><b>Detectors Score</b>: <span id="val-detScore">0.00</span></div>
+          <div class="kv"><b>AI Boost</b>: <span id="val-aiboost">0.00</span></div>
+          <div class="kv"><b>Final Score</b>: <span id="val-final">0.00</span></div>
+        </div>
+        <div class="progress"><div class="bar" id="p-aggregate"></div></div>
+      </div>
+
+      <!-- Column 4 -->
+      <div class="card" id="node-consensus" data-state="idle" style="grid-column:4; grid-row:1;">
+        <h3><span class="status-dot"></span> Multi‑Timeframe Consensus</h3>
+        <div class="meta" id="tfBox"></div>
+        <div class="progress"><div class="bar" id="p-consensus"></div></div>
+      </div>
+
+      <div class="card" id="node-risk" data-state="idle" style="grid-column:4; grid-row:2;">
+        <h3><span class="status-dot"></span> Risk Filters</h3>
+        <div class="meta">
+          <div class="kv"><b>ATR</b>: <span id="val-atr">—</span></div>
+          <div class="kv"><b>Max Pos</b>: 10%</div>
+          <div class="kv"><b>Risk/Trade</b>: 2%</div>
+        </div>
+        <div class="progress"><div class="bar" id="p-risk"></div></div>
+      </div>
+
+      <!-- Final output row -->
+      <div class="card" id="node-output" data-state="idle" style="grid-column:1 / span 4; grid-row:3;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap: wrap;">
+          <h3><span class="status-dot"></span> Emitted Final Signal</h3>
+          <div>
+            <span class="badge" id="badgeSide">SIDE: N/A</span>
+            <span class="badge" id="badgeScore">SCORE: 0.00</span>
+            <button class="btn secondary" id="copyBtn" type="button">Copy JSON</button>
+          </div>
+        </div>
+        <div class="json" id="jsonOut">{}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  // Simple utilities
+  const $ = (sel, el=document)=>el.querySelector(sel);
+  const $$ = (sel, el=document)=>Array.from(el.querySelectorAll(sel));
+  const sleep = (ms)=> new Promise(res=>setTimeout(res, ms));
+  const clamp01 = (x)=> Math.max(0, Math.min(1, x));
+  const rnd = (min,max)=> Math.random()*(max-min)+min;
+  const choice = (arr)=> arr[Math.floor(Math.random()*arr.length)];
+
+  // Scene elements
+  const nodes = {
+    source: $('#node-source'),
+    fe: $('#node-fe'),
+    detectors: $('#node-detectors'),
+    coregate: $('#node-coregate'),
+    aggregate: $('#node-aggregate'),
+    consensus: $('#node-consensus'),
+    risk: $('#node-risk'),
+    output: $('#node-output'),
+  };
+  const bars = {
+    source: $('#p-source'),
+    fe: $('#p-fe'),
+    detectors: $('#p-detectors'),
+    coregate: $('#p-coregate'),
+    aggregate: $('#p-aggregate'),
+    consensus: $('#p-consensus'),
+    risk: $('#p-risk'),
+  };
+  const labels = {
+    provider: $('#provider'),
+    symbol: $('#symbol'),
+    rsi: $('#val-rsi'),
+    macd: $('#val-macd'),
+    gate: $('#val-gate'),
+    detScore: $('#val-detScore'),
+    aiBoost: $('#val-aiboost'),
+    final: $('#val-final'),
+    atr: $('#val-atr'),
+    tfBox: $('#tfBox'),
+    jsonOut: $('#jsonOut'),
+    badgeSide: $('#badgeSide'),
+    badgeScore: $('#badgeScore'),
+  };
+
+  const controls = {
+    play: $('#playBtn'),
+    pause: $('#pauseBtn'),
+    reset: $('#resetBtn'),
+    random: $('#randomBtn'),
+    ai: $('#aiToggle'),
+    ex: $('#exToggle'),
+    speed: $('#speed'),
+    copy: $('#copyBtn')
+  };
+
+  // Detector list with weights (mirrors documented defaults)
+  const DETECTORS = [
+    { key:'smc', label:'SMC', weight:.20 },
+    { key:'harmonic', label:'Harmonic', weight:.15 },
+    { key:'elliott', label:'Elliott', weight:.15 },
+    { key:'fibonacci', label:'Fibonacci', weight:.10 },
+    { key:'price_action', label:'Price Action', weight:.15 },
+    { key:'sar', label:'SAR', weight:.10 },
+    { key:'sentiment', label:'Sentiment', weight:.10 },
+    { key:'news', label:'News', weight:.03 },
+    { key:'whales', label:'Whales', weight:.02 },
+  ];
+
+  // Build detector pills
+  const pillHost = $('#detectorPills');
+  DETECTORS.forEach(d=>{
+    const pill = document.createElement('div');
+    pill.className = 'pill';
+    pill.dataset.on = 'false';
+    pill.id = 'pill-'+d.key;
+    pill.innerHTML = `<span class="dot"></span><b>${d.label}</b><span class="muted">·</span><span id="v-${d.key}">0.00</span>`;
+    pillHost.appendChild(pill);
+  });
+
+  // SVG wires between boxes (auto)
+  const wires = $('#wires');
+  function xyOf(el){
+    const r = el.getBoundingClientRect();
+    const s = window.scrollY || 0;
+    return { x:r.left + r.width/2, y:r.top + r.height/2 + s };
+  }
+  function connect(a,b){
+    const p1 = xyOf(a), p2 = xyOf(b);
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    const dx = Math.abs(p2.x-p1.x)*.4;
+    const d = `M ${p1.x},${p1.y} C ${p1.x+dx},${p1.y} ${p2.x-dx},${p2.y} ${p2.x},${p2.y}`;
+    path.setAttribute('d', d);
+    path.setAttribute('class','wire');
+    wires.appendChild(path);
+    return path;
+  }
+  let wireRefs = [];
+  function layoutWires(){
+    wires.innerHTML = `<defs>
+      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="var(--grad-a)"/>
+        <stop offset="100%" stop-color="var(--grad-b)"/>
+      </linearGradient>
+    </defs>`;
+    wireRefs = [
+      connect(nodes.source, nodes.fe),
+      connect(nodes.fe, nodes.detectors),
+      connect(nodes.detectors, nodes.coregate),
+      connect(nodes.coregate, nodes.aggregate),
+      connect(nodes.aggregate, nodes.consensus),
+      connect(nodes.consensus, nodes.risk),
+      connect(nodes.risk, nodes.output),
+    ];
+  }
+  layoutWires();
+  window.addEventListener('resize', ()=>{ layoutWires(); });
+
+  // Toast
+  const toast = $('#toast');
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(()=> toast.classList.remove('show'), 1800);
+  }
+
+  // Engine state
+  let playing = false;
+  let aborted = false;
+  let runData = null;
+
+  function setState(node, state){
+    node.dataset.state = state;
+  }
+  function setBar(which, v){
+    bars[which].style.width = (v*100).toFixed(0)+'%';
+  }
+
+  function resetScene(){
+    aborted = false;
+    playing = false;
+    Object.values(nodes).forEach(n=> setState(n,'idle'));
+    Object.keys(bars).forEach(k=> setBar(k,0));
+    wireRefs.forEach(w=> w.classList.remove('active'));
+    labels.rsi.textContent = '—';
+    labels.macd.textContent = '—';
+    labels.gate.textContent = 'HOLD';
+    labels.detScore.textContent = '0.00';
+    labels.aiBoost.textContent = '0.00';
+    labels.final.textContent = '0.00';
+    labels.atr.textContent = '—';
+    labels.tfBox.innerHTML = '';
+    labels.badgeSide.textContent = 'SIDE: N/A';
+    labels.badgeScore.textContent = 'SCORE: 0.00';
+    labels.jsonOut.textContent = '{}';
+    DETECTORS.forEach(d=>{
+      const pill = $('#pill-'+d.key);
+      if (pill){ pill.dataset.on='false'; $('#v-'+d.key).textContent='0.00'; }
+    });
+  }
+
+  function randomizeInputs(){
+    const symbol = choice(['BTC/USDT','ETH/USDT','SOL/USDT','BNB/USDT']);
+    labels.symbol.textContent = symbol;
+    labels.provider.textContent = controls.ex.checked ? 'Binance' : 'CryptoCompare';
+    // base metrics
+    const rsi = Math.round(rnd(12, 88)*10)/10;
+    const macdHist = Math.round(rnd(-2.2, 2.2)*10)/10;
+    const tf = ['1m','5m','15m','1h'].map(f=>{
+      const conf = rnd(.55,.82);
+      const action = Math.random() < (0.45 + (macdHist>0?0.1:0) + (rsi<35?0.08: rsi>65? -0.08: 0)) ? 'BUY' : 'SELL';
+      return { frame:f, action, confidence: Math.round(conf*100)/100 };
+    });
+    const detectors = {};
+    DETECTORS.forEach(d=>{
+      detectors[d.key] = Math.round(rnd(.25,.92)*100)/100;
+    });
+    // AI boost
+    const aiBoost = controls.ai.checked ? rnd(.02, .12) : 0;
+    // ATR simulated
+    const atr = Math.round(rnd(0.8, 2.8)*100)/100;
+
+    runData = { symbol, rsi, macdHist, tf, detectors, aiBoost, atr };
+  }
+
+  function coreGate(rsi, macdHist){
+    if (rsi < 30 && macdHist > 0) return 1;   // LONG
+    if (rsi > 70 && macdHist < 0) return -1;  // SHORT
+    return 0;
+  }
+
+  function computeScores(data){
+    const W = { smc:.20, harmonic:.15, elliott:.15, fibonacci:.10, price_action:.15, sar:.10, sentiment:.10, news:.03, whales:.02 };
+    let detScore = 0;
+    for (const d of DETECTORS){
+      detScore += (data.detectors[d.key]||0) * d.weight;
+    }
+    // consensus
+    const agreeSide = data.tf.reduce((acc, t)=>{ acc[t.action] = (acc[t.action]||0)+1; return acc; },{});
+    const dominant = Object.entries(agreeSide).sort((a,b)=> b[1]-a[1])[0][0];
+    const agreement = (agreeSide[dominant] || 0) / data.tf.length; // 0..1
+    const avgConf = data.tf.reduce((s,t)=> s+t.confidence, 0)/data.tf.length;
+    const consensus = clamp01(agreement * avgConf);
+    const ampl = clamp01(0.5*consensus + 0.5*(controls.ai.checked? .75 : .65));
+    const final = clamp01(detScore * (0.6 + 0.8*ampl) + data.aiBoost);
+    return { detScore, consensus, dominant, avgConf, final };
+  }
+
+  // Flow animation runner
+  async function run(){
+    try{
+      if (!runData) randomizeInputs();
+      playing = true; aborted = false;
+      const speed = parseFloat(controls.speed.value);
+      const unit = (t)=> t / speed; // scale duration
+
+      // SOURCE
+      setState(nodes.source, 'active'); wireRefs[0].classList.add('active');
+      for (let i=0;i<=100 && !aborted;i+=10){ setBar('source', i/100); await sleep(unit(130)); }
+      setState(nodes.source,'passed');
+
+      // FE
+      setState(nodes.fe,'active');
+      for (let i=0;i<=100 && !aborted;i+=12){ setBar('fe', i/100); await sleep(unit(110)); }
+      setState(nodes.fe,'passed');
+
+      // DETECTORS
+      setState(nodes.detectors,'active'); wireRefs[1].classList.add('active');
+      let acc=0;
+      for (const d of DETECTORS){
+        const v = runData.detectors[d.key];
+        $('#v-'+d.key).textContent = v.toFixed(2);
+        $('#pill-'+d.key).dataset.on = 'true';
+        acc += v * d.weight;
+        setBar('detectors', Math.min(1, acc/(.20+.15+.15+.10+.15+.10+.10+.03+.02)));
+        await sleep(unit(140));
+      }
+      setState(nodes.detectors,'passed');
+
+      // CORE GATE
+      setState(nodes.coregate,'active'); wireRefs[2].classList.add('active');
+      labels.rsi.textContent = runData.rsi.toFixed(1);
+      labels.macd.textContent = runData.macdHist.toFixed(1);
+      const gate = coreGate(runData.rsi, runData.macdHist);
+      labels.gate.textContent = gate===1?'LONG' : gate===-1?'SHORT' : 'HOLD';
+      for (let i=0;i<=100 && !aborted;i+=20){ setBar('coregate', i/100); await sleep(unit(90)); }
+      setState(nodes.coregate, gate===0?'passed':'passed'); // mark as passed (gate is directional)
+
+      // AGGREGATE
+      setState(nodes.aggregate,'active'); wireRefs[3].classList.add('active');
+      const sc = computeScores(runData);
+      labels.detScore.textContent = sc.detScore.toFixed(2);
+      labels.aiBoost.textContent = runData.aiBoost.toFixed(2);
+      labels.final.textContent = sc.final.toFixed(2);
+      for (let i=0;i<=100 && !aborted;i+=20){ setBar('aggregate', i/100); await sleep(unit(90)); }
+      setState(nodes.aggregate,'passed');
+
+      // CONSENSUS
+      setState(nodes.consensus,'active'); wireRefs[4].classList.add('active');
+      labels.tfBox.innerHTML = runData.tf.map(t=>{
+        const color = t.action==='BUY' ? 'var(--success)' : 'var(--danger)';
+        return `<span class="pill" style="border-color:${t.action==='BUY'?'#BBF7D0':'#FECACA'}">
+          <span class="dot" style="background:${color}"></span>
+          <b>${t.frame}</b> · ${t.action} · ${(t.confidence*100).toFixed(0)}%
+        </span>`;
+      }).join(' ');
+      for (let i=0;i<=100 && !aborted;i+=25){ setBar('consensus', i/100); await sleep(unit(90)); }
+      setState(nodes.consensus,'passed');
+
+      // RISK
+      setState(nodes.risk,'active'); wireRefs[5].classList.add('active');
+      labels.atr.textContent = runData.atr.toFixed(2);
+      for (let i=0;i<=100 && !aborted;i+=25){ setBar('risk', i/100); await sleep(unit(90)); }
+      setState(nodes.risk,'passed');
+
+      // DECISION + OUTPUT
+      setState(nodes.output,'active'); wireRefs[6].classList.add('active');
+      const BUY_T=0.70, SELL_T=0.30, CONF_T=0.70, CONS_T=0.60;
+      const gate = coreGate(runData.rsi, runData.macdHist);
+      const side =
+        (gate===1 && sc.final>=BUY_T && sc.avgConf>=CONF_T && sc.consensus>=CONS_T) ? 'LONG' :
+        (gate===-1 && sc.final<=SELL_T && sc.avgConf>=CONF_T && sc.consensus>=CONS_T) ? 'SHORT' :
+        'HOLD';
+      const reasons = [];
+      if (gate===1) reasons.push('CoreGate=LONG (RSI<30 & MACD>0)');
+      else if (gate===-1) reasons.push('CoreGate=SHORT (RSI>70 & MACD<0)');
+      else reasons.push('CoreGate=HOLD');
+      reasons.push(`DetectorsScore=${sc.detScore.toFixed(2)}`);
+      reasons.push(`Consensus=${(sc.consensus*100).toFixed(0)}% (${sc.dominant})`);
+      reasons.push(`AvgConfidence=${(sc.avgConf*100).toFixed(0)}%`);
+      reasons.push(`FinalScore=${sc.final.toFixed(2)}`);
+
+      const out = {
+        symbol: runData.symbol,
+        side,
+        finalScore: +sc.final.toFixed(2),
+        consensus: +sc.consensus.toFixed(2),
+        avgConfidence: +sc.avgConf.toFixed(2),
+        rsi: runData.rsi,
+        macdHist: runData.macdHist,
+        atr: runData.atr,
+        detectors: runData.detectors,
+        reasons
+      };
+      labels.badgeSide.textContent = `SIDE: ${side}`;
+      labels.badgeScore.textContent = `SCORE: ${sc.final.toFixed(2)}`;
+      labels.jsonOut.textContent = JSON.stringify(out, null, 2);
+      setState(nodes.output,'passed');
+      playing = false;
+    }catch(err){
+      console.error(err);
+      showToast('Unexpected error. Please check console.');
+      playing = false;
+    }
+  }
+
+  // Wire controls
+  controls.play.addEventListener('click', ()=>{
+    if (playing) return;
+    run();
+  });
+  controls.pause.addEventListener('click', ()=>{
+    aborted = true; playing = false; showToast('Paused');
+  });
+  controls.reset.addEventListener('click', ()=>{
+    resetScene(); showToast('Reset complete');
+  });
+  controls.random.addEventListener('click', ()=>{
+    randomizeInputs(); showToast('Inputs randomized');
+  });
+  controls.copy.addEventListener('click', ()=>{
+    try{
+      navigator.clipboard.writeText(labels.jsonOut.textContent || '{}');
+      showToast('Copied to clipboard');
+    }catch(_){ showToast('Copy failed'); }
+  });
+
+  // Initial
+  resetScene();
+  randomizeInputs();
+  showToast('Ready – press Play');
+})();
+</script>
+</body>
+</html>
